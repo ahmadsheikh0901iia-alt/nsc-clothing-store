@@ -1,0 +1,21 @@
+{
+  "name": "nsc-clothing-store",
+  "version": "2.0.0",
+  "private": true,
+  "description": "NSC Clothing Store — premium editorial storefront with Supabase backend and admin panel (Next.js 16, App Router)",
+  "scripts": {
+    "dev": "next dev",
+    "dev:phone": "next dev -H 0.0.0.0",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.116.0",
+    "next": "^16.3.4",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

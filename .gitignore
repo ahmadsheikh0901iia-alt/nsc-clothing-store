@@ -1,0 +1,68 @@
+# ═══════════════════════════════════════════════════════════════
+#  GITHUB PAR KYA NAHI JAYEGA
+#  ─────────────────────────────────────────────────────────────
+#  Jo naam yahan likha ho, GitHub Desktop usay dikhata bhi nahi
+#  aur upload bhi nahi karta. Do wajahein hoti hain: ya to wo
+#  cheez khud dobara ban jati hai (node_modules, .next), ya usay
+#  duniya ke saamne aana hi nahi chahiye (.env.local).
+# ═══════════════════════════════════════════════════════════════
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+
+# production
+/build
+/dist
+
+# misc
+.DS_Store
+*.pem
+Thumbs.db
+
+# debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files — NEVER commit these, they hold your Supabase keys
+.env
+.env*.local
+!.env.local.example
+
+# vercel
+.vercel
+.vercelignore
+
+# typescript
+*.tsbuildinfo
+
+# ─────────────────────────────────────────────────────────────
+#  Is project ki apni cheezein — website ka hissa nahi
+# ─────────────────────────────────────────────────────────────
+
+# FIX.ps1 ke banaye hue purane backup
+_backup-*
+
+# meri banai hui files, notes aur purane code ke dump
+Claude outputs/
+/*.zip
+/*.txt
+/*.ps1
+/*.bat
+/*.lnk
+/AB-KYA-KARNA-HAI.md
+/BACKEND-LATER.md
+/INSTALL-BACKEND.md
+/NSC-BACKEND-INSTALL.md
+/PEHLE-YE-PARHEN.md
+
+# purana preview safha
+public/preview.html
