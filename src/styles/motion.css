@@ -1,0 +1,294 @@
+/* ═══════════════════════════════════════════════════════════════
+   MOTION
+   ───────────────────────────────────────────────────────────────
+   How this works, in one paragraph:
+
+   JavaScript never animates anything directly. It does exactly two
+   cheap things — it adds an `is-in` class when an element enters the
+   viewport, and it writes a single number (0 → 1) into the CSS
+   custom property `--p` as you scroll through a section. Every
+   actual movement below is pure CSS reading those two signals, and
+   every movement touches only `transform` and `opacity`, which the
+   browser can composite on the GPU without repainting.
+
+   That is why the page stays at 60fps on a mid-range phone.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 1. REVEAL ON ENTER ───────────────────────────────────────
+   Applied by <Reveal>. Elements start offset and transparent,
+   then settle into place on the signature long-tail curve.       */
+
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, var(--reveal-y, 34px), 0);
+  transition:
+    opacity var(--d-slow) var(--ease-settle) var(--reveal-delay, 0s),
+    transform var(--d-slow) var(--ease-settle) var(--reveal-delay, 0s);
+  will-change: transform, opacity;
+}
+
+.reveal.is-in {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Once it has arrived, drop the compositing hint so we don't hold
+   a GPU layer for every element on the page. */
+.reveal.is-done {
+  will-change: auto;
+}
+
+/* Variants */
+.reveal[data-from="left"]  { transform: translate3d(-40px, 0, 0); }
+.reveal[data-from="right"] { transform: translate3d(40px, 0, 0); }
+.reveal[data-from="none"]  { transform: none; }
+.reveal[data-from="scale"] { transform: scale(0.96); }
+
+.reveal[data-from="left"].is-in,
+.reveal[data-from="right"].is-in,
+.reveal[data-from="scale"].is-in {
+  transform: none;
+}
+
+/* ── 2. MASKED IMAGE REVEAL ───────────────────────────────────
+   The photograph is uncovered from the bottom up while it drifts
+   down to rest — the way a garment settles after being placed.
+
+   IMPORTANT — why the clip is on the CHILD, not on the wrapper:
+   Chromium reports an element as NOT intersecting when its own
+   clip-path clips it to zero area. Putting `clip-path: inset(0 0
+   100% 0)` on the observed element therefore deadlocks — the
+   observer can never see it, so `is-in` is never added, so the clip
+   never opens, and the image stays invisible forever.
+
+   Keeping the wrapper unclipped (it only needs overflow: hidden)
+   and clipping its children instead breaks that circle: the
+   observer measures the wrapper, which is always visible.          */
+
+.reveal-mask {
+  overflow: hidden;
+}
+
+.reveal-mask > * {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path var(--d-epic) var(--ease-settle) var(--reveal-delay, 0s);
+}
+.reveal-mask.is-in > * {
+  clip-path: inset(0 0 0% 0);
+}
+
+.reveal-mask > img,
+.reveal-mask > video {
+  transform: scale(1.1);
+  transition:
+    clip-path var(--d-epic) var(--ease-settle) var(--reveal-delay, 0s),
+    transform 2.4s var(--ease-settle) var(--reveal-delay, 0s);
+}
+.reveal-mask.is-in > img,
+.reveal-mask.is-in > video {
+  transform: scale(1);
+}
+
+/* ── 3. WORD-BY-WORD HEADLINE ─────────────────────────────────
+   Each word sits in an overflow-hidden line box and swings up from
+   below, 60ms after the word before it.                          */
+
+.words {
+  display: block;
+}
+
+.word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  /* keeps descenders (g, y, p) from being clipped by the mask */
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+
+.word > span {
+  display: inline-block;
+  transform: translate3d(0, 105%, 0);
+  transition: transform 1.15s var(--ease-settle) var(--word-delay, 0s);
+  will-change: transform;
+}
+
+.words.is-in .word > span {
+  transform: translate3d(0, 0, 0);
+}
+
+/* Jumla poora khul jane ke baad har lafz ki GPU teh chhor dein.
+   Ek surkhi ke paanch lafz ka matlab paanch alag tehein hai, aur
+   wo hamesha ke liye pakri rehti theen — safha bhaari hota chala
+   jata tha jaise jaise neeche jate. `is-done` hooks/useInView.js
+   se aata hai. */
+.words.is-done .word > span { will-change: auto; }
+
+/* ── 4. STAGGERED CHILDREN ────────────────────────────────────
+   Wrap a grid in <Stagger> and its direct children cascade in, one
+   after another, instead of all arriving at once.
+
+   The index comes from :nth-child() rather than from JavaScript.
+   That matters: children handed to a client component by a server
+   component cannot always be cloned to attach a prop, so writing the
+   index in CSS is the one approach that is guaranteed to work in
+   every rendering mode. Sixteen positions covers every grid on the
+   site; anything past that simply arrives with the last delay.     */
+
+.stagger > * {
+  opacity: 0;
+  transform: translate3d(0, 30px, 0);
+  transition:
+    opacity var(--d-slow) var(--ease-settle),
+    transform var(--d-slow) var(--ease-settle);
+  transition-delay: calc(var(--i, 0) * var(--stagger-step, 0.075s));
+}
+
+.stagger > *:nth-child(1)  { --i: 0; }
+.stagger > *:nth-child(2)  { --i: 1; }
+.stagger > *:nth-child(3)  { --i: 2; }
+.stagger > *:nth-child(4)  { --i: 3; }
+.stagger > *:nth-child(5)  { --i: 4; }
+.stagger > *:nth-child(6)  { --i: 5; }
+.stagger > *:nth-child(7)  { --i: 6; }
+.stagger > *:nth-child(8)  { --i: 7; }
+.stagger > *:nth-child(9)  { --i: 8; }
+.stagger > *:nth-child(10) { --i: 9; }
+.stagger > *:nth-child(11) { --i: 10; }
+.stagger > *:nth-child(12) { --i: 11; }
+.stagger > *:nth-child(13) { --i: 12; }
+.stagger > *:nth-child(14) { --i: 13; }
+.stagger > *:nth-child(15) { --i: 14; }
+.stagger > *:nth-child(n + 16) { --i: 15; }
+
+.stagger.is-in > * {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* ── 5. SCROLL-LINKED (progress-driven) ───────────────────────
+   `--p` is written by useScrollProgress and runs 0 → 1 as the
+   element travels through the viewport. Nothing here is triggered
+   by a timer; scrub the page backwards and the motion reverses
+   exactly, because it is a function of scroll position alone.    */
+
+.parallax {
+  transform: translate3d(0, calc(var(--p, 0) * var(--parallax-range, -80px) * -1 + var(--parallax-range, -80px) * 0.5), 0);
+  will-change: transform;
+}
+
+/* Simpler, more predictable form used by the hero. */
+.par-y {
+  --range: 90px;
+  transform: translate3d(0, calc((var(--p, 0.5) - 0.5) * var(--range) * 2), 0);
+  will-change: transform;
+}
+
+.par-scale {
+  transform: scale(calc(1 + var(--p, 0) * 0.14));
+  will-change: transform;
+}
+
+/* ── 6. MARQUEE RIBBON ────────────────────────────────────────
+   Duplicated track translated -50%, so the loop is seamless.     */
+
+.marquee {
+  overflow: hidden;
+  width: 100%;
+  /* fades the ribbon into the page edges instead of cutting it */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-x var(--marquee-duration, 44s) linear infinite;
+  will-change: transform;
+}
+
+.marquee-track[data-direction="reverse"] {
+  animation-direction: reverse;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee-x {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+/* ── 7. SMALL AMBIENT LOOPS ───────────────────────────────── */
+
+@keyframes float-y {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(0, -10px, 0); }
+}
+
+@keyframes pulse-line {
+  0%, 100% { transform: scaleY(0.15); opacity: 0.35; }
+  50%      { transform: scaleY(1);    opacity: 1; }
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fade-up-in {
+  from { opacity: 0; transform: translate3d(0, 16px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes draw-line {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* ── 8. REDUCED MOTION ────────────────────────────────────────
+   Everything above resolves instantly to its finished state.
+   No element is ever left invisible.                             */
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .stagger > *,
+  .words .word > span {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .reveal-mask > * {
+    clip-path: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .parallax,
+  .par-y,
+  .par-scale {
+    transform: none !important;
+  }
+  .marquee-track {
+    animation: none !important;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   CHALTI PATTI — sirf jab nazar mein ho
+   ───────────────────────────────────────────────────────────────
+   `animation … infinite` ka matlab hai ke browser har frame par
+   us track ka hisaab karta rehta hai — chahe wo safhe se teen
+   screen neeche ho aur koi use dekh hi na raha ho. Atelier ke
+   safhe par aisi teen pattiyan hain (ek ribbon, do tasveeron ki
+   qatarein), aur har ek apni GPU teh sath rakhti hai.
+
+   Ab JavaScript `data-run="false"` laga deta hai jab patti nazar
+   se bahar ho. Harkat ruk jati hai aur teh bhi chhut jati hai.
+   Nazar mein aate hi wapas wahin se chal parti hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+.marquee[data-run="false"] .marquee-track {
+  animation-play-state: paused;
+  will-change: auto;
+}

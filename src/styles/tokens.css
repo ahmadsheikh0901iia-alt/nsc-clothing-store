@@ -1,0 +1,266 @@
+/* ═══════════════════════════════════════════════════════════════
+   NSC CLOTHING STORE — DESIGN TOKENS
+   Every colour, size and curve the site uses is declared once, here.
+   Change a value in this file and it updates across the whole site.
+
+   ── HOW THE TWO THEMES WORK ───────────────────────────────────
+   `:root` below holds the DARK theme. `:root[data-theme="light"]`
+   further down overrides only the colours that differ. Nothing else
+   in the codebase knows which theme is on — every stylesheet just
+   reads these names, so the whole site flips from one block.
+
+   A small script in the page <head> stamps data-theme onto <html>
+   before the first paint: the visitor's saved choice if they have
+   one, otherwise whatever their phone or laptop is set to. That is
+   why there is no white flash on load.
+
+   ── THE TWO CHANNEL VARIABLES ─────────────────────────────────
+   --ground-rgb  the page background, as raw R G B numbers
+   --fg-rgb      the text colour, as raw R G B numbers
+   They exist so a stylesheet can build a translucent colour that
+   still follows the theme:  rgb(var(--fg-rgb) / 0.12)
+
+   --scrim-rgb is deliberately NOT themed. It is the dark wash laid
+   over photographs, and text on top of a photograph is light in
+   both themes, so that wash must stay dark in both.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  color-scheme: dark;
+
+  /* ── GROUND ─────────────────────────────────────────────────
+     Sampled from the reference film's charcoal studio backdrop.  */
+  --ground-rgb: 10 10 9;
+  --ink:        rgb(var(--ground-rgb));  /* page background       */
+  --ink-2:      #0f0f0e;   /* raised panel                        */
+  --ink-3:      #161614;   /* card                                */
+  --ink-4:      #1e1d1a;   /* hover / input                       */
+
+  /* ── TYPE ───────────────────────────────────────────────── */
+  --fg-rgb:     239 233 221;
+  --bone:       rgb(var(--fg-rgb));  /* primary text              */
+  --bone-dim:   #9d978b;   /* secondary text                      */
+  /* Lifted from #6a655c so captions, struck-through prices and
+     form hints clear 4.5:1 on the black ground — they were the
+     only text on the site that did not. */
+  --bone-faint: #837d70;   /* tertiary / captions                 */
+
+  /* ── ACCENT ─────────────────────────────────────────────────
+     Lifted straight out of the NSC logo (#7c6e51), brightened so
+     it holds contrast against black.                             */
+  --gold:       #c2a56b;
+  --gold-soft:  #d9c49a;
+  --gold-deep:  #7c6e51;
+
+  /* ── SECONDARY — from the film's garment ──────────────────── */
+  --sage:       #a9b6ac;
+  --rose:       #b79ea1;
+
+  /* ── LINES & SURFACES ─────────────────────────────────────── */
+  --line:        rgb(var(--fg-rgb) / 0.10);
+  --line-mid:    rgb(var(--fg-rgb) / 0.18);
+  --line-strong: rgb(var(--fg-rgb) / 0.32);
+  --glass:       rgb(var(--ground-rgb) / 0.72);
+  --scroll-thumb: #2c2a25;
+  --grain-opacity: 0.03;
+  --grain-blend: normal;
+
+  /* ── OVER PHOTOGRAPHY ───────────────────────────────────────
+     Fixed in both themes — see the note at the top of the file.  */
+  --scrim-rgb:      10 10 9;
+  --on-media:       #efe9dd;
+  --on-media-dim:   #b9b3a6;
+  --on-media-faint: #8b857a;
+  --on-media-gold:  #c2a56b;
+
+  /* ── HERO KI FILM ───────────────────────────────────────────
+     Film pehle bohat dhundli thi, aur wajah ek nahi — teen thin,
+     ek dosre ke oopar: aadhi opacity, koi brightness nahi, aur
+     oopar se bhaari scrim. Teenon mila kar asal roshni ka sirf
+     pandrah-bees fisad bacha tha.
+
+     Ab teenon yahan hain. Ek hi number badal kar poori film ki
+     roshni badal jati hai:
+
+       --hero-video-opacity   sab se asardar. 0.85 tak mehfooz
+                              hai; us se oopar heading ke harf
+                              tairne lagte hain.
+       --hero-scrim-mid       film ke oopar ka wash. Kam karein
+                              to film aur khulti hai.
+
+     Neeche ki patti (jahan heading baithi hai) jaan boojh kar
+     gehri chhori gayi hai — wahan harf ka parha jana film se
+     zyada ahem hai. */
+  --hero-video-opacity:    0.78;
+  --hero-video-brightness: 1.12;
+  --hero-video-contrast:   1.04;
+  --hero-video-saturate:   0.95;
+  --hero-scrim-top:        0.20;
+  --hero-scrim-mid:        0.68;
+  --hero-scrim-floor:      0.88;
+
+  /* ── STATUS ───────────────────────────────────────────────── */
+  --ok:    #7fa382;
+  --warn:  #c9a227;
+  --error: #c07a6b;
+
+  /* ── TYPEFACES ──────────────────────────────────────────────
+     Cormorant Garamond — a high-contrast old-style serif with the
+     small apertures and sharp serifs of couture magazine mastheads.
+     Jost — a geometric sans whose wide, circular lowercase mirrors
+     the letterforms already inside the NSC logo, so the page reads
+     as an extension of the mark rather than a template around it.  */
+  --font-display: "Cormorant Garamond", "Cormorant", Georgia, "Times New Roman", serif;
+  --font-sans: "Jost", "Futura", "Century Gothic", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* ── EDITORIAL TYPE SCALE (fluid) ─────────────────────────── */
+  --t-hero:    clamp(2.75rem, 12vw, 11rem);
+  --t-display: clamp(2.15rem, 7.5vw, 6rem);
+  --t-title:   clamp(1.75rem, 4.4vw, 3.4rem);
+  --t-head:    clamp(1.25rem, 2.4vw, 2rem);
+  --t-lede:    clamp(0.98rem, 1.45vw, 1.3rem);
+  --t-body:    clamp(0.9375rem, 1.05vw, 1.0625rem);
+  --t-small:   0.8125rem;
+  --t-micro:   0.6875rem;
+
+  /* ── SPACING ──────────────────────────────────────────────── */
+  --gutter:  clamp(1.15rem, 4vw, 4.5rem);
+  --section: clamp(4.25rem, 12vw, 11rem);
+  --max:     1680px;
+  --max-text: 62ch;
+
+  /* ── PRODUCT CARD ───────────────────────────────────────────
+     The card is sized from these three numbers alone. Lower
+     --card-col-min to fit more cards per row.                    */
+  --card-col-min: 232px;   /* narrowest a card may get on desktop */
+  --card-col-max: 300px;   /* and the widest, so a short catalogue
+                              does not blow four cards up to fill a
+                              27-inch screen                        */
+  --card-gap: clamp(0.55rem, 1.5vw, 1.35rem);
+  --card-ratio: 3 / 4;     /* every product photo is shot 3:4     */
+
+  /* ── MOTION ─────────────────────────────────────────────────
+     `settle` is the signature curve read off the reference film:
+     a quick departure followed by a very long, quiet arrival.      */
+  --ease-settle: cubic-bezier(0.16, 1, 0.30, 1);
+  --ease-glide:  cubic-bezier(0.25, 1, 0.50, 1);
+  --ease-inout:  cubic-bezier(0.65, 0, 0.35, 1);
+
+  --d-quick: 0.35s;
+  --d-fast:  0.6s;
+  --d-base:  1s;
+  --d-slow:  1.4s;
+  --d-epic:  2s;
+
+  /* ── ELEVATION ────────────────────────────────────────────── */
+  --shadow-card: 0 24px 60px -24px rgba(0, 0, 0, 0.85);
+  --shadow-pop:  0 40px 90px -30px rgba(0, 0, 0, 0.95);
+
+  --radius:    2px;   /* the design is almost entirely square-cornered */
+  --radius-lg: 4px;
+  --radius-pill: 999px;
+
+  --header-h: 74px;
+  --z-header: 60;
+  --z-overlay: 80;
+  --z-grain: 100;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT THEME
+   A warm bone ground rather than plain white — printed-paper warmth
+   keeps cream fabric and cotton prints looking like cloth instead of
+   like a screenshot. Only colour is redefined; every size, curve and
+   duration above is shared, so the two themes are the same design.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --ground-rgb: 247 244 238;
+  --ink-2:      #f1ece2;
+  --ink-3:      #fffdf8;
+  --ink-4:      #e9e2d4;
+
+  --fg-rgb:     22 21 15;
+  --bone-dim:   #5b5548;
+  --bone-faint: #6f6a5c;
+
+  /* Deep enough to clear 4.5:1 on the raised panels (--ink-2), not
+     just on the page ground — small gold caps sit on both. */
+  --gold:       #7d6129;
+  --gold-soft:  #9c7b3f;
+  --gold-deep:  #5a4520;
+
+  --sage:       #6f8478;
+  --rose:       #916f74;
+
+  --line:        rgb(var(--fg-rgb) / 0.14);
+  --line-mid:    rgb(var(--fg-rgb) / 0.22);
+  --line-strong: rgb(var(--fg-rgb) / 0.40);
+  --glass:       rgb(var(--ground-rgb) / 0.78);
+  --scroll-thumb: #cfc7b6;
+  --grain-opacity: 0.02;
+  --grain-blend: multiply;
+
+  --ok:    #4f7a55;
+  --warn:  #8a6b12;
+  --error: #a2503f;
+
+  /* Light theme mein film zara kam khuli — bone ground par
+     zyada roshni tasveer ko dhula hua dikha deti hai. */
+  --hero-video-opacity:    0.64;
+  --hero-video-brightness: 1.08;
+
+  --shadow-card: 0 20px 48px -26px rgba(48, 40, 22, 0.34);
+  --shadow-pop:  0 36px 80px -32px rgba(48, 40, 22, 0.42);
+
+  /* Category tiles wash their photo toward the light ground instead
+     of darkening it, so the type on top stays dark and legible. */
+  --cat-img-filter: brightness(1.04) saturate(0.88) contrast(0.96);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ON-MEDIA SCOPE
+   Anything sitting directly on top of a photograph or the hero film
+   re-declares the text tokens to their light-on-dark values. Because
+   custom properties inherit, one class re-themes everything inside
+   it — no per-element colour overrides anywhere else in the site.
+   ═══════════════════════════════════════════════════════════════ */
+
+.on-media,
+.hero,
+.card-quick {
+  --fg-rgb: 239 233 221;
+  /* --bone and --ink are spelled out here rather than left to
+     rgb(var(--fg-rgb)). A custom property is resolved against the
+     element it is DECLARED on, so redefining --fg-rgb further down
+     the tree does not recompute a --bone declared up at :root — it
+     just inherits the value it already had. Restating them is what
+     actually re-themes this subtree. */
+  --bone:       var(--on-media);
+  --bone-dim:   var(--on-media-dim);
+  --bone-faint: var(--on-media-faint);
+  --gold:       var(--on-media-gold);
+  --gold-soft:  #d9c49a;
+  --line:        rgb(var(--fg-rgb) / 0.14);
+  --line-mid:    rgb(var(--fg-rgb) / 0.24);
+  --line-strong: rgb(var(--fg-rgb) / 0.40);
+  /* --ink is what sits INSIDE a filled button, so on a photograph it
+     has to be the dark wash, not the (possibly light) page. */
+  --ink:   rgb(var(--scrim-rgb));
+  --ink-2: #0f0f0e;
+  --ink-3: #161614;
+  --ink-4: #1e1d1a;
+  color: var(--bone);
+}
+
+@media (max-width: 640px) {
+  :root {
+    --header-h: 62px;
+    --card-col-min: 150px;
+    /* On a phone two columns should use the full width. */
+    --card-col-max: 1fr;
+  }
+}

@@ -1,0 +1,1379 @@
+/* ═══════════════════════════════════════════════════════════════
+   ADMIN PANEL
+   ───────────────────────────────────────────────────────────────
+   Site ke apne tokens par bana hai — wohi gold, wohi hairlines,
+   wohi Cormorant aur Jost, wohi `settle` curve. Is liye panel
+   kisi baahar se laaye hue dashboard jaisa nahi lagta; usi
+   dukaan ka andarooni kamra lagta hai.
+
+   Har class `ad-` se shuru hoti hai, taake site ki kisi class se
+   kabhi takraye nahi.
+
+   Dono theme khud ba khud chalte hain, kyunke yahan koi rang
+   seedha nahi likha — sab tokens.css se aata hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+.admin-root {
+  --ad-gap: clamp(0.75rem, 1.6vw, 1.15rem);
+  --ad-pad: clamp(0.95rem, 2.2vw, 1.5rem);
+  --ad-radius: var(--radius);
+  --ad-max: 1180px;
+  min-height: 100vh;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+/* Admin par site ka header, footer, floating WhatsApp button aur
+   grain nahi chahiye — ye kaam ki jagah hai, dukaan ki khirki
+   nahi. Panel ke apne toasts hain, is liye site wale bhi nahi. */
+body:has(.admin-root) :is(.header, .footer, .wa-fab, .grain, .toast-wrap) {
+  display: none !important;
+}
+body:has(.admin-root) #main {
+  padding-top: 0;
+}
+
+.ad-num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+.ad-mono {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.78em;
+}
+.ad-gold { color: var(--gold); }
+.ad-spacer { flex: 1 1 auto; }
+
+/* ═══════════════════════════════════════════════════════════════
+   LOGIN
+   ═══════════════════════════════════════════════════════════════ */
+
+.ad-gate {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background:
+    radial-gradient(60rem 40rem at 50% -10%, rgb(var(--fg-rgb) / 0.05), transparent 70%),
+    var(--ink);
+}
+
+.ad-gate-box {
+  width: 100%;
+  max-width: 380px;
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  padding: clamp(1.75rem, 5vw, 2.75rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: ad-rise var(--d-fast) var(--ease-settle) both;
+}
+
+@keyframes ad-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.ad-gate-mark {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  border-radius: 999px;
+  margin-bottom: 0.25rem;
+}
+
+.ad-eyebrow {
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  margin: 0;
+}
+
+.ad-gate-title,
+.ad-title {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(2rem, 4vw, 2.6rem);
+  line-height: 1;
+  margin: 0.35rem 0 0;
+}
+
+.ad-gate-note {
+  color: var(--bone-dim);
+  font-size: 0.875rem;
+  margin: 0 0 0.5rem;
+}
+
+.ad-gate-back {
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--bone-faint);
+  text-decoration: none;
+  margin-top: 0.25rem;
+  transition: color var(--d-quick) var(--ease-glide);
+}
+.ad-gate-back:hover { color: var(--gold); }
+
+/* ═══════════════════════════════════════════════════════════════
+   SAR
+   ═══════════════════════════════════════════════════════════════ */
+
+.ad-head {
+  border-bottom: 1px solid var(--line);
+  background: var(--ink-2);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.ad-head-in,
+.ad-stats,
+.ad-tabs,
+.ad-main {
+  max-width: var(--ad-max);
+  margin-inline: auto;
+  padding-inline: var(--ad-pad);
+}
+
+.ad-head-in {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-block: clamp(1rem, 2.5vw, 1.5rem) 0.9rem;
+}
+
+.ad-head-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ad-refreshed {
+  font-size: var(--t-micro);
+  color: var(--bone-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Numbers ── */
+
+.ad-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border-block: 1px solid var(--line);
+  padding-inline: 0;
+  max-width: none;
+}
+
+.ad-stat {
+  background: var(--ink-2);
+  padding: 0.7rem clamp(0.6rem, 1.6vw, 1rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.ad-stat[data-wide="true"] { grid-column: span 2; }
+
+.ad-stat-v {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ad-stat[data-tone="warn"]  .ad-stat-v { color: var(--warn); }
+.ad-stat[data-tone="error"] .ad-stat-v { color: var(--error); }
+
+.ad-stat-k {
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--bone-faint);
+}
+
+/* ── Tabs ── */
+
+.ad-tabs {
+  display: flex;
+  gap: 0.25rem;
+  padding-block: 0.6rem 0;
+}
+
+.ad-tab {
+  appearance: none;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--bone-dim);
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition: color var(--d-quick) var(--ease-glide),
+              border-color var(--d-quick) var(--ease-glide);
+}
+.ad-tab:hover { color: var(--bone); }
+.ad-tab[aria-current="page"] {
+  color: var(--bone);
+  border-bottom-color: var(--gold);
+}
+
+.ad-badge {
+  min-width: 18px;
+  height: 18px;
+  padding-inline: 5px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--ink);
+  font-size: 0.625rem;
+  font-weight: 500;
+  display: grid;
+  place-items: center;
+  font-variant-numeric: tabular-nums;
+  animation: ad-pop var(--d-quick) var(--ease-settle);
+}
+@keyframes ad-pop {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+
+.ad-main { padding-block: clamp(1.25rem, 3vw, 2rem) 5rem; }
+
+/* ═══════════════════════════════════════════════════════════════
+   AAM TUKRE
+   ═══════════════════════════════════════════════════════════════ */
+
+.ad-btn {
+  appearance: none;
+  font: inherit;
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--line-mid);
+  background: transparent;
+  color: var(--bone);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  text-decoration: none;
+  white-space: nowrap;
+  border-radius: var(--ad-radius);
+  transition: background var(--d-quick) var(--ease-glide),
+              border-color var(--d-quick) var(--ease-glide),
+              color var(--d-quick) var(--ease-glide),
+              transform 0.12s var(--ease-glide);
+}
+.ad-btn:hover:not(:disabled) { border-color: var(--line-strong); background: var(--ink-4); }
+.ad-btn:active:not(:disabled) { transform: translateY(1px); }
+.ad-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.ad-btn-gold {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
+  font-weight: 500;
+}
+.ad-btn-gold:hover:not(:disabled) {
+  background: var(--gold-soft);
+  border-color: var(--gold-soft);
+  color: var(--ink);
+}
+
+.ad-btn-ghost { border-color: var(--line); color: var(--bone-dim); }
+.ad-btn-ghost:hover:not(:disabled) { color: var(--bone); }
+
+.ad-btn-danger { border-color: rgb(var(--fg-rgb) / 0.18); color: var(--error); }
+.ad-btn-danger:hover:not(:disabled) {
+  border-color: var(--error);
+  background: transparent;
+  color: var(--error);
+}
+
+.ad-btn-wa { border-color: var(--line-mid); color: var(--bone); }
+.ad-btn-wa:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+
+.ad-btn-sm { padding: 0.38rem 0.7rem; font-size: 0.76rem; }
+.ad-btn-block { width: 100%; }
+
+.ad-icon-btn {
+  appearance: none;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--bone-dim);
+  width: 32px;
+  height: 32px;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  border-radius: var(--ad-radius);
+  transition: color var(--d-quick) var(--ease-glide),
+              border-color var(--d-quick) var(--ease-glide);
+}
+.ad-icon-btn:hover { color: var(--bone); border-color: var(--line-strong); }
+.ad-icon-danger:hover { color: var(--error); border-color: var(--error); }
+
+/* Focus — keyboard se chalane walon ke liye hamesha nazar aata hai */
+.ad :where(button, a, input, select, textarea, label):focus-visible,
+.ad-gate :where(button, a, input):focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* ── Khane ── */
+
+.ad-field { display: flex; flex-direction: column; gap: 0.35rem; min-width: 0; }
+
+.ad-label {
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--bone-faint);
+}
+.ad-label-dim { text-transform: none; letter-spacing: 0; opacity: 0.75; }
+
+.ad-input {
+  font: inherit;
+  font-size: 0.875rem;
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  background: var(--ink-3);
+  border: 1px solid var(--line);
+  color: var(--bone);
+  border-radius: var(--ad-radius);
+  transition: border-color var(--d-quick) var(--ease-glide),
+              background var(--d-quick) var(--ease-glide);
+}
+.ad-input::placeholder { color: var(--bone-faint); }
+.ad-input:focus { border-color: var(--gold); background: var(--ink-4); outline: none; }
+.ad-input:focus-visible { outline: none; }
+.ad-input[aria-invalid="true"] { border-color: var(--error); }
+
+.ad-textarea { resize: vertical; min-height: 4.5rem; line-height: 1.5; }
+select.ad-input { cursor: pointer; }
+
+.ad-hint { font-size: 0.75rem; color: var(--bone-faint); margin: 0.15rem 0 0; line-height: 1.7; }
+.ad-hint strong { color: var(--bone-dim); font-weight: 500; }
+.ad-hint kbd {
+  font: inherit;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  padding: 0.05rem 0.3rem;
+  margin: 0 0.1rem;
+  color: var(--bone-dim);
+  background: var(--ink-3);
+}
+.ad-hint-warn { color: var(--warn); }
+.ad-hint code, .ad-alert code {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.92em;
+  color: var(--gold);
+}
+
+.ad-error {
+  font-size: 0.78rem;
+  color: var(--error);
+  margin: 0;
+  animation: ad-shake 0.32s var(--ease-inout);
+}
+@keyframes ad-shake {
+  0%, 100% { transform: none; }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+.ad-alert {
+  border: 1px solid var(--line-mid);
+  border-left-width: 2px;
+  padding: 0.9rem 1rem;
+  font-size: 0.8125rem;
+  color: var(--bone-dim);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.ad-alert strong { color: var(--bone); font-weight: 500; }
+.ad-alert ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.3rem; }
+.ad-alert p { margin: 0; }
+.ad-alert-warn { border-left-color: var(--warn); }
+
+/* ── Chips ── */
+
+.ad-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+.ad-chip {
+  appearance: none;
+  font: inherit;
+  font-size: 0.78rem;
+  padding: 0.38rem 0.75rem;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--bone-dim);
+  cursor: pointer;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: border-color var(--d-quick) var(--ease-glide),
+              color var(--d-quick) var(--ease-glide),
+              background var(--d-quick) var(--ease-glide);
+}
+.ad-chip:hover { color: var(--bone); border-color: var(--line-mid); }
+.ad-chip[aria-pressed="true"] {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgb(var(--fg-rgb) / 0.04);
+}
+
+.ad-dot { width: 10px; height: 10px; border-radius: 999px; flex: none; }
+
+/* ── Pills ── */
+
+.ad-pill {
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  line-height: 1.5;
+}
+.ad-pill-ok    { color: var(--ok); }
+.ad-pill-warn  { color: var(--warn); }
+.ad-pill-info  { color: var(--gold); }
+.ad-pill-error { color: var(--error); }
+.ad-pill-quiet { color: var(--bone-faint); }
+
+/* ── Switch ── */
+
+.ad-switches { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.ad-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.8125rem;
+  color: var(--bone-dim);
+  cursor: pointer;
+  user-select: none;
+}
+.ad-switch input {
+  appearance: none;
+  width: 34px;
+  height: 19px;
+  border-radius: 999px;
+  background: var(--ink-4);
+  border: 1px solid var(--line-mid);
+  position: relative;
+  cursor: pointer;
+  flex: none;
+  transition: background var(--d-quick) var(--ease-glide),
+              border-color var(--d-quick) var(--ease-glide);
+}
+.ad-switch input::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background: var(--bone-faint);
+  transition: transform var(--d-quick) var(--ease-settle),
+              background var(--d-quick) var(--ease-glide);
+}
+.ad-switch input:checked {
+  background: rgb(var(--fg-rgb) / 0.12);
+  border-color: var(--gold);
+}
+.ad-switch input:checked::after { transform: translateX(15px); background: var(--gold); }
+.ad-switch:hover { color: var(--bone); }
+.ad-switch-sm { font-size: 0.72rem; }
+.ad-switch-sm input { width: 30px; height: 17px; }
+.ad-switch-sm input::after { width: 11px; height: 11px; }
+.ad-switch-sm input:checked::after { transform: translateX(13px); }
+
+/* ── Toolbar ── */
+
+.ad-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.ad-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: 0.7rem;
+  border: 1px solid var(--line);
+  background: var(--ink-3);
+  color: var(--bone-faint);
+  min-width: 220px;
+  flex: 1 1 220px;
+  max-width: 340px;
+  border-radius: var(--ad-radius);
+  transition: border-color var(--d-quick) var(--ease-glide);
+}
+.ad-search:focus-within { border-color: var(--gold); }
+.ad-search .ad-input {
+  border: 0;
+  background: none;
+  padding-left: 0;
+}
+.ad-search .ad-input:focus { background: none; }
+
+/* ── Khali halat ── */
+
+.ad-empty {
+  border: 1px dashed var(--line-mid);
+  padding: clamp(2rem, 6vw, 3.5rem) 1.25rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: center;
+}
+.ad-empty-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  margin: 0;
+}
+.ad-empty-body {
+  color: var(--bone-dim);
+  font-size: 0.875rem;
+  max-width: 46ch;
+  margin: 0;
+}
+
+/* ── Skeleton ── */
+
+.ad-skeleton { display: grid; gap: var(--ad-gap); }
+.ad-skeleton span {
+  display: block;
+  height: 88px;
+  border: 1px solid var(--line);
+  background: linear-gradient(
+    100deg,
+    var(--ink-2) 30%,
+    var(--ink-4) 50%,
+    var(--ink-2) 70%
+  );
+  background-size: 300% 100%;
+  animation: ad-sweep 1.5s var(--ease-inout) infinite;
+}
+@keyframes ad-sweep {
+  from { background-position: 160% 0; }
+  to   { background-position: -60% 0; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ORDER
+   ═══════════════════════════════════════════════════════════════ */
+
+.ad-orders { display: grid; gap: var(--ad-gap); }
+
+.ad-order {
+  border: 1px solid var(--line);
+  background: var(--ink-2);
+  position: relative;
+  animation: ad-rise var(--d-fast) var(--ease-settle) both;
+  transition: border-color var(--d-quick) var(--ease-glide);
+}
+.ad-order::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: var(--line-mid);
+  transition: background var(--d-fast) var(--ease-glide);
+}
+.ad-order[data-status="pending"]::before   { background: var(--warn); }
+.ad-order[data-status="confirmed"]::before { background: var(--gold); }
+.ad-order[data-status="shipped"]::before   { background: var(--gold-soft); }
+.ad-order[data-status="delivered"]::before { background: var(--ok); }
+.ad-order[data-status="cancelled"]::before { background: var(--error); }
+.ad-order[data-status="cancelled"] { opacity: 0.72; }
+.ad-order[data-status="cancelled"]:hover { opacity: 1; }
+
+/* Mehfooz hone par halki si sunehri lehar */
+.ad-order[data-saved="true"] { border-color: var(--gold); }
+
+.ad-order-head {
+  appearance: none;
+  width: 100%;
+  background: none;
+  border: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: minmax(120px, 1.1fr) minmax(120px, 1.4fr) minmax(90px, auto) auto 24px;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.95rem 1rem 0.95rem 1.15rem;
+}
+.ad-order-head:hover { background: rgb(var(--fg-rgb) / 0.02); }
+
+.ad-order-id { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+.ad-order-id .ad-num { font-size: 0.9rem; letter-spacing: 0.04em; }
+.ad-order-when { font-size: var(--t-micro); color: var(--bone-faint); }
+
+.ad-order-who { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+.ad-order-name {
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ad-order-city { font-size: var(--t-micro); color: var(--bone-faint); }
+
+.ad-order-sum { display: flex; flex-direction: column; gap: 0.1rem; text-align: right; }
+.ad-order-total { font-size: 0.95rem; }
+.ad-order-count { font-size: var(--t-micro); color: var(--bone-faint); }
+
+.ad-chev {
+  display: grid;
+  place-items: center;
+  color: var(--bone-faint);
+  transition: transform var(--d-quick) var(--ease-settle);
+}
+.ad-order[data-open="true"] .ad-chev { transform: rotate(180deg); }
+
+/* ── Safar ki qatar ── */
+
+.ad-track {
+  padding: 0.25rem 1rem 1rem 1.15rem;
+  border-top: 1px solid var(--line);
+}
+
+.ad-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0.9rem 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  position: relative;
+}
+
+.ad-steps-rail {
+  position: absolute;
+  top: calc(0.9rem + 7px);
+  left: 12.5%;
+  right: 12.5%;
+  height: 1px;
+  background: var(--line-mid);
+}
+.ad-steps-rail > i {
+  position: absolute;
+  inset: 0;
+  background: var(--gold);
+  transform-origin: left center;
+  transition: transform var(--d-base) var(--ease-settle);
+}
+
+.ad-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  min-width: 0;
+}
+
+.ad-step-dot {
+  width: 15px;
+  height: 15px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--ink-2);
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+  position: relative;
+  z-index: 1;
+  transition: background var(--d-fast) var(--ease-settle),
+              border-color var(--d-fast) var(--ease-settle),
+              transform var(--d-fast) var(--ease-settle);
+}
+.ad-step[data-done="true"] .ad-step-dot {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+.ad-step[data-now="true"] .ad-step-dot {
+  transform: scale(1.28);
+  box-shadow: 0 0 0 4px rgb(var(--fg-rgb) / 0.06);
+}
+
+.ad-step-label {
+  font-size: 0.74rem;
+  color: var(--bone-faint);
+  transition: color var(--d-fast) var(--ease-glide);
+}
+.ad-step[data-done="true"] .ad-step-label { color: var(--bone); }
+.ad-step[data-now="true"] .ad-step-label { color: var(--gold); }
+
+.ad-step-time {
+  font-size: 0.64rem;
+  color: var(--bone-faint);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+
+.ad-track-cancelled {
+  margin: 0.75rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--error);
+}
+
+/* ── Tafseel ── */
+
+.ad-order-body {
+  border-top: 1px solid var(--line);
+  padding: 1.15rem 1rem 1.15rem 1.15rem;
+  display: grid;
+  gap: 1.15rem;
+  animation: ad-open var(--d-quick) var(--ease-settle);
+}
+@keyframes ad-open {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.ad-order-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.15rem;
+}
+
+.ad-block { min-width: 0; }
+.ad-block-wide { grid-column: 1 / -1; }
+
+.ad-block-title {
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--bone-faint);
+  margin: 0 0 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ad-kv { margin: 0; display: grid; gap: 0.55rem; }
+.ad-kv > div {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 0.6rem;
+  align-items: start;
+}
+.ad-kv dt { font-size: 0.75rem; color: var(--bone-faint); }
+.ad-kv dd { margin: 0; font-size: 0.8375rem; }
+
+.ad-link {
+  color: var(--gold);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.ad-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.ad-note-quote {
+  border-left: 1px solid var(--gold);
+  padding-left: 0.6rem;
+  color: var(--bone-dim);
+  font-style: italic;
+}
+
+.ad-lines { list-style: none; margin: 0 0 0.9rem; padding: 0; display: grid; gap: 0.5rem; }
+.ad-lines li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.6rem;
+  align-items: baseline;
+  font-size: 0.8375rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--line);
+}
+.ad-lines li:last-child { border-bottom: 0; padding-bottom: 0; }
+
+.ad-line-name { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+.ad-line-variant { font-size: var(--t-micro); color: var(--bone-faint); }
+.ad-line-qty { color: var(--bone-faint); font-size: 0.78rem; }
+.ad-line-price { white-space: nowrap; }
+
+.ad-totals { margin: 0; display: grid; gap: 0.3rem; }
+.ad-totals > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.8125rem;
+  color: var(--bone-dim);
+}
+.ad-totals dt, .ad-totals dd { margin: 0; }
+.ad-totals-final {
+  border-top: 1px solid var(--line);
+  padding-top: 0.45rem;
+  margin-top: 0.2rem;
+  color: var(--bone) !important;
+  font-size: 0.95rem !important;
+}
+.ad-totals-final dd { color: var(--gold); }
+
+.ad-row-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+.ad-row-tight { align-items: end; margin-top: 0.75rem; }
+
+/* ── Amal ── */
+
+.ad-order-actions {
+  border-top: 1px solid var(--line);
+  padding: 0.8rem 1rem 0.8rem 1.15rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  background: rgb(var(--fg-rgb) / 0.015);
+}
+
+.ad-sent {
+  display: grid;
+  place-items: center;
+  color: var(--ok);
+  margin-left: 0.1rem;
+}
+
+.ad-order-error {
+  margin: 0;
+  padding: 0.65rem 1.15rem 0.9rem;
+  font-size: 0.8rem;
+  color: var(--error);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PRODUCTS
+   ═══════════════════════════════════════════════════════════════ */
+
+.ad-products { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+
+.ad-product {
+  background: var(--ink-2);
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1.6fr) minmax(90px, auto) auto auto auto;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.7rem 0.9rem;
+  transition: background var(--d-quick) var(--ease-glide);
+}
+.ad-product:hover { background: var(--ink-3); }
+.ad-product[data-dim="true"] { opacity: 0.5; }
+.ad-product[data-dim="true"]:hover { opacity: 0.85; }
+
+.ad-product-shot {
+  width: 56px;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--ink-4);
+  border: 1px solid var(--line);
+}
+.ad-product-shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ad-product-noshot { display: block; width: 100%; height: 100%; }
+
+.ad-product-main { min-width: 0; display: flex; flex-direction: column; gap: 0.1rem; }
+.ad-product-name {
+  margin: 0;
+  font-size: 0.875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ad-product-meta { margin: 0; color: var(--bone-faint); }
+
+/* Section ke nishan — naam ke theek neeche, chhote aur khamosh */
+.ad-product-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.35rem 0 0;
+}
+
+.ad-product-price { display: flex; flex-direction: column; gap: 0.1rem; font-size: 0.85rem; }
+.ad-was {
+  font-size: 0.7rem;
+  color: var(--bone-faint);
+  text-decoration: line-through;
+}
+
+.ad-product-flags { display: flex; flex-direction: column; gap: 0.3rem; }
+.ad-product-tools { display: flex; align-items: center; gap: 0.35rem; }
+
+/* ── Form ── */
+
+.ad-sheet { position: fixed; inset: 0; z-index: 90; display: flex; justify-content: flex-end; }
+
+.ad-sheet-scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: rgb(var(--scrim-rgb) / 0.72);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+  animation: ad-fade var(--d-quick) var(--ease-glide);
+}
+@keyframes ad-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.ad-sheet-panel {
+  position: relative;
+  width: min(620px, 100%);
+  background: var(--ink-2);
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  animation: ad-slide var(--d-fast) var(--ease-settle);
+  box-shadow: var(--shadow-pop);
+}
+@keyframes ad-slide {
+  from { transform: translateX(28px); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+
+.ad-form { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+
+.ad-form-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem var(--ad-pad);
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+.ad-form-head h2 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.ad-form-body {
+  overflow-y: auto;
+  padding: var(--ad-pad);
+  display: grid;
+  gap: 1.6rem;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.ad-form-section { display: grid; gap: 0.6rem; }
+
+.ad-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+.ad-span-2 { grid-column: span 2; }
+
+.ad-form-foot {
+  border-top: 1px solid var(--line);
+  padding: 0.85rem var(--ad-pad);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  flex: none;
+  background: var(--ink-3);
+}
+.ad-form-price {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Tasveerein ── */
+
+.ad-shots {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 0.6rem;
+  padding: 0.6rem;
+  margin: -0.6rem;
+  border: 1px dashed transparent;
+  border-radius: 2px;
+  transition: border-color var(--d-quick) var(--ease-glide),
+              background var(--d-quick) var(--ease-glide);
+}
+
+/* ── Tasveer utha kar upar lai gayi ──
+   Poora khana sunehri ho jata hai, taake shak hi na rahe ke
+   chhorni kahan hai. */
+.ad-shots[data-dropping="true"] {
+  border-color: var(--gold);
+  background: rgb(194 165 107 / 0.06);
+}
+
+/* Chhorne ka parda — sirf us waqt */
+.ad-drop-veil {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  opacity: 0;
+  background: rgb(var(--scrim-rgb) / 0.55);
+  backdrop-filter: blur(2px);
+  transition: opacity var(--d-quick) var(--ease-glide);
+}
+.ad-shots[data-dropping="true"] .ad-drop-veil { opacity: 1; }
+
+.ad-drop-veil > span {
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  padding: 0.5rem 1rem;
+  background: var(--ink-2);
+}
+
+.ad-shot {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border: 1px solid var(--line);
+  background: var(--ink-3);
+  overflow: hidden;
+  cursor: grab;
+  transition: opacity var(--d-quick) var(--ease-glide),
+              transform var(--d-quick) var(--ease-settle);
+}
+.ad-shot:active { cursor: grabbing; }
+
+/* Jo tasveer abhi uthai hui hai */
+.ad-shot[data-dragging="true"] {
+  opacity: 0.35;
+  transform: scale(0.96);
+}
+.ad-shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.ad-shot-flag {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.15rem 0.4rem;
+  background: var(--gold);
+  color: var(--ink);
+}
+.ad-shot-flag-dim { background: rgb(var(--scrim-rgb) / 0.75); color: var(--on-media); }
+
+.ad-shot-tools {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  justify-content: space-between;
+  background: rgb(var(--scrim-rgb) / 0.8);
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity var(--d-quick) var(--ease-glide),
+              transform var(--d-quick) var(--ease-settle);
+}
+.ad-shot:hover .ad-shot-tools,
+.ad-shot:focus-within .ad-shot-tools { opacity: 1; transform: none; }
+
+.ad-shot-tools button {
+  appearance: none;
+  background: none;
+  border: 0;
+  color: var(--on-media);
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
+  font: inherit;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+}
+.ad-shot-tools button:disabled { opacity: 0.3; cursor: not-allowed; }
+.ad-shot-tools .ad-shot-del:hover { color: var(--error); }
+
+.ad-shot-add {
+  display: grid;
+  place-items: center;
+  gap: 0.3rem;
+  border-style: dashed;
+  color: var(--bone-faint);
+  cursor: pointer;
+  font-size: 0.72rem;
+  text-align: center;
+  transition: color var(--d-quick) var(--ease-glide),
+              border-color var(--d-quick) var(--ease-glide);
+}
+.ad-shot-add:hover { color: var(--gold); border-color: var(--gold); }
+
+.ad-chip-color { padding-left: 0.5rem; }
+
+/* ═══════════════════════════════════════════════════════════════
+   INBOX
+   ═══════════════════════════════════════════════════════════════ */
+
+.ad-inbox {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  align-items: start;
+}
+
+.ad-messages { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--ad-gap); }
+.ad-messages li {
+  border: 1px solid var(--line);
+  background: var(--ink-2);
+  padding: 0.9rem 1rem;
+  display: grid;
+  gap: 0.5rem;
+  justify-items: start;
+  transition: opacity var(--d-quick) var(--ease-glide);
+}
+.ad-messages li[data-handled="true"] { opacity: 0.5; }
+.ad-messages li[data-handled="true"]:hover { opacity: 1; }
+
+.ad-message-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+.ad-message-who { display: flex; gap: 0.6rem; align-items: baseline; flex-wrap: wrap; font-size: 0.875rem; }
+.ad-message-subject { font-size: var(--t-micro); color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; }
+.ad-message-body { margin: 0; font-size: 0.8375rem; color: var(--bone-dim); white-space: pre-wrap; }
+
+.ad-subs {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.ad-subs li {
+  background: var(--ink-2);
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+}
+.ad-subs-date { color: var(--bone-faint); font-size: var(--t-micro); white-space: nowrap; }
+
+/* ═══════════════════════════════════════════════════════════════
+   TOAST
+   ═══════════════════════════════════════════════════════════════ */
+
+.ad-toasts {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  transform: translateX(-50%);
+  z-index: 120;
+  pointer-events: none;
+}
+
+.ad-toast {
+  background: var(--ink-3);
+  border: 1px solid var(--gold);
+  color: var(--bone);
+  padding: 0.7rem 1.1rem;
+  font-size: 0.8375rem;
+  box-shadow: var(--shadow-pop);
+  animation: ad-toast-in var(--d-fast) var(--ease-settle);
+  max-width: min(90vw, 420px);
+}
+.ad-toast-error { border-color: var(--error); }
+
+@keyframes ad-toast-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CHHOTI SCREEN
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 860px) {
+  .ad-inbox { grid-template-columns: 1fr; }
+  .ad-form-grid { grid-template-columns: 1fr; }
+  .ad-span-2 { grid-column: span 1; }
+}
+
+@media (max-width: 720px) {
+  .ad-order-head {
+    grid-template-columns: minmax(0, 1fr) auto 20px;
+    row-gap: 0.5rem;
+  }
+  .ad-order-who { grid-column: 1 / -1; order: 3; }
+  .ad-order-sum { order: 2; }
+
+  .ad-product {
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    row-gap: 0.6rem;
+  }
+  .ad-product-shot { width: 48px; }
+  .ad-product-price { grid-column: 2; }
+  .ad-product-stock { grid-column: 3; }
+  .ad-product-flags { grid-column: 1 / -1; flex-direction: row; gap: 1rem; }
+  .ad-product-tools { grid-column: 1 / -1; }
+
+  .ad-step-time { display: none; }
+  .ad-sheet-panel { width: 100%; border-left: 0; }
+  .ad-stats { grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); }
+  .ad-stat[data-wide="true"] { grid-column: span 2; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ad *,
+  .ad-gate * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   HARKAT — admin ke buttons aur khane
+   ───────────────────────────────────────────────────────────────
+   Panel kaam ki jagah hai, dais nahi — is liye yahan harkat wohi
+   hai jo bata de ke kuch hua, aur bas. Do pixel ka uthna, ek
+   halki chamak, aur press par wapas neeche.
+
+   Ye block file ke aakhir mein hai taake upar likhe `:hover` aur
+   `:active` qawaneen se na takraye.
+   ═══════════════════════════════════════════════════════════════ */
+
+.ad-btn {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Ek dafa guzarne wali chamak */
+.ad-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgb(255 255 255 / 0.16) 50%,
+    transparent 60%
+  );
+  transform: translate3d(-150%, 0, 0);
+  opacity: 0;
+  transition:
+    transform 0.75s var(--ease-glide),
+    opacity 0.16s linear;
+}
+.ad-btn:hover:not(:disabled)::after,
+.ad-btn:focus-visible::after {
+  transform: translate3d(150%, 0, 0);
+  opacity: 1;
+}
+
+.ad-btn:hover:not(:disabled) { transform: translate3d(0, -2px, 0); }
+.ad-btn:active:not(:disabled) { transform: translate3d(0, 1px, 0) scale(0.985); }
+
+.ad-icon-btn {
+  transition:
+    color var(--d-quick) var(--ease-glide),
+    border-color var(--d-quick) var(--ease-glide),
+    transform var(--d-quick) var(--ease-settle);
+}
+.ad-icon-btn:hover { transform: translate3d(0, -2px, 0); }
+.ad-icon-btn:active { transform: scale(0.94); }
+
+/* Panel ke card — chhoone par zara sa uthte hain aur apna sunehri
+   kinara dikhate hain. */
+/* .ad-order par `ad-rise` animation `both` ke sath chalti hai —
+   uska aakhri frame transform ko apne paas rakh leta hai, is liye
+   hover par uthana wahan kaam nahi karta. Us ke liye saaya aur
+   kinara, jo animation ke raaste mein nahi aate. */
+.ad-order {
+  transition:
+    border-color var(--d-quick) var(--ease-glide),
+    box-shadow var(--d-quick) var(--ease-glide);
+}
+.ad-order:hover {
+  border-color: var(--line-strong);
+  box-shadow: 0 14px 34px -22px rgb(0 0 0 / 0.8);
+}
+
+.ad-stat {
+  transition:
+    background var(--d-quick) var(--ease-glide),
+    transform var(--d-quick) var(--ease-settle);
+}
+.ad-stat:hover {
+  background: var(--ink-3);
+  transform: translate3d(0, -2px, 0);
+}
+
+/* Product ki qatar grid ki ek-pixel lakeeron par baithi hai —
+   yahan uthana lakeerein tor deta hai, is liye sirf rang badalta
+   hai aur tasveer zara si barhti hai. */
+.ad-product {
+  transition: background var(--d-quick) var(--ease-glide);
+}
+.ad-product:hover { background: var(--ink-4); }
+
+.ad-product-shot img {
+  transition: transform var(--d-fast) var(--ease-settle);
+}
+.ad-product:hover .ad-product-shot img { transform: scale(1.06); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ad-btn::after { display: none; }
+  .ad-btn:hover:not(:disabled),
+  .ad-btn:active:not(:disabled),
+  .ad-icon-btn:hover,
+  .ad-icon-btn:active,
+  .ad-order:hover,
+  .ad-stat:hover,
+  .ad-product:hover .ad-product-shot img { transform: none; }
+}

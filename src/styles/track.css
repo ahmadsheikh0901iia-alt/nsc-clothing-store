@@ -1,0 +1,257 @@
+/* ═══════════════════════════════════════════════════════════════
+   ORDER TRACKING  —  /order
+   ───────────────────────────────────────────────────────────────
+   Customer ki taraf ka safar. Wohi chaar manzilein jo admin
+   panel mein hain, magar yahan tafseel kam aur tasalli zyada —
+   khareedar ko sirf ye jaanna hai ke parcel kahan hai aur kab
+   tak aayega.
+
+   Har rang tokens.css se aata hai, is liye dono theme khud ba
+   khud theek rehte hain.
+   ═══════════════════════════════════════════════════════════════ */
+
+.trk {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  max-width: 720px;
+}
+
+/* ── Form ── */
+
+.trk-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
+  gap: 0.85rem;
+  align-items: end;
+  padding: clamp(1.1rem, 3vw, 1.6rem);
+  border: 1px solid var(--line);
+  background: var(--ink-2);
+}
+
+.trk-form .btn { height: fit-content; }
+
+@media (max-width: 640px) {
+  .trk-form { grid-template-columns: 1fr; }
+  .trk-form .btn { width: 100%; }
+}
+
+/* ── Na mila ── */
+
+.trk-miss {
+  border: 1px solid var(--line-mid);
+  border-left: 2px solid var(--error);
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  animation: trk-in var(--d-fast) var(--ease-settle);
+}
+.trk-miss p { margin: 0; font-size: 0.9375rem; color: var(--bone-dim); max-width: 44ch; }
+
+@keyframes trk-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Nateeja ── */
+
+.trk-card {
+  border: 1px solid var(--line);
+  background: var(--ink-2);
+  padding: clamp(1.25rem, 3.5vw, 2.25rem);
+  display: grid;
+  gap: 1.5rem;
+  animation: trk-in var(--d-base) var(--ease-settle);
+}
+
+.trk-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.trk-ref {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  line-height: 1.1;
+  margin: 0.4rem 0 0;
+  letter-spacing: 0.02em;
+}
+
+.trk-pill {
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.32rem 0.8rem;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+.trk-pill-ok    { color: var(--ok); }
+.trk-pill-warn  { color: var(--warn); }
+.trk-pill-info  { color: var(--gold); }
+.trk-pill-error { color: var(--error); }
+
+.trk-blurb {
+  margin: 0;
+  color: var(--bone-dim);
+  font-size: 0.95rem;
+  max-width: 52ch;
+}
+
+/* ── Safar ── */
+
+.trk-steps {
+  list-style: none;
+  margin: 0;
+  padding: 1.4rem 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  position: relative;
+}
+
+.trk-rail {
+  position: absolute;
+  top: calc(1.4rem + 9px);
+  left: 12.5%;
+  right: 12.5%;
+  height: 1px;
+  background: var(--line-mid);
+}
+.trk-rail > i {
+  position: absolute;
+  inset: 0;
+  background: var(--gold);
+  transform-origin: left center;
+  /* Lakeer manzil tak pohanchne mein waqt leti hai — parcel ki
+     tarah, jo achanak nahi pohanchta. */
+  transition: transform var(--d-slow) var(--ease-settle);
+}
+
+.trk-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  text-align: center;
+  min-width: 0;
+}
+
+.trk-dot {
+  width: 19px;
+  height: 19px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--ink-2);
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+  position: relative;
+  z-index: 1;
+  transition: background var(--d-base) var(--ease-settle),
+              border-color var(--d-base) var(--ease-settle),
+              transform var(--d-base) var(--ease-settle);
+}
+.trk-step[data-done="true"] .trk-dot { background: var(--gold); border-color: var(--gold); }
+.trk-step[data-now="true"] .trk-dot {
+  transform: scale(1.24);
+  box-shadow: 0 0 0 5px rgb(var(--fg-rgb) / 0.06);
+}
+
+.trk-step-label {
+  font-size: 0.8125rem;
+  color: var(--bone-faint);
+  transition: color var(--d-base) var(--ease-glide);
+}
+.trk-step[data-done="true"] .trk-step-label { color: var(--bone); }
+.trk-step[data-now="true"] .trk-step-label { color: var(--gold); }
+
+.trk-step-time {
+  font-size: var(--t-micro);
+  color: var(--bone-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.trk-cancelled {
+  margin: 0;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--error);
+  color: var(--bone-dim);
+  font-size: 0.9375rem;
+}
+
+/* ── Courier ── */
+
+.trk-courier {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--gold);
+  background: rgb(var(--fg-rgb) / 0.03);
+  color: var(--gold);
+}
+.trk-courier p { margin: 0; }
+.trk-courier > div { color: var(--bone); }
+.trk-tracking { font-size: 1.05rem; letter-spacing: 0.06em; margin-top: 0.15rem !important; }
+
+/* ── Saman ── */
+
+.trk-lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7rem; }
+.trk-lines li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.9rem;
+  align-items: baseline;
+  font-size: 0.9375rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--line);
+}
+.trk-lines li:last-child { border-bottom: 0; padding-bottom: 0; }
+
+.trk-variant {
+  display: block;
+  font-size: var(--t-micro);
+  color: var(--bone-faint);
+  margin-top: 0.15rem;
+}
+
+.trk-totals { display: grid; gap: 0.4rem; }
+.trk-totals > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: var(--bone-dim);
+}
+.trk-total-final {
+  border-top: 1px solid var(--line);
+  padding-top: 0.6rem;
+  color: var(--bone) !important;
+  font-size: 1.05rem !important;
+}
+.trk-total-final strong { color: var(--gold); }
+
+.trk-card-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  padding-top: 0.4rem;
+}
+
+.trk-note { font-size: 0.8125rem; max-width: 56ch; }
+
+@media (max-width: 520px) {
+  .trk-step-time { display: none; }
+  .trk-step-label { font-size: 0.72rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trk-card, .trk-miss { animation: none; }
+  .trk-rail > i, .trk-dot { transition: none; }
+}

@@ -1,0 +1,2904 @@
+/* ═══════════════════════════════════════════════════════════════
+   SECTIONS — the home page, section by section
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────────────────────
+   1. HERO
+   Full viewport. The film plays behind at low opacity and drifts
+   upward as you scroll (parallax), while the headline reveals
+   word by word and the whole block eases away.
+   ─────────────────────────────────────────────────────────── */
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  background: var(--ink);
+}
+
+.hero-media {
+  position: absolute;
+  inset: -8% 0 -8% 0;
+  z-index: 0;
+  /* drifts down slightly slower than the page scrolls */
+  transform: translate3d(0, calc(var(--p, 0) * 14vh), 0) scale(1.06);
+  will-change: transform;
+}
+
+.hero-media video,
+.hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Teenon number tokens.css mein hain — wahan ek line badal kar
+     poori film ki roshni badal jati hai. */
+  opacity: var(--hero-video-opacity);
+  filter: saturate(var(--hero-video-saturate))
+          contrast(var(--hero-video-contrast))
+          brightness(var(--hero-video-brightness));
+  transition: opacity var(--d-epic) var(--ease-settle);
+}
+
+/* Vignette + floor gradient so the type always has a ground to sit on */
+.hero-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(
+      120% 80% at 50% 10%,
+      rgb(var(--scrim-rgb) / var(--hero-scrim-top)) 0%,
+      rgb(var(--scrim-rgb) / var(--hero-scrim-mid)) 72%
+    ),
+    /* Neeche ki patti gehri hi rehti hai — heading wahin baithi
+       hai, aur harf ka parha jana film se zyada ahem hai. */
+    linear-gradient(
+      to top,
+      var(--ink) 0%,
+      rgb(var(--scrim-rgb) / var(--hero-scrim-floor)) 7%,
+      rgb(var(--scrim-rgb) / 0.12) 58%
+    );
+  pointer-events: none;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding-bottom: clamp(4.5rem, 11vh, 8rem);
+  padding-top: calc(var(--header-h) + 3rem);
+}
+
+.hero-eyebrow {
+  margin-bottom: clamp(1.25rem, 3vw, 2rem);
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: var(--t-hero);
+  font-weight: 300;
+  line-height: 0.9;
+  letter-spacing: -0.035em;
+  margin-bottom: clamp(1.5rem, 4vw, 2.75rem);
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.hero-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(1.5rem, 4vw, 4rem);
+  flex-wrap: wrap;
+}
+
+/* Keeps the buttons clear of the scroll cue in the bottom-right. */
+@media (min-width: 901px) {
+  .hero-foot {
+    padding-right: 5.5rem;
+  }
+}
+
+.hero-lede {
+  max-width: 44ch;
+}
+
+.hero-cta {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Scroll cue — a hairline that fills downward on a loop */
+.scroll-cue {
+  position: absolute;
+  right: var(--gutter);
+  bottom: clamp(4.5rem, 11vh, 8rem);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  font-size: var(--t-micro);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+  writing-mode: vertical-rl;
+}
+
+.scroll-cue .rail {
+  width: 1px;
+  height: 66px;
+  background: var(--line-mid);
+  position: relative;
+  overflow: hidden;
+}
+.scroll-cue .rail::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--gold);
+  transform-origin: top;
+  animation: cue-fill 2.4s var(--ease-inout) infinite;
+}
+@keyframes cue-fill {
+  0%       { transform: scaleY(0); transform-origin: top; }
+  45%      { transform: scaleY(1); transform-origin: top; }
+  55%      { transform: scaleY(1); transform-origin: bottom; }
+  100%     { transform: scaleY(0); transform-origin: bottom; }
+}
+
+@media (max-width: 900px) {
+  .scroll-cue { display: none; }
+  .hero-foot { flex-direction: column; align-items: flex-start; }
+}
+
+/* ───────────────────────────────────────────────────────────
+   2. RIBBON (marquee)
+   ─────────────────────────────────────────────────────────── */
+
+.ribbon {
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding-block: clamp(1rem, 2vw, 1.55rem);
+  /* Ek halka sunehri ujala beech mein — patti ko apna wazan deta
+     hai bina rang badle. */
+  background:
+    radial-gradient(
+      130% 200% at 50% 50%,
+      rgb(194 165 107 / 0.10),
+      transparent 62%
+    ),
+    var(--ink-2);
+}
+
+/* Do baal jaisi sunehri lakeerein — kinaron par khud ghul jati hain,
+   is liye patti kati hui nahi, khinchi hui lagti hai. */
+.ribbon::before,
+.ribbon::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(194 165 107 / 0.55) 16%,
+    rgb(194 165 107 / 0.55) 84%,
+    transparent
+  );
+}
+.ribbon::before { top: 0; }
+.ribbon::after  { bottom: 0; }
+
+/* Shishe par se guzarti hui chamak. Har guzar ke baad theher jati
+   hai, phir dobara — is liye ye dhyan kheenchti nahi, sirf patti ko
+   zinda rakhti hai. */
+.ribbon-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    104deg,
+    transparent 42%,
+    rgb(var(--fg-rgb) / 0.07) 50%,
+    transparent 58%
+  );
+  transform: translate3d(-130%, 0, 0);
+  animation: ribbon-sheen 11s var(--ease-glide) infinite;
+}
+
+@keyframes ribbon-sheen {
+  0%        { transform: translate3d(-130%, 0, 0); }
+  48%, 100% { transform: translate3d(130%, 0, 0); }
+}
+
+.ribbon-item {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(1.35rem, 2.6vw, 2.6rem);
+  padding-inline: clamp(0.7rem, 1.4vw, 1.35rem);
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 2.2vw, 1.85rem);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  color: var(--bone-dim);
+  white-space: nowrap;
+  transition: color var(--d-quick) var(--ease-glide);
+}
+
+/* Juft jumle chhote sunehri capitals mein. Bare serif aur chhote
+   caps ka ye tabadla hi patti ko rasm bana deta hai — ek qatar
+   jumla, ek qatar muhr. */
+.ribbon-item:nth-child(even) {
+  font-family: var(--font-sans);
+  font-size: clamp(0.6rem, 1vw, 0.74rem);
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* Ruk kar parhne par sab kuch saaf ho jata hai. */
+.ribbon:hover .ribbon-item { color: var(--bone); }
+.ribbon:hover .ribbon-item:nth-child(even) { color: var(--gold-soft); }
+
+.ribbon-item .sep {
+  display: inline-block;
+  color: var(--gold);
+  font-size: 0.58em;
+  transform: translateY(-0.1em) rotate(0deg);
+  animation: ribbon-star 18s linear infinite;
+}
+.ribbon-item:nth-child(even) .sep {
+  font-size: 1.15em;
+  opacity: 0.72;
+}
+
+@keyframes ribbon-star {
+  to { transform: translateY(-0.1em) rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ribbon-sheen,
+  .ribbon-item .sep { animation: none; }
+}
+
+/* ───────────────────────────────────────────────────────────
+   3. ANATOMY — the signature section
+   A direct translation of the reference film: the three pieces of
+   a suit separate along hairline connectors as you scroll, each
+   label fading in, then everything settles back together.
+   All driven by --p (0 → 1), so scrubbing backwards reverses it.
+   ─────────────────────────────────────────────────────────── */
+
+.anatomy {
+  position: relative;
+  /* tall on purpose — this is the scroll runway for the pin */
+  height: 320vh;
+  background: var(--ink);
+}
+
+.anatomy-pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.anatomy-inner {
+  position: relative;
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+}
+
+.anatomy-copy {
+  max-width: 46ch;
+}
+
+.anatomy-copy h2 {
+  margin-block: 1.25rem 1.5rem;
+}
+
+/* The stage where the garment separates */
+.anatomy-stage {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  max-height: 78svh;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.anatomy-piece {
+  position: absolute;
+  overflow: hidden;
+  background: var(--ink-3);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-card);
+  will-change: transform;
+}
+.anatomy-piece img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Each piece travels a different distance and direction — the
+   spread is (progress × its own vector). The travel is tuned so the
+   stage's four corners stay clear for the callout labels. */
+.anatomy-piece[data-piece="shirt"] {
+  left: 30%;
+  top: 10%;
+  width: 42%;
+  height: 58%;
+  z-index: 3;
+  transform: translate3d(calc(var(--p, 0) * -3%), calc(var(--p, 0) * -5%), 0)
+    scale(calc(1 - var(--p, 0) * 0.04));
+}
+.anatomy-piece[data-piece="dupatta"] {
+  left: 50%;
+  top: 26%;
+  width: 34%;
+  height: 60%;
+  z-index: 2;
+  transform: translate3d(calc(var(--p, 0) * 22%), calc(var(--p, 0) * 6%), 0)
+    rotate(calc(var(--p, 0) * 3deg));
+}
+.anatomy-piece[data-piece="trouser"] {
+  left: 12%;
+  top: 34%;
+  width: 27%;
+  height: 54%;
+  z-index: 1;
+  transform: translate3d(calc(var(--p, 0) * -26%), calc(var(--p, 0) * 10%), 0)
+    rotate(calc(var(--p, 0) * -3deg));
+}
+
+/* Hairline connectors + labels, exactly like the film's callouts */
+.anatomy-svg {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.anatomy-svg line {
+  stroke: var(--line-strong);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--p, 0));
+  opacity: calc(var(--p, 0) * 1.6);
+}
+
+.anatomy-label {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  max-width: 40%;
+  opacity: calc((var(--p, 0) - 0.35) * 3);
+  transform: translate3d(calc((1 - var(--p, 0)) * -12px), 0, 0);
+  pointer-events: none;
+  /* Guarantees the callout stays readable if a piece drifts behind it */
+  text-shadow: 0 1px 14px rgb(var(--ground-rgb) / 0.95), 0 0 4px rgb(var(--ground-rgb) / 0.9);
+}
+
+.anatomy-label .n {
+  font-size: 0.5625rem;
+  letter-spacing: 0.28em;
+  color: var(--gold);
+}
+.anatomy-label .t {
+  font-family: var(--font-display);
+  font-size: clamp(0.95rem, 1.4vw, 1.35rem);
+  line-height: 1.1;
+  color: var(--bone);
+}
+.anatomy-label .d {
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  color: var(--bone-faint);
+  max-width: 20ch;
+}
+
+.anatomy-label[data-at="tl"] { left: 0; top: 1%; align-items: flex-start; }
+.anatomy-label[data-at="tr"] { right: 0; top: 12%; align-items: flex-end; text-align: right; }
+.anatomy-label[data-at="bl"] { left: 0; bottom: 2%; align-items: flex-start; }
+
+/* Progress readout under the copy */
+.anatomy-meter {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.anatomy-meter .track {
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+  position: relative;
+}
+.anatomy-meter .track::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--gold);
+  transform: scaleX(var(--p, 0));
+  transform-origin: left;
+}
+.anatomy-meter .val {
+  font-size: var(--t-micro);
+  letter-spacing: 0.2em;
+  color: var(--bone-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 1024px) {
+  .anatomy { height: 260vh; }
+  .anatomy-inner {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    align-content: center;
+  }
+  .anatomy-copy { max-width: none; }
+  .anatomy-copy h2 { margin-block: 0.75rem 0.75rem; }
+  .anatomy-copy .lede { display: none; }
+  .anatomy-stage { max-height: 52svh; aspect-ratio: 1 / 1; }
+  .anatomy-label .d { display: none; }
+}
+
+@media (max-width: 640px) {
+  /* Mobile gets a simplified version of the same motion, not a
+     broken one: pieces still separate, just less far. */
+  .anatomy { height: 220vh; }
+  .anatomy-piece[data-piece="dupatta"] {
+    transform: translate3d(calc(var(--p, 0) * 22%), calc(var(--p, 0) * 6%), 0);
+  }
+  .anatomy-piece[data-piece="trouser"] {
+    transform: translate3d(calc(var(--p, 0) * -24%), calc(var(--p, 0) * 8%), 0);
+  }
+  .anatomy-label { display: none; }
+  .anatomy-svg { display: none; }
+}
+
+/* ───────────────────────────────────────────────────────────
+   4. CATEGORIES
+   ─────────────────────────────────────────────────────────── */
+
+/* Ab chhe departments hain, paanch nahi. Chhe tiles teen ke
+   grid mein do poori qatarein banate hain — koi tile akeli nahi
+   rehti. Isi wajah se paanch par chaar columns chhore gaye thay:
+   paanchwi tile apni hi qatar mein reh jati thi. */
+/* ───────────────────────────────────────────────────────────
+   AATH KHANE, AUR KOI KHALI JAGAH NAHI
+   ───────────────────────────────────────────────────────────
+   Aath cheezein teen ke column mein 3 + 3 + 2 banti hain, aur
+   aakhri qatar mein ek khali khana chhor deti hain. Wo khali
+   khana tarteeb nahi lagta, ghalti lagta hai.
+
+   Is liye grid chhe baareek patriyon par bani hai. Mausam wala
+   card DO patri leta hai — yani teen fi qatar, bilkul waise
+   jaise pehle tha. Chunav wala (New Arrivals, Top Sales) TEEN
+   leta hai — yani do fi qatar. Dono qatarein poori bharti hain,
+   aur do chunav thore bare ho kar apne aap alag mehsoos hote
+   hain; us ke liye koi alag khana banane ki zaroorat nahi pari.
+
+   Chaar column jaan boojh kar nahi liye: us par har card itna
+   chhota ho jata hai ke tasveer ka koi matlab hi nahi rehta.
+   ─────────────────────────────────────────────────────────── */
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+.cat-cell { grid-column: span 2; }
+.cat-cell[data-kind="edit"] { grid-column: span 3; }
+
+/* Do column: mausam wale do fi qatar, chunav bhi do fi qatar */
+@media (max-width: 860px) {
+  .cat-grid { grid-template-columns: repeat(4, 1fr); }
+  .cat-cell,
+  .cat-cell[data-kind="edit"] { grid-column: span 2; }
+}
+
+/* Ek column */
+@media (max-width: 520px) {
+  .cat-grid { grid-template-columns: 1fr; }
+  .cat-cell,
+  .cat-cell[data-kind="edit"] { grid-column: span 1; }
+}
+
+.cat-cell {
+  position: relative;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  min-height: clamp(230px, 26vw, 330px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* The photograph sits behind, revealed on hover */
+.cat-cell-img {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  transform: scale(1.1);
+  transition: opacity var(--d-slow) var(--ease-settle),
+    transform 1.8s var(--ease-settle);
+}
+.cat-cell-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: var(--cat-img-filter, brightness(0.36) saturate(0.85));
+}
+/* The photograph is washed back toward the page ground rather than
+   simply darkened, so the cell keeps the theme's own text colours and
+   nothing has to flip from dark type to light type mid-fade. */
+.cat-cell-img::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgb(var(--ground-rgb) / 0.92) 0%,
+    rgb(var(--ground-rgb) / 0.48) 55%,
+    rgb(var(--ground-rgb) / 0.28) 100%
+  );
+}
+.cat-cell:hover .cat-cell-img {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.cat-cell .idx {
+  position: absolute;
+  top: clamp(1.5rem, 3vw, 2.5rem);
+  left: clamp(1.5rem, 3vw, 2.5rem);
+  font-size: var(--t-micro);
+  letter-spacing: 0.22em;
+  color: var(--bone-faint);
+  transition: color var(--d-fast) var(--ease-settle);
+}
+.cat-cell:hover .idx { color: var(--gold); }
+
+.cat-cell .grp {
+  font-size: var(--t-micro);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.6rem;
+}
+
+.cat-cell h3 {
+  font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+  line-height: 1.08;
+  transition: transform var(--d-slow) var(--ease-settle);
+}
+.cat-cell:hover h3 { transform: translateX(6px); }
+
+.cat-cell p {
+  margin-top: 0.65rem;
+  font-size: 0.875rem;
+  color: var(--bone);
+  max-width: 32ch;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity var(--d-fast) var(--ease-settle),
+    transform var(--d-fast) var(--ease-settle);
+}
+.cat-cell:hover p { opacity: 1; transform: translateY(0); }
+
+/* Leaves room for the corner arrow so the count never runs under it. */
+.cat-cell > div > .caps {
+  padding-right: 46px;
+}
+
+.cat-cell .go {
+  position: absolute;
+  right: clamp(1.5rem, 3vw, 2.5rem);
+  bottom: clamp(1.5rem, 3vw, 2.5rem);
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-mid);
+  border-radius: var(--radius-pill);
+  color: var(--bone-dim);
+  transition: all var(--d-fast) var(--ease-settle);
+}
+.cat-cell:hover .go {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
+  transform: rotate(-45deg);
+}
+
+/* ── TOUCH DEVICES ──────────────────────────────────────────
+   There is no hover on a phone, so the photograph and the
+   description would otherwise never be seen at all. On touch they
+   are simply always visible — the section stays useful instead of
+   looking like a grid of empty boxes. Declared last so it wins.  */
+@media (hover: none) {
+  .cat-cell-img {
+    opacity: 1;
+    transform: none;
+  }
+  .cat-cell p {
+    opacity: 1;
+    transform: none;
+  }
+  .cat-cell .go {
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+  /* The quick-add bar can never be revealed by hover on a phone,
+     and the whole card is tappable anyway — so hide it. */
+  .card-quick {
+    display: none;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────
+   5. THE CLOTH ROOM
+   This replaced a pinned horizontal lookbook rail, which slid the
+   photographs sideways and flattened them into a strip. Nothing here
+   moves horizontally: two frames that hold still, and a shelf of the
+   real fabric colours underneath.
+   ─────────────────────────────────────────────────────────── */
+
+.cloth-frames {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: clamp(0.75rem, 1.6vw, 1.35rem);
+  margin-top: clamp(2rem, 4vw, 3.25rem);
+  align-items: stretch;
+}
+
+/* Height comes from min-height, NOT aspect-ratio. A stretched grid item
+   with an aspect-ratio takes its height from the row and then derives a
+   width from that ratio — which can be wider than its own column, so the
+   photograph spills over the panel beside it. min-height sets the row
+   and object-fit does the cropping, so both columns stay exactly equal
+   and nothing escapes its track. */
+.cloth-wide {
+  min-height: clamp(300px, 44vw, 600px);
+}
+.cloth-wide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cloth-side {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 1.6vw, 1.35rem);
+}
+
+/* Takes whatever height is left once the spec rows have theirs. */
+.cloth-detail {
+  flex: 1 1 auto;
+  min-height: 150px;
+}
+.cloth-detail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cloth-meta {
+  flex: none;
+  border-top: 1px solid var(--line);
+}
+
+.cloth-meta-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.cloth-meta-row dt {
+  font-size: var(--t-micro);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  flex: none;
+}
+.cloth-meta-row dd {
+  font-size: var(--t-small);
+  color: var(--bone-dim);
+  text-align: right;
+}
+
+/* ── The shelf, as colours ── */
+
+.cloth-shelf {
+  margin-top: clamp(2rem, 4vw, 3.25rem);
+  border-top: 1px solid var(--line);
+  padding-top: 1.25rem;
+}
+
+.cloth-shelf-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.cloth-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
+  gap: clamp(0.6rem, 1.4vw, 1.1rem);
+}
+
+.swatch {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+/* A hairline inside the chip rather than around it, so a near-black
+   cloth still reads as a swatch on a black page and a chalk one
+   still reads on a bone page. */
+.swatch-chip {
+  display: block;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 1px rgb(var(--fg-rgb) / 0.22);
+  transition: transform var(--d-fast) var(--ease-settle);
+}
+.swatch:hover .swatch-chip {
+  transform: translateY(-3px);
+}
+
+.swatch-name {
+  font-size: var(--t-micro);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+}
+
+@media (max-width: 900px) {
+  .cloth-frames {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cloth-wide {
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+  }
+  .cloth-detail {
+    flex: none;
+    aspect-ratio: 16 / 10;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────
+   6. SPOTLIGHT — sticky image, copy scrolls past
+   ─────────────────────────────────────────────────────────── */
+
+.spotlight {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(2rem, 5vw, 6rem);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .spotlight { grid-template-columns: 1fr; }
+}
+
+.spotlight-media {
+  position: sticky;
+  top: calc(var(--header-h) + 2rem);
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--ink-3);
+}
+
+@media (max-width: 900px) {
+  .spotlight-media { position: relative; top: 0; }
+}
+
+.spotlight-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity var(--d-slow) var(--ease-settle);
+}
+
+.spotlight-thumbs {
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 2;
+  display: flex;
+  gap: 0.5rem;
+}
+.spotlight-thumb {
+  width: 46px;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid transparent;
+  opacity: 0.55;
+  transition: all var(--d-quick) var(--ease-settle);
+}
+.spotlight-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.spotlight-thumb:hover { opacity: 0.85; }
+.spotlight-thumb[aria-pressed="true"] {
+  opacity: 1;
+  border-color: var(--gold);
+}
+
+.spotlight-copy {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 3vw, 2.5rem);
+  padding-block: clamp(0, 8vh, 6rem);
+}
+
+.spec-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+.spec-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-block: 0.85rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.9rem;
+}
+.spec-list dt,
+.spec-list .k {
+  color: var(--bone-faint);
+  font-size: var(--t-micro);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.spec-list .v { color: var(--bone); text-align: right; }
+
+/* ───────────────────────────────────────────────────────────
+   7. WORKFLOW — the atelier timeline
+   A vertical rule fills as you scroll; each step lights up as it
+   passes the fill line. This is the "animated workflow".
+   ─────────────────────────────────────────────────────────── */
+
+.workflow {
+  position: relative;
+}
+
+.workflow-rail {
+  position: absolute;
+  left: clamp(0.5rem, 3vw, 3.5rem);
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line);
+}
+.workflow-rail::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, var(--gold), var(--gold-deep));
+  transform: scaleY(var(--p, 0));
+  transform-origin: top;
+}
+
+.workflow-steps {
+  display: flex;
+  flex-direction: column;
+}
+
+.wstep {
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(4rem, 10vw, 11rem) 1fr;
+  gap: clamp(1.5rem, 4vw, 4rem);
+  padding-block: clamp(2.25rem, 5vw, 3.75rem);
+  border-bottom: 1px solid var(--line);
+  align-items: start;
+}
+.wstep:last-child { border-bottom: none; }
+
+/* The node on the rail */
+.wstep::before {
+  content: "";
+  position: absolute;
+  left: clamp(0.5rem, 3vw, 3.5rem);
+  top: clamp(2.6rem, 5.5vw, 4.2rem);
+  width: 9px;
+  height: 9px;
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  border: 1px solid var(--line-strong);
+  transform: translate(-50%, -50%);
+  transition: background-color var(--d-fast) var(--ease-settle),
+    border-color var(--d-fast) var(--ease-settle),
+    box-shadow var(--d-fast) var(--ease-settle);
+}
+.wstep.is-in::before {
+  background: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 5px rgba(194, 165, 107, 0.14);
+}
+
+.wstep .step-n {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--bone-faint);
+  padding-left: clamp(1.5rem, 4vw, 4.5rem);
+  transition: color var(--d-slow) var(--ease-settle);
+}
+.wstep.is-in .step-n { color: var(--gold); }
+
+.wstep h3 {
+  font-size: clamp(1.4rem, 2.6vw, 2.1rem);
+  margin-bottom: 0.75rem;
+}
+
+.wstep p {
+  color: var(--bone-dim);
+  max-width: 58ch;
+  font-size: 0.975rem;
+}
+
+@media (max-width: 640px) {
+  .wstep { grid-template-columns: 1fr; gap: 0.6rem; }
+  .wstep .step-n { padding-left: 1.75rem; font-size: 1.75rem; }
+  .wstep h3, .wstep p { padding-left: 1.75rem; }
+}
+
+/* ───────────────────────────────────────────────────────────
+   8. REVIEWS — ek waqt mein ek, ghul kar badalte hue
+
+   Nau reviews hain magar shakal wohi purani hai: ek bara jumla
+   beech mein. Deewar wali koshish hata di gayi — wo is safhe ke
+   mizaj se mel nahi khati thi.
+
+   `min-height` ka hisaab sab se LAMBE jumle par hai, kyunke sab
+   khane ek dusre ke oopar rakhe hain: agar jagah sab se lambe ke
+   liye kaafi na ho to us ke aate hi poora safha ek jhatke se
+   neeche khisak jata hai.
+   ─────────────────────────────────────────────────────────── */
+
+.quotes {
+  position: relative;
+  min-height: clamp(300px, 32vw, 400px);
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.quote {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.75rem;
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition: opacity 1s var(--ease-settle), transform 1.2s var(--ease-settle);
+  pointer-events: none;
+}
+.quote[data-active="true"] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  pointer-events: auto;
+}
+
+.quote blockquote {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 2.9vw, 2.35rem);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.32;
+  letter-spacing: -0.015em;
+  max-width: 26ch;
+  text-wrap: balance;
+}
+
+.quote .who {
+  font-size: var(--t-micro);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+}
+
+/* Namoona hone ka saaf elaan — wajah constants.js mein likhi hai */
+.reviews-note {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin-top: 1.1rem;
+  padding: 0.5rem 0.9rem;
+  border: 1px dashed rgb(194 165 107 / 0.45);
+  border-radius: var(--radius);
+  font-size: var(--t-micro);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: rgb(194 165 107 / 0.05);
+}
+.reviews-note span { font-size: 0.85em; }
+
+/* Nau lakeerein — phone par lipat jati hain */
+.quote-dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 2.5rem;
+}
+.quote-dot {
+  width: clamp(18px, 2.4vw, 34px);
+  height: 1px;
+  background: var(--line-mid);
+  position: relative;
+  overflow: visible;
+  cursor: pointer;
+  transition: background var(--d-quick) var(--ease-glide);
+}
+/* Chhoone ka khana lakeer se bara — ungli ke liye ek pixel kaafi nahi */
+.quote-dot::before {
+  content: "";
+  position: absolute;
+  inset: -12px -4px;
+}
+.quote-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--d-quick) linear;
+}
+.quote-dot[data-on="true"] { background: var(--line-strong); }
+.quote-dot[data-active="true"]::after {
+  transform: scaleX(1);
+  /* Waqt JS se aata hai (Testimonials.jsx mein `--quote-span`), taake
+     lakeer aur jumla hamesha ek saath chalein. Pehle yahan 6s pakka
+     likha hua tha aur dono alag ho jate the. */
+  transition: transform var(--quote-span, 6s) linear;
+}
+/* Ruki hui halat mein bhi chuni hui lakeer roshan rehni chahiye */
+.quote-dot[data-on="true"]:not([data-active])::after {
+  transform: scaleX(1);
+  transition: none;
+}
+.quote-dot:hover { background: var(--bone-faint); }
+
+@media (prefers-reduced-motion: reduce) {
+  .quote { transition: none; }
+  .quote-dot::after { transition: none; }
+}
+
+/* ───────────────────────────────────────────────────────────
+   9. SECTION HEADERS (shared)
+   ─────────────────────────────────────────────────────────── */
+
+.sec-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(1.5rem, 4vw, 4rem);
+  flex-wrap: wrap;
+  margin-bottom: clamp(2rem, 5vw, 4rem);
+}
+
+.sec-head h2 {
+  max-width: 18ch;
+}
+
+.sec-head .sec-side {
+  max-width: 40ch;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+/* ───────────────────────────────────────────────────────────
+   10. NEWSLETTER / CTA BAND
+   ─────────────────────────────────────────────────────────── */
+
+.cta-band {
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--ink-2);
+  text-align: center;
+  padding-block: clamp(4rem, 10vw, 8rem);
+}
+
+.cta-band h2 {
+  font-size: var(--t-display);
+  max-width: 16ch;
+  margin-inline: auto;
+}
+
+/* ───────────────────────────────────────────────────────────
+   11. PRODUCT PAGE
+   ─────────────────────────────────────────────────────────── */
+
+.pdp {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
+}
+@media (max-width: 900px) { .pdp { grid-template-columns: 1fr; } }
+
+.pdp-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pdp-main {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--ink-3);
+}
+.pdp-main img { width: 100%; height: 100%; object-fit: cover; }
+
+.pdp-thumbs {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.pdp-thumb {
+  width: 74px;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid transparent;
+  opacity: 0.5;
+  transition: all var(--d-quick) var(--ease-settle);
+}
+.pdp-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.pdp-thumb[aria-pressed="true"] { opacity: 1; border-color: var(--gold); }
+.pdp-thumb:hover { opacity: 0.85; }
+
+.pdp-info {
+  position: sticky;
+  top: calc(var(--header-h) + 2rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+@media (max-width: 900px) { .pdp-info { position: relative; top: 0; } }
+
+.pdp-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-variant-numeric: tabular-nums;
+}
+.pdp-price .was {
+  font-size: 0.55em;
+  color: var(--bone-faint);
+  text-decoration: line-through;
+}
+
+.accordion {
+  border-top: 1px solid var(--line);
+}
+.acc-item { border-bottom: 1px solid var(--line); }
+.acc-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 1.05rem;
+  font-size: var(--t-micro);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bone);
+  text-align: left;
+}
+.acc-btn .pm {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  flex: none;
+}
+.acc-btn .pm::before,
+.acc-btn .pm::after {
+  content: "";
+  position: absolute;
+  background: var(--gold);
+  transition: transform var(--d-fast) var(--ease-settle);
+}
+.acc-btn .pm::before { left: 0; right: 0; top: 5px; height: 1px; }
+.acc-btn .pm::after  { top: 0; bottom: 0; left: 5px; width: 1px; }
+.acc-btn[aria-expanded="true"] .pm::after { transform: scaleY(0); }
+
+.acc-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--d-fast) var(--ease-settle);
+}
+.acc-panel[data-open="true"] { grid-template-rows: 1fr; }
+.acc-panel > div { overflow: hidden; }
+.acc-panel p {
+  padding-bottom: 1.2rem;
+  color: var(--bone-dim);
+  font-size: 0.925rem;
+}
+
+/* ───────────────────────────────────────────────────────────
+   12. SHOP TOOLBAR
+   ─────────────────────────────────────────────────────────── */
+
+.toolbar {
+  position: sticky;
+  top: var(--header-h);
+  z-index: 20;
+  background: var(--glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding-block: 0.85rem;
+}
+
+.toolbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.filter-rail {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+/* ───────────────────────────────────────────────────────────
+   13. CHECKOUT
+   ─────────────────────────────────────────────────────────── */
+
+.checkout {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: start;
+}
+@media (max-width: 900px) { .checkout { grid-template-columns: 1fr; } }
+
+.summary {
+  position: sticky;
+  top: calc(var(--header-h) + 2rem);
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  padding: clamp(1.35rem, 3vw, 2rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+@media (max-width: 900px) { .summary { position: relative; top: 0; } }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.15rem;
+}
+.form-grid .span-2 { grid-column: 1 / -1; }
+@media (max-width: 640px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .form-grid .span-2 { grid-column: auto; }
+}
+
+/* ───────────────────────────────────────────────────────────
+   14. ABOUT / CONTACT
+   ─────────────────────────────────────────────────────────── */
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+@media (max-width: 700px) { .stat-row { grid-template-columns: repeat(2, 1fr); } }
+
+.stat {
+  background: var(--ink);
+  padding: clamp(1.25rem, 3vw, 2.25rem);
+  text-align: center;
+}
+.stat .v {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  line-height: 1;
+  color: var(--gold);
+}
+.stat .k {
+  margin-top: 0.5rem;
+  font-size: var(--t-micro);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
+}
+@media (max-width: 900px) { .contact-grid { grid-template-columns: 1fr; } }
+
+.contact-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+.contact-list a,
+.contact-list div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-block: 1.1rem;
+  border-bottom: 1px solid var(--line);
+  transition: color var(--d-quick) var(--ease-settle);
+}
+.contact-list a:hover { color: var(--gold); }
+.contact-list .k {
+  font-size: var(--t-micro);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+  flex: none;
+}
+.contact-list .v { text-align: right; word-break: break-word; }
+
+/* ───────────────────────────────────────────────────────────
+   11. CLOSE WORK
+   A loupe travels across the garment as the section passes, and
+   magnifies the cloth under it. Everything here is a function of
+   --q, which is the section's scroll progress eased into a travel
+   that starts once the plate is properly on screen and finishes
+   before it leaves — so the loupe never enters or exits mid-stride.
+   ─────────────────────────────────────────────────────────── */
+
+.close-work {
+  --q: max(0, min(1, calc((var(--p, 0.5) - 0.14) / 0.66)));
+}
+
+.cw-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+}
+
+.cw-plate {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--ink-3);
+  isolation: isolate;
+}
+
+.cw-wide {
+  position: absolute;
+  inset: 0;
+}
+.cw-wide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The loupe itself */
+.cw-loupe {
+  position: absolute;
+  z-index: 2;
+  width: clamp(112px, 26%, 220px);
+  aspect-ratio: 1;
+  left: calc(20% + var(--q) * 44%);
+  top: calc(20% + var(--q) * 42%);
+  translate: -50% -50%;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  /* Reads as a piece of glass in BOTH themes, so the ring and its
+     shadow are fixed rather than themed: a bright rim, a dark seat
+     under it, and a gold hairline outside to tie it to the brand. */
+  border: 2px solid rgb(239 233 221 / 0.82);
+  box-shadow:
+    0 0 0 1px rgb(var(--scrim-rgb) / 0.55),
+    0 0 0 4px rgb(194 165 107 / 0.30),
+    0 26px 58px -14px rgb(var(--scrim-rgb) / 0.6);
+  /* Fades in as the section arrives rather than sitting there from
+     the first pixel of scroll. */
+  opacity: max(0, min(1, calc(var(--p, 0.5) * 5 - 0.35)));
+}
+
+.cw-loupe img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Magnified, and drifting the opposite way to the loupe's travel,
+     so the cloth genuinely appears to move underneath the glass.
+     Held at 1.85 — past roughly 2× the weave stops being readable
+     and the loupe just shows a coloured blur. */
+  scale: 1.85;
+  translate: calc(var(--q) * -9%) calc(var(--q) * -7%);
+  filter: saturate(1.06) contrast(1.04) brightness(1.03);
+}
+
+/* Crosshair, drawn on the glass */
+.cw-loupe::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    /* crosshair */
+    linear-gradient(to right, transparent calc(50% - 0.5px), rgb(239 233 221 / 0.34) calc(50% - 0.5px), rgb(239 233 221 / 0.34) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(to bottom, transparent calc(50% - 0.5px), rgb(239 233 221 / 0.34) calc(50% - 0.5px), rgb(239 233 221 / 0.34) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    /* the sheen a curved lens catches on its upper left */
+    radial-gradient(circle at 30% 24%, rgb(255 255 255 / 0.26) 0%, transparent 44%),
+    /* and the shading where the glass meets its rim */
+    radial-gradient(circle at 50% 50%, transparent 62%, rgb(var(--scrim-rgb) / 0.3) 100%);
+  pointer-events: none;
+}
+
+/* A hairline that follows the loupe down the plate */
+.cw-scan {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  right: 0;
+  top: calc(20% + var(--q) * 42%);
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgb(var(--fg-rgb) / 0.34) 22%,
+    var(--gold) 50%,
+    rgb(var(--fg-rgb) / 0.34) 78%,
+    transparent
+  );
+  opacity: max(0, min(0.85, calc(var(--p, 0.5) * 4 - 0.4)));
+  pointer-events: none;
+}
+
+.cw-mag {
+  position: absolute;
+  z-index: 3;
+  left: 1rem;
+  bottom: 1rem;
+  padding: 0.42rem 0.75rem;
+  font-size: var(--t-micro);
+  letter-spacing: 0.22em;
+  color: var(--on-media);
+  background: rgb(var(--scrim-rgb) / 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgb(239 233 221 / 0.16);
+}
+
+/* ── The spec list ── */
+
+.cw-side {
+  min-width: 0;
+}
+
+.cw-specs {
+  margin-top: clamp(1.75rem, 3.5vw, 2.5rem);
+  border-top: 1px solid var(--line);
+}
+
+.cw-spec {
+  display: grid;
+  grid-template-columns: minmax(96px, 0.42fr) minmax(0, 1fr);
+  gap: 0.75rem 1.5rem;
+  padding: 0.95rem 0;
+  border-bottom: 1px solid var(--line);
+  /* Each row resolves out of the rule as the loupe reaches roughly
+     the part of the cloth it describes. --at is set per row in JSX. */
+  opacity: max(0.18, min(1, calc((var(--p, 0.5) - var(--at, 0)) * 7)));
+  translate: 0 calc(max(0, min(1, calc((var(--at, 0) + 0.12 - var(--p, 0.5)) * 7))) * 10px);
+  transition: opacity 0.25s linear, translate 0.25s var(--ease-settle);
+}
+
+.cw-spec dt {
+  font-size: var(--t-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  padding-top: 0.15rem;
+}
+
+.cw-spec dd {
+  font-size: var(--t-body);
+  color: var(--bone-dim);
+}
+
+@media (max-width: 900px) {
+  .cw-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(2rem, 6vw, 3rem);
+  }
+  /* On a phone the plate is the width of the screen, so a loupe sized
+     as a share of it would swallow the garment. Hold it smaller and
+     shorten its travel. */
+  .cw-loupe {
+    width: clamp(104px, 30%, 150px);
+    left: calc(24% + var(--q) * 38%);
+    top: calc(24% + var(--q) * 36%);
+  }
+  .cw-scan {
+    top: calc(24% + var(--q) * 36%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* --p is frozen at 0.5, so pin the scene to a settled mid-state and
+     show every spec row outright. */
+  .cw-loupe,
+  .cw-scan {
+    opacity: 1;
+  }
+  .cw-spec {
+    opacity: 1;
+    translate: none;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────
+   12. ASSURANCE
+   ─────────────────────────────────────────────────────────── */
+
+.assure-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+.assure {
+  padding: clamp(1.5rem, 2.6vw, 2.25rem);
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  transition: background-color var(--d-fast) var(--ease-settle);
+}
+.assure:hover {
+  background: var(--ink-2);
+}
+
+.assure-n {
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 3.4vw, 2.9rem);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--gold);
+  opacity: 0.75;
+}
+
+.assure-t {
+  font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+  line-height: 1.15;
+}
+
+.assure-b {
+  font-size: var(--t-small);
+  line-height: 1.65;
+  color: var(--bone-dim);
+}
+
+@media (max-width: 1024px) {
+  .assure-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .assure-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ───────────────────────────────────────────────────────────
+   13. ARRIVING — shown while the catalogue is empty
+   ─────────────────────────────────────────────────────────── */
+
+.arriving-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(212px, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+.arriving-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: clamp(1.35rem, 2.4vw, 1.9rem);
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  transition: background-color var(--d-fast) var(--ease-settle);
+}
+.arriving-cell:hover {
+  background: var(--ink-2);
+}
+
+.arriving-n {
+  font-size: var(--t-micro);
+  letter-spacing: 0.22em;
+  color: var(--bone-faint);
+}
+
+.arriving-cell h3 {
+  font-size: clamp(1.15rem, 1.9vw, 1.4rem);
+  line-height: 1.15;
+}
+
+.arriving-cell p {
+  font-size: var(--t-small);
+  line-height: 1.6;
+  color: var(--bone-dim);
+}
+
+.arriving-status {
+  margin-top: auto;
+  padding-top: 0.9rem;
+  font-size: var(--t-micro);
+  letter-spacing: 0.22em;
+}
+
+.arriving-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  margin-top: clamp(2rem, 4vw, 3rem);
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  border: 1px solid var(--line-mid);
+  background: var(--ink-2);
+}
+
+.arriving-note {
+  margin-top: 1.25rem;
+  font-size: var(--t-small);
+  text-align: center;
+}
+
+/* ───────────────────────────────────────────────────────────
+   14. EMPTY SHELF — the shop page with no products at all
+   ─────────────────────────────────────────────────────────── */
+
+.shelf-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.15rem;
+  padding: clamp(2.5rem, 7vw, 5rem) var(--gutter);
+  border: 1px solid var(--line);
+  background: var(--ink-2);
+}
+
+.shelf-empty-cats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0 0.75rem;
+}
+
+/* ───────────────────────────────────────────────────────────
+   15. POLICIES
+   ─────────────────────────────────────────────────────────── */
+
+.policy-jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: clamp(1.75rem, 3vw, 2.5rem);
+}
+
+.policy {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.5fr);
+  gap: clamp(1.25rem, 4vw, 4rem);
+  padding: clamp(2rem, 4vw, 3.25rem) 0;
+  border-bottom: 1px solid var(--line);
+  /* Clears the fixed header when a jump link lands here. */
+  scroll-margin-top: calc(var(--header-h) + 2rem);
+}
+.policy:last-of-type {
+  border-bottom: none;
+}
+
+.policy-head {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.policy-n {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--gold);
+  flex: none;
+}
+
+.policy-head h2 {
+  font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+  line-height: 1.1;
+}
+
+.policy-intro {
+  margin-top: 0.55rem;
+  font-size: var(--t-small);
+  color: var(--gold);
+  letter-spacing: 0.01em;
+}
+
+.policy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  list-style: none;
+}
+
+.policy-list li {
+  position: relative;
+  padding-left: 1.5rem;
+  font-size: var(--t-body);
+  line-height: 1.75;
+  color: var(--bone-dim);
+}
+/* A hairline dash rather than a bullet — the rest of the site uses
+   rules, not dots. */
+.policy-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.85em;
+  width: 12px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.policy-ask {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  border: 1px solid var(--line-mid);
+  background: var(--ink-2);
+}
+
+@media (max-width: 760px) {
+  .policy {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   THE BRIDAL ROOM
+   ───────────────────────────────────────────────────────────────
+   Site ka sab se mehnga piece saada grid mein nahi baith sakta.
+   Ye section us ek dress ko poora safha deta hai.
+
+   Teen tehein, jaan boojh kar ek dosre par chadhi hui:
+
+     film   —  portrait, sunehri baal barabar kinare ke andar,
+               thori si oopar uthi hui
+     copy   —  daayein, apni chaal se khulti hui
+     plate  —  neeche chaurai bhar ki tasveer, dono ke neeche se
+               nikalti hui
+
+   Teesri teh hi is section ko "do cheezein saath saath" hone se
+   bachati hai aur usay tarteeb deti hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+.bridal {
+  position: relative;
+  padding-block: var(--section);
+  border-top: 1px solid var(--line);
+  background: var(--ink-2);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Peechay ka halka sunehri ujala — section ko apna kamra deta
+   hai. Scroll ke sath halki si saans leta hai. */
+.bridal-glow {
+  position: absolute;
+  z-index: -1;
+  top: -20%;
+  left: 50%;
+  width: min(1100px, 120vw);
+  aspect-ratio: 1;
+  transform: translate(-50%, calc(var(--p, 0) * -6%));
+  background: radial-gradient(
+    circle,
+    rgba(194, 165, 107, 0.10) 0%,
+    rgba(194, 165, 107, 0.04) 38%,
+    transparent 68%
+  );
+  pointer-events: none;
+}
+:root[data-theme="light"] .bridal-glow {
+  background: radial-gradient(
+    circle,
+    rgba(124, 110, 81, 0.09) 0%,
+    rgba(124, 110, 81, 0.03) 38%,
+    transparent 68%
+  );
+}
+
+.bridal-inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Upar: film aur copy ── */
+.bridal-top {
+  display: grid;
+  /* Film ko pehle se ziyada jagah — ye section ka asal tamasha hai,
+     kinare par rakhi hui chhoti si khirki nahi. */
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .bridal-top { grid-template-columns: 1fr; gap: clamp(2.5rem, 7vw, 3.5rem); }
+
+  /* Phone par film pehle poori chaurai le leti thi aur bhaari lagti
+     thi. Ab wo safhe ke beech mein ek decent qad ka frame hai —
+     dukan ka mizaj sanjeeda rehta hai, aur film bhi saaf. */
+  .bridal-film-frame {
+    /* vw se naapa gaya hai, % se nahi: ye frame ek scroll-scene ke
+       andar baitha hai jo screen se chaura ho jata hai, is liye
+       78% waqai 90% ban raha tha. vw hamesha screen ka hi hisaab
+       deta hai. */
+    max-width: min(72vw, 300px);
+    max-height: 68vh;
+  }
+}
+
+/* ── Film ── */
+.bridal-film {
+  position: relative;
+  /* Scroll ke sath narmi se safar karti hai — parallax itna halka
+     ke mehsoos ho, nazar na aaye. */
+  transform: translate3d(0, calc(var(--p, 0) * -3.5vh), 0);
+  will-change: transform;
+}
+
+/* ── Film ka frame ──
+   Teen halqay, ek ke andar ek: bahar sunehri ujala, phir ek
+   baal barabar sunehri lakeer, aur andar film. Chaar konon par
+   chhote sunehri nishan, jaise kisi tasveer ke kone par lagi
+   hui phankein. Upar se ek narm chamak guzarti rehti hai. */
+.bridal-film-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  max-height: min(88vh, 940px);
+  margin-inline: auto;
+  overflow: hidden;
+  background: var(--ink-3);
+  padding: 0;
+  box-shadow:
+    0 0 0 1px rgb(194 165 107 / 0.22),
+    0 2px 10px rgb(0 0 0 / 0.35),
+    0 30px 80px -30px rgb(0 0 0 / 0.75),
+    0 0 90px -20px rgb(194 165 107 / 0.28);
+}
+
+/* Bahar ka sunehri ujala — frame ke peechay, halka sa */
+.bridal-film::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: -6% -8%;
+  background: radial-gradient(
+    ellipse at center,
+    rgb(194 165 107 / 0.16) 0%,
+    rgb(194 165 107 / 0.05) 45%,
+    transparent 72%
+  );
+  pointer-events: none;
+}
+
+/* Chaar konon ke nishan */
+.bridal-film-frame::before,
+.bridal-film-frame::after {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  width: 26px;
+  height: 26px;
+  pointer-events: none;
+  border: 1px solid var(--gold);
+  opacity: 0.85;
+}
+.bridal-film-frame::before {
+  top: 10px; left: 10px;
+  border-right: 0; border-bottom: 0;
+}
+.bridal-film-frame::after {
+  bottom: 10px; right: 10px;
+  border-left: 0; border-top: 0;
+}
+.bridal-film-edge::before,
+.bridal-film-edge::after {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  width: 26px;
+  height: 26px;
+  pointer-events: none;
+  border: 1px solid var(--gold);
+  opacity: 0.85;
+}
+.bridal-film-edge::before {
+  top: 10px; right: 10px;
+  border-left: 0; border-bottom: 0;
+}
+.bridal-film-edge::after {
+  bottom: 10px; left: 10px;
+  border-right: 0; border-top: 0;
+}
+
+/* Shishe par se guzarti hui chamak */
+.bridal-film-sheen {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.bridal-film-sheen::before {
+  content: '';
+  position: absolute;
+  top: -60%;
+  left: -60%;
+  width: 55%;
+  height: 220%;
+  transform: rotate(18deg) translateX(-120%);
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgb(255 255 255 / 0.10) 42%,
+    rgb(255 255 255 / 0.16) 50%,
+    rgb(255 255 255 / 0.10) 58%,
+    transparent
+  );
+  animation: bridal-sheen 7.5s var(--ease-glide) infinite;
+  animation-delay: 1.6s;
+}
+
+@keyframes bridal-sheen {
+  0%, 62%  { transform: rotate(18deg) translateX(-120%); }
+  88%,100% { transform: rotate(18deg) translateX(420%); }
+}
+
+
+/* Poster — film ke neeche wali teh. Hamesha maujood, is liye
+   khana kabhi khali nahi dikhta. */
+.bridal-film-poster {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.bridal-film-frame video {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  /* Film chup chaap khulti hai jab wo taiyar ho jati hai —
+     achanak nahi aati. */
+  opacity: 0;
+  transform: scale(1.04);
+  transition: opacity var(--d-epic) var(--ease-settle),
+              transform var(--d-epic) var(--ease-settle);
+}
+.bridal-film[data-ready="true"] .bridal-film-frame video {
+  opacity: 1;
+  transform: none;
+}
+
+/* Sunehri baal barabar kinara — film ke oopar, taake kinare tez
+   rahein aur video ka apna kinara dhundla na lage. */
+.bridal-film-edge {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  pointer-events: none;
+  border: 1px solid rgb(194 165 107 / 0.38);
+  /* Andar ek aur, baal barabar lakeer — dohra frame */
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--scrim-rgb) / 0.45),
+    inset 0 0 0 9px rgb(0 0 0 / 0),
+    inset 0 0 0 10px rgb(194 165 107 / 0.16);
+}
+
+.bridal-film-tag {
+  display: block;
+  margin-top: 1.1rem;
+  text-align: center;
+  color: var(--bone-faint);
+  font-size: var(--t-micro);
+  letter-spacing: 0.22em;
+}
+
+/* ── Copy ── */
+.bridal-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.bridal-title {
+  font-size: var(--t-title);
+  line-height: 0.98;
+  margin-top: 0.6rem;
+}
+
+.bridal-lede { max-width: 46ch; }
+
+.bridal-body {
+  color: var(--bone-dim);
+  font-size: 0.95rem;
+  line-height: 1.75;
+  max-width: 54ch;
+}
+
+/* ── Kaam ki tafseel — do ki qatar, hairline par ── */
+.bridal-specs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  width: 100%;
+  margin-top: 0.4rem;
+}
+@media (max-width: 420px) {
+  .bridal-specs { grid-template-columns: 1fr; }
+}
+
+.bridal-spec {
+  background: var(--ink-2);
+  padding: 0.95rem 1.05rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  transition: background var(--d-fast) var(--ease-settle);
+}
+.bridal-spec:hover { background: var(--ink-3); }
+
+.bridal-spec-k {
+  font-size: var(--t-micro);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.bridal-spec-v {
+  font-size: 0.9rem;
+  color: var(--bone-dim);
+}
+
+.bridal-cta { margin-top: 0.6rem; }
+
+/* ── Neeche: chaurai bhar ki tasveer ──
+   Dono tehon ke neeche se nikalti hui, is liye upar ka margin
+   manfi hai. */
+.bridal-plate {
+  position: relative;
+  margin-top: clamp(2.5rem, 6vw, 5rem);
+  /* Qad chaurai se aata hai, chaurai qad se NAHI.
+     `min-height` yahan likhne se phone par ulta hota tha: 260px
+     qad ne 16:9 ke hisab se 462px chaurai maang li, jo 375px ki
+     screen se bahar nikal jati thi aur tasveer ka dayan kinara
+     kat jata tha. Site ka apna `.cloth-wide` yehi ehtiyat pehle
+     se karta hai. */
+  min-height: 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+
+/* Phone par 16:9 ek patli si patti ban jati hai — wahan tasveer
+   ko thora qad de dein. */
+@media (max-width: 640px) {
+  .bridal-plate { aspect-ratio: 4 / 3; }
+}
+
+.bridal-plate img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 38%;
+  /* Yahan apna koi transform NAHI.
+     `.bridal-plate` par Reveal ka `mask` laga hai, aur motion.css
+     pehle se tasveer ko 1.1 se 1 tak le aata hai jab wo nazar
+     mein aati hai — wohi narm zoom jo site ki har bari tasveer
+     karti hai. Yahan apna transform likhne se wo zoom chup chaap
+     mar jata, kyunke dono ek hi element par lagte aur sections.css
+     baad mein parhi jati hai. Site ka apna raasta behtar hai. */
+}
+
+.bridal-plate-wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgb(var(--scrim-rgb) / 0.42) 0%,
+    rgb(var(--scrim-rgb) / 0.06) 45%,
+    transparent 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bridal-film,
+  .bridal-plate img,
+  .bridal-glow { transform: none !important; }
+  .bridal-film-frame video { opacity: 1; transform: none; }
+  .bridal-film-sheen { display: none; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   SUB-COLLECTIONS — Winter / Summer, Gents / Women's
+   ───────────────────────────────────────────────────────────────
+   Do bare darwazay. Category ke safhe par sab se pehla faisla
+   yehi hota hai, is liye inhein chhote chip nahi banaya gaya —
+   tasveer poori, naam bara, aur hover par tasveer saans leti hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── DO DARWAZAY ──────────────────────────────────────────────
+
+   Ye teesri koshish hai, aur dono pichhli ghaltiyan yahan likhi
+   hain taake chauthi na ho:
+
+     Pehli dafa — grid poore container ki chaurai leti thi. 1680px
+     ke container mein har card 820 × 745 ka ho jata tha. Safhe par
+     do ishtihar lagte the.
+
+     Doosri dafa — had 940px kar di. Card 459 × 449 rah gaya, jo
+     product card se mushkil se bara tha. Jo cheez poore department
+     ka darwaza hai, wo shelf ke ek piece jaisi nazar aane lagi.
+
+   Ab had 1240px hai aur tehreer tasveer ke ANDAR chali gayi hai.
+   Card 610 × 458 ka hai — pehle se ek tihai chaura, aur kyunke
+   naam tasveer par baitha hai, dekhne mein poora khana ek hi
+   cheez lagta hai, do chipke hue tukre nahi. Yehi wo shakal hai
+   jo achhe catalogue mein department ke safhe par hoti hai.
+   ───────────────────────────────────────────────────────────── */
+
+.subcol-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.9rem, 2vw, 1.5rem);
+  margin-top: clamp(1.35rem, 2.5vw, 2rem);
+  max-width: min(100%, 1240px);
+}
+@media (max-width: 720px) {
+  .subcol-grid {
+    grid-template-columns: 1fr;
+    max-width: 520px;
+  }
+}
+
+.subcol {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--line);
+  background: var(--ink-2);
+  isolation: isolate;
+  transform: translate3d(0, 0, 0);
+  transition:
+    border-color var(--d-fast) var(--ease-settle),
+    transform var(--d-fast) var(--ease-settle),
+    box-shadow var(--d-fast) var(--ease-glide);
+}
+@media (max-width: 720px) {
+  .subcol { aspect-ratio: 5 / 4; }
+}
+
+.subcol:hover,
+.subcol:focus-visible {
+  border-color: var(--gold);
+  transform: translate3d(0, -5px, 0);
+  box-shadow: var(--shadow-card);
+}
+.subcol:active { transform: translate3d(0, -1px, 0) scale(0.995); }
+
+/* Neeche se uthta hua sunehri ujala */
+.subcol::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 2px;
+  z-index: 4;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  transform: scaleX(0);
+  transition: transform var(--d-fast) var(--ease-settle);
+}
+.subcol:hover::after,
+.subcol:focus-visible::after { transform: scaleX(1); }
+
+.subcol-shot {
+  display: block;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.subcol-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+  transform: scale(1.03);
+  transition: transform var(--d-epic) var(--ease-settle);
+}
+.subcol:hover .subcol-shot img,
+.subcol:focus-visible .subcol-shot img { transform: scale(1.09); }
+
+/* Tehreer ke neeche ka wash — filter nahi, gradient. Filter har
+   frame par tasveer dobara banata hai; gradient ek dafa bun kar
+   compositor ke hawale ho jata hai. */
+.subcol-shot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to top,
+    rgb(var(--scrim-rgb) / 0.92) 0%,
+    rgb(var(--scrim-rgb) / 0.55) 34%,
+    rgb(var(--scrim-rgb) / 0.08) 68%
+  );
+  transition: opacity var(--d-fast) var(--ease-glide);
+}
+.subcol:hover .subcol-shot::after { opacity: 0.86; }
+
+.subcol-body {
+  position: absolute;
+  z-index: 2;
+  inset-inline: 0;
+  bottom: 0;
+  display: block;
+  padding: clamp(1.1rem, 2.2vw, 1.75rem);
+}
+
+.subcol-name {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  font-weight: 300;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--on-media);
+  transition: transform var(--d-fast) var(--ease-settle);
+}
+.subcol:hover .subcol-name { transform: translate3d(4px, 0, 0); }
+
+.subcol-blurb {
+  display: block;
+  margin-top: 0.45rem;
+  max-width: 36ch;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--on-media-dim);
+}
+
+.subcol-go {
+  position: absolute;
+  top: clamp(0.9rem, 1.8vw, 1.25rem);
+  right: clamp(0.9rem, 1.8vw, 1.25rem);
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  color: var(--ink);
+  background: var(--gold);
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    opacity var(--d-fast) var(--ease-glide),
+    transform var(--d-fast) var(--ease-settle);
+}
+.subcol:hover .subcol-go,
+.subcol:focus-visible .subcol-go { opacity: 1; transform: none; }
+
+/* Jo collection abhi khula hai, us ka chip roshan */
+.chip[data-on="true"] {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .subcol-shot img { transition: none; transform: none; }
+  .subcol:hover .subcol-shot img { transform: none; }
+  .subcol-go { transition: none; }
+  .subcol,
+  .subcol:hover,
+  .subcol:focus-visible,
+  .subcol:active { transform: none; transition: border-color 0.2s linear; }
+  .subcol::after { transition: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   THE ATELIER  (/about)
+   ───────────────────────────────────────────────────────────────
+   Safha chhe teh ka hai. Har teh ka apna kaam hai, aur koi teh
+   doosri ki naqal nahi karti — yehi is safhe ko catalogue banne
+   se bachata hai.
+
+   Sab kuch do numbers par chalta hai:
+     --p   ScrollScene ka apna safar (0 → 1)
+     is-in  jo cheez nazar mein aa gayi
+   Teesra koi hisaab nahi hota, is liye scroll kabhi bhaari nahi
+   hota chahe safha kitna hi lamba ho.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 1. FILM ─────────────────────────────────────────────── */
+
+.atopen {
+  position: relative;
+  min-height: min(88svh, 900px);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  background: var(--ink);
+}
+
+.atopen-media {
+  position: absolute;
+  inset: -8% 0 -8% 0;
+  z-index: 0;
+  transform: translate3d(0, calc(var(--p, 0) * 12vh), 0) scale(1.06);
+  will-change: transform;
+}
+
+.atopen-media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.5;
+  filter: saturate(0.9) contrast(1.04) brightness(1.05);
+}
+
+.atopen-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 85% at 50% 8%,
+      rgb(var(--scrim-rgb) / 0.24) 0%,
+      rgb(var(--scrim-rgb) / 0.74) 70%
+    ),
+    linear-gradient(
+      to top,
+      var(--ink) 0%,
+      rgb(var(--scrim-rgb) / 0.9) 9%,
+      rgb(var(--scrim-rgb) / 0.16) 62%
+    );
+}
+
+.atopen-inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding-top: calc(var(--header-h) + 3rem);
+  padding-bottom: clamp(3.5rem, 9vh, 6.5rem);
+}
+
+.atopen-title {
+  margin-top: 1.25rem;
+  font-family: var(--font-display);
+  font-size: var(--t-display);
+  font-weight: 300;
+  line-height: 0.94;
+  letter-spacing: -0.03em;
+}
+.atopen-title em { font-style: italic; color: var(--gold); }
+
+.atopen-lede {
+  margin-top: clamp(1.5rem, 3vw, 2.25rem);
+  max-width: 58ch;
+}
+
+/* ── 2. GHAR KA USOOL ────────────────────────────────────── */
+
+.creed {
+  position: relative;
+  padding-block: clamp(4.5rem, 13vw, 10rem);
+  overflow: hidden;
+}
+
+.creed-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 200px) minmax(0, 1fr) minmax(0, 200px);
+  align-items: center;
+  gap: clamp(1.5rem, 5vw, 4.5rem);
+}
+
+/* Do tasveerein ek dusre ke mukhalif chalti hain. Jumla beech mein
+   theher jata hai — is liye parhne wala rukta hai, aur safha phir
+   bhi zinda rehta hai. */
+.creed-shot {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  will-change: transform;
+}
+.creed-shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.creed-shot-a { transform: translate3d(0, calc(var(--p, 0) * -52px), 0); }
+.creed-shot-b { transform: translate3d(0, calc(var(--p, 0) * 52px), 0); }
+
+.creed-quote { margin: 0; text-align: center; }
+
+.creed-q {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3.6vw, 3rem);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  color: var(--bone);
+  text-wrap: balance;
+}
+
+.creed-by {
+  display: block;
+  margin-top: clamp(1.1rem, 2.5vw, 1.9rem);
+  font-style: normal;
+  font-size: var(--t-micro);
+  letter-spacing: 0.26em;
+  color: var(--bone-faint);
+}
+
+@media (max-width: 820px) {
+  .creed-inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  .creed-quote { grid-column: 1 / -1; order: -1; margin-bottom: 1.5rem; }
+  .creed-shot-a,
+  .creed-shot-b { transform: none; }
+}
+
+/* ── 3. CHALTI HUI TASVEEREIN ────────────────────────────── */
+
+.drift-band {
+  display: grid;
+  gap: clamp(0.55rem, 1.4vw, 1rem);
+  padding-block: clamp(1rem, 3vw, 2.5rem);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--ink-2);
+}
+
+.drift-row {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.55rem, 1.4vw, 1rem);
+  padding-inline: clamp(0.28rem, 0.7vw, 0.5rem);
+}
+
+/* Ghair-barabar naap hi is qatar ko dais banate hain. Sab khane
+   ek jaise ho jayen to ye catalogue lagne lagti hai. */
+.drift-shot {
+  flex: none;
+  margin: 0;
+  height: clamp(150px, 21vw, 270px);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--ink-3);
+  /* Pehle yahan `filter: brightness()` tha. Filter har frame par
+     tasveer ko dobara rangta hai — aur ye chaubees tasveerein
+     musalsal sarak rahi hoti hain, yani chaubees dobara rangaiyan
+     har frame. Opacity compositor ka apna kaam hai aur bilkul
+     muft hai; dekhne mein farq sirf itna ke ab tasveer kali ki
+     jagah safhe ke apne rang mein dabti hai, jo behtar bhi hai. */
+  opacity: 0.78;
+  transition:
+    opacity var(--d-fast) var(--ease-glide),
+    transform var(--d-fast) var(--ease-settle);
+}
+.drift-shot[data-size="0"] { aspect-ratio: 3 / 4; }
+.drift-shot[data-size="1"] { aspect-ratio: 1 / 1; }
+.drift-shot[data-size="2"] { aspect-ratio: 4 / 3; }
+
+.drift-shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.drift-shot:hover {
+  opacity: 1;
+  transform: translate3d(0, -5px, 0);
+}
+
+/* ── 4. FARSH — paanch qadam ─────────────────────────────── */
+
+.atflow-head { padding-bottom: 0; }
+
+.atflow { position: relative; padding-bottom: clamp(3rem, 8vw, 6rem); }
+
+.atflow-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 5vw, 5rem);
+  align-items: start;
+}
+
+/* Tasveer ka khana screen ke sath chalta hai. `align-self: start`
+   zaroori hai — grid ka item poori qatar jitna lamba ho jaye to
+   sticky kaam karna chhor deti hai. */
+.atflow-media {
+  position: sticky;
+  top: calc(var(--header-h) + 4vh);
+  align-self: start;
+}
+
+.atflow-stack {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  max-height: 74vh;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--ink-2);
+  box-shadow: var(--shadow-card);
+}
+
+.atflow-shot {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: scale(1.07);
+  transition:
+    opacity var(--d-slow) var(--ease-glide),
+    transform var(--d-epic) var(--ease-settle);
+}
+.atflow-shot[data-on="true"] { opacity: 1; transform: scale(1); }
+.atflow-shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Chaar konon ke sunehri nishan */
+.atflow-edge {
+  position: absolute;
+  inset: 12px;
+  z-index: 2;
+  pointer-events: none;
+  border: 1px solid rgb(194 165 107 / 0.28);
+}
+.atflow-edge::before,
+.atflow-edge::after {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--gold);
+}
+.atflow-edge::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+.atflow-edge::after  { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+
+.atflow-tag {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 3;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.55rem 0.95rem;
+  font-size: var(--t-micro);
+  letter-spacing: 0.24em;
+  color: var(--on-media-dim);
+  background: rgb(var(--scrim-rgb) / 0.72);
+  backdrop-filter: blur(6px);
+}
+.atflow-tag b { color: var(--gold); font-weight: 400; letter-spacing: 0.1em; }
+
+.atflow-steps {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 clamp(1.5rem, 3vw, 2.75rem);
+}
+
+/* Bayein rail — sunehra hissa `--p` se bharta hai */
+.atflow-rail {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line);
+}
+.atflow-rail::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: calc(var(--p, 0) * 100%);
+  background: linear-gradient(to bottom, var(--gold-deep), var(--gold));
+}
+
+.atflow-step {
+  position: relative;
+  padding-block: clamp(2.75rem, 9vh, 6.5rem);
+  opacity: 0.32;
+  transform: translate3d(0, 8px, 0);
+  transition:
+    opacity var(--d-base) var(--ease-glide),
+    transform var(--d-base) var(--ease-settle);
+}
+.atflow-step[data-on="true"] { opacity: 1; transform: none; }
+
+/* Rail par ek nuqta — jis qadam par nazar ho wohi roshan */
+.atflow-step::before {
+  content: '';
+  position: absolute;
+  left: calc(clamp(1.5rem, 3vw, 2.75rem) * -1 - 3px);
+  top: calc(clamp(2.75rem, 9vh, 6.5rem) + 0.55em);
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--line-strong);
+  transition: background var(--d-fast) var(--ease-glide),
+              box-shadow var(--d-fast) var(--ease-glide);
+}
+.atflow-step[data-on="true"]::before {
+  background: var(--gold);
+  box-shadow: 0 0 0 5px rgb(194 165 107 / 0.14);
+}
+
+.atflow-n {
+  display: block;
+  font-size: var(--t-micro);
+  letter-spacing: 0.3em;
+  color: var(--gold);
+}
+
+.atflow-t {
+  margin-top: 0.75rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.atflow-b {
+  margin-top: 0.9rem;
+  max-width: 46ch;
+  color: var(--bone-dim);
+  line-height: 1.75;
+}
+
+/* Chhoti screen par tasveer qadam ke sath hi — chipkane ki jagah
+   nahi hoti, aur khali khana bura lagta hai. */
+.atflow-inline { display: none; }
+
+@media (max-width: 900px) {
+  .atflow-inner { grid-template-columns: minmax(0, 1fr); }
+  .atflow-media { display: none; }
+  .atflow-step { padding-block: clamp(2rem, 6vh, 3rem); opacity: 1; transform: none; }
+  .atflow-inline {
+    display: block;
+    margin-top: 1.35rem;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    aspect-ratio: 4 / 3;
+  }
+  .atflow-inline img { width: 100%; height: 100%; object-fit: cover; display: block; }
+}
+
+/* ── 5. TAKHTI — chaurai bhar ki tasveer ─────────────────── */
+
+.atplate {
+  position: relative;
+  margin-block: clamp(1rem, 3vw, 2.5rem);
+  overflow: hidden;
+}
+
+.atplate-shot {
+  display: block;
+  aspect-ratio: 16 / 9;
+  max-height: 78vh;
+  overflow: hidden;
+}
+.atplate-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Scroll ke sath narmi se safar — tasveer safhe se dheemi chalti
+     hai, is liye gehrai mehsoos hoti hai. */
+  transform: translate3d(0, calc((var(--p, 0) - 0.5) * 7vh), 0) scale(1.14);
+  will-change: transform;
+}
+
+@media (max-width: 640px) {
+  .atplate-shot { aspect-ratio: 4 / 3; }
+}
+
+.atplate-wash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgb(var(--scrim-rgb) / 0.86) 0%,
+    rgb(var(--scrim-rgb) / 0.24) 46%,
+    transparent 72%
+  );
+}
+
+.atplate-cap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(1.35rem, 4vw, 3rem);
+}
+.atplate-cap p {
+  font-size: clamp(1.15rem, 2.6vw, 2.1rem);
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--on-media);
+  max-width: 22ch;
+}
+
+/* ── 6. TEEN USOOL ───────────────────────────────────────── */
+
+.rule {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: clamp(1.25rem, 2.5vw, 1.75rem);
+  border: 1px solid transparent;
+  background: transparent;
+  transition:
+    border-color var(--d-fast) var(--ease-glide),
+    background var(--d-fast) var(--ease-glide),
+    transform var(--d-fast) var(--ease-settle);
+}
+.rule:hover {
+  border-color: var(--line);
+  background: var(--ink-2);
+  transform: translate3d(0, -4px, 0);
+}
+
+.rule-n {
+  font-size: var(--t-micro);
+  letter-spacing: 0.3em;
+  color: var(--gold);
+}
+
+.rule .hr { transition: background var(--d-fast) var(--ease-glide); }
+.rule:hover .hr { background: var(--gold); }
+
+.rule h3 { font-size: 1.5rem; }
+.rule p { font-size: 0.95rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .atopen-media,
+  .creed-shot-a,
+  .creed-shot-b,
+  .atplate-shot img { transform: none; }
+  .atflow-shot,
+  .atflow-step,
+  .drift-shot,
+  .rule { transition: none; }
+  .rule:hover,
+  .drift-shot:hover { transform: none; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   TASVEER KA KHAT — har card mein ek hi jagah
+   ───────────────────────────────────────────────────────────────
+   Har tasveer ab 3:4 par kati hui hai aur us mein cheez OOPAR se
+   ek hi khat par baithti hai (yehi kaam `reframe` ne files par
+   kiya). Magar do jagah aisi hain jahan browser khud aur kaat-ta
+   hai, kyunke wahan khana chaura hai aur tasveer khari:
+
+     .cat-cell-img   — department ka card
+     .ratio-wide     — collection ke safhe ka bara khana
+
+   Wahan `cover` beech ka hissa rakhta hai aur oopar wala hissa
+   kaat deta hai — yani theek wohi hissa jahan gala, kandha aur
+   chehra hota hai. Is liye dono ko thora OOPAR se pakra jata
+   hai. Naap wahi hai jo `.subcol-shot` par pehle se chal rahi
+   hai, taake poori site ka khat ek rahe.
+   ═══════════════════════════════════════════════════════════════ */
+
+.cat-cell-img img,
+.ratio-wide img,
+.media.ratio-wide img {
+  object-position: center 38%;
+}
+
+/* ── Do chunav — New Arrivals aur Top Sales ──
+   Wohi card, wohi harkat. Farq sirf chaurai ka (upar dekhein)
+   aur ek baareek sunehri khat ka, jo nazar ko batata hai ke ye
+   mausam ka khana nahi, chunav hai. Halka rakha gaya hai — grid
+   ki khamoshi tootni nahi chahiye. */
+.cat-cell[data-kind="edit"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), rgb(194 165 107 / 0));
+  opacity: 0.85;
+  z-index: 1;
+}
+.cat-cell[data-kind="edit"] .idx { color: var(--gold); }

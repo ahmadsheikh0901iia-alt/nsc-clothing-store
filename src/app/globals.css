@@ -1,0 +1,25 @@
+/* ═══════════════════════════════════════════════════════════════
+   NSC CLOTHING STORE — GLOBAL STYLESHEET
+   ───────────────────────────────────────────────────────────────
+   This file only wires the pieces together. Edit the individual
+   files below; the order matters, so keep it as it is.
+
+     tokens.css      colours, type scale, spacing, easing curves
+     base.css        reset, typography defaults, grain, a11y
+     utilities.css   container, grid, type helpers, media wrappers
+     motion.css      the whole scroll-animation system
+     components.css  buttons, header, cards, forms, drawer, footer
+     sections.css    the home page and inner pages, section by section
+     track.css       /order — customer ka order tracking
+     admin.css       the /admin panel — tokens.css ke baad hi, kyunke
+                     wo apna har rang wahin se leta hai
+   ═══════════════════════════════════════════════════════════════ */
+
+@import "../styles/tokens.css";
+@import "../styles/base.css";
+@import "../styles/utilities.css";
+@import "../styles/motion.css";
+@import "../styles/components.css";
+@import "../styles/sections.css";
+@import "../styles/track.css";
+@import "../styles/admin.css";
