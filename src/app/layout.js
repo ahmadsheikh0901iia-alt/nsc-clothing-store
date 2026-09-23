@@ -61,6 +61,21 @@ export const metadata = {
     googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
   },
   formatDetection: { telephone: true, address: false, email: false },
+
+  /* ── GOOGLE SEARCH CONSOLE ──
+     Google ko ye sabit karna hota hai ke site waqai hamari hai.
+     Ye qatar har safhe ke <head> mein ye tag laga deti hai:
+
+       <meta name="google-site-verification" content="3S9Ifu…" />
+
+     Namecheap mein isi maqsad ka ek TXT record bhi laga hua hai.
+     Dono saath chal sakte hain — jo pehle mil jaye, Google usi se
+     tasdeeq kar leta hai. Verify ho jane ke baad bhi ye qatar yahin
+     rehni chahiye; hatane par Google baad mein dobara poochh sakta
+     hai. */
+  verification: {
+    google: '3S9Ifusrm6Gq0vijdj0osm9MvkFlfEbWtNz180weHHU',
+  },
 };
 
 export const viewport = {
