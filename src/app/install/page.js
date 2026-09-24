@@ -6,7 +6,7 @@ import { STORE } from '@/lib/constants';
 
 export const metadata = {
   title: 'Get the app',
-  description: `${STORE.name} ko apne phone ki home screen par lagayein — apne nishan ke sath, poori screen par, bilkul app ki tarah. Koi store nahi, koi download nahi.`,
+  description: `Install the ${STORE.name} shop on your phone's Home Screen — full screen, instant, and offline-ready. No app store, no download.`,
   alternates: { canonical: '/install' },
 };
 
@@ -27,28 +27,29 @@ export default function InstallPage() {
           <div className="install-facts">
             <div>
               <span className="n">01</span>
-              <h3>Jagah taqreeban kuch nahi</h3>
+              <h3>Almost no space</h3>
               <p>
-                Ek aam app pachaas se do sau MB leti hai. Ye ek MB se bhi
-                kam — kyunke ye app ka bhes badla hui website hai, aur
-                tasveerein wahin rehti hain jahan hain.
+                A typical shopping app costs you 50 to 200 MB. This one is
+                under a megabyte, because it is the website itself wearing
+                the app&rsquo;s clothes — the photographs stay where they
+                already are.
               </p>
             </div>
             <div>
               <span className="n">02</span>
-              <h3>Hamesha taza</h3>
+              <h3>Always current</h3>
               <p>
-                Naya product, naya daam, order ka haal — sab foran. Kabhi
-                "update karein" wala paigham nahi aayega, kyunke update
-                karne ko kuch hota hi nahi.
+                New pieces, new prices, the state of your order — all of it
+                live. You will never see an &ldquo;update available&rdquo;
+                notice, because there is nothing to update.
               </p>
             </div>
             <div>
               <span className="n">03</span>
-              <h3>Signal chala jaye tab bhi</h3>
+              <h3>Works when signal drops</h3>
               <p>
-                Network tootne par browser ka khali safha nahi — apni
-                dukaan ka apna paigham, apne nishan ke sath.
+                Lose your connection and you get our page, with our mark on
+                it — not the browser&rsquo;s blank error screen.
               </p>
             </div>
           </div>
@@ -56,7 +57,7 @@ export default function InstallPage() {
 
         <Reveal delay={0.1} className="install-back">
           <Link href="/shop" className="link-arrow">
-            Dukaan dekhein
+            Browse the shop
             <ArrowRight className="arrow" width={15} height={15} />
           </Link>
         </Reveal>

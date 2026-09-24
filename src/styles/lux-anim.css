@@ -1,0 +1,331 @@
+/* ═══════════════════════════════════════════════════════════════
+   LUX-ANIM
+   ───────────────────────────────────────────────────────────────
+   Everything new lives under the `lux-` prefix so it can never
+   collide with a rule elsewhere in the project, and so it can all
+   be found — or removed — in one place.
+
+   Two things are in here:
+
+     1. the Ensuite tile-explode gallery
+     2. the page / category transition every route now shares
+
+   ── THE ONE RULE EVERY ANIMATION HERE FOLLOWS ──
+   Only `transform` and `opacity` are animated. Those are the two
+   properties a browser can hand to the GPU: it moves a texture
+   that is already painted. Animate width, top, margin, filter or
+   box-shadow instead and every frame has to be laid out and
+   repainted on the CPU, which is exactly how a phone drops to
+   fifteen frames a second.
+
+   `will-change` is granted only while something is moving and
+   dropped the moment it stops. Each hint costs a compositor layer
+   and a slab of GPU memory; a page holding thirty of them stutters
+   on every later scroll, long after the animation everyone has
+   forgotten about.
+
+   ── SWITCHING IT OFF ──
+   Three ways, any one is enough:
+
+     · the visitor's own setting — `prefers-reduced-motion: reduce`
+     · a build flag — NEXT_PUBLIC_LUX_ANIM=off
+     · at runtime, for debugging, in the browser console:
+           localStorage.setItem('nsc-lux', 'off'); location.reload()
+
+   All three land on `<html data-lux="off">`, handled at the bottom
+   of this file. Nothing disappears when animation is off — every
+   element simply starts in its final state.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --lux-ease: cubic-bezier(0.2, 0.9, 0.2, 1);
+  --lux-tile-dur: 1.05s;
+  --lux-page-dur: 0.52s;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   1 — ENSUITE GALLERY
+   ═══════════════════════════════════════════════════════════════ */
+
+.lux-gallery-head {
+  max-width: 46ch;
+  margin-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+.lux-gallery-head h2 { margin-block: 1.25rem 1.25rem; }
+
+.lux-rail {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1rem, 2.6vw, 2.25rem);
+}
+
+.lux-figure { margin: 0; min-width: 0; }
+
+/* ── The frame ──
+   Holds its final size from the first paint: `aspect-ratio` fixes
+   the height before any picture has loaded and before any tile has
+   moved, so this section contributes nothing to layout shift. */
+.lux-frame {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--ink-3);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-card);
+
+  /* The whole frame is the hit area, above every tile, so the
+     photograph is clickable while the animation is still running. */
+  z-index: 0;
+  isolation: isolate;
+}
+
+/* ── One ninth of the picture ──
+   The tile is the window; the <img> inside it is three times the
+   frame in both directions and slid so the right ninth shows. All
+   nine <img> carry the same src, so the browser fetches once. */
+.lux-tile {
+  position: absolute;
+  width: calc(100% / 3);
+  height: calc(100% / 3);
+  overflow: hidden;
+  pointer-events: none;      /* the anchor above takes every click */
+
+  opacity: 0;
+  transform:
+    translate3d(var(--tx, 0), var(--ty, 0), 0)
+    rotate(var(--rot, 0deg))
+    scale(var(--sc, 0.85));
+
+  transition:
+    opacity var(--lux-tile-dur) var(--lux-ease) var(--delay, 0s),
+    transform var(--lux-tile-dur) var(--lux-ease) var(--delay, 0s);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.lux-tile img {
+  position: absolute;
+  width: 300%;
+  height: 300%;
+  max-width: none;
+  object-fit: cover;
+}
+
+/* Landed. */
+.lux-figure.is-in .lux-tile {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+}
+
+/* Animation over — hand the GPU memory back. */
+.lux-figure.is-done .lux-tile { will-change: auto; }
+
+/* Hairline seams while the picture is still in pieces: they fade
+   out as the tiles close up, so the joins never show afterwards. */
+.lux-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.5;
+  background:
+    linear-gradient(to right, transparent 33.1%, rgb(194 165 107 / 0.25) 33.3%,
+      transparent 33.5%, transparent 66.1%, rgb(194 165 107 / 0.25) 66.3%, transparent 66.5%),
+    linear-gradient(to bottom, transparent 33.1%, rgb(194 165 107 / 0.25) 33.3%,
+      transparent 33.5%, transparent 66.1%, rgb(194 165 107 / 0.25) 66.3%, transparent 66.5%);
+  transition: opacity 0.7s var(--lux-ease) 0.55s;
+}
+.lux-figure.is-in .lux-frame::after { opacity: 0; }
+
+/* ── The full stop ──
+   A gold rule draws itself across the foot of the picture once the
+   tiles have settled. Scale, not width — width would relayout. */
+.lux-rule {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 3;
+  width: 100%;
+  height: 1px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.9s var(--lux-ease) 0.85s;
+}
+.lux-figure.is-in .lux-rule { transform: scaleX(1); }
+
+/* Hover lifts the picture very slightly — enough to say "this is a
+   link", not enough to be a bounce. */
+@media (hover: hover) {
+  .lux-frame {
+    transition: transform var(--d-fast) var(--lux-ease),
+      border-color var(--d-fast) var(--lux-ease);
+  }
+  .lux-frame:hover {
+    transform: translate3d(0, -4px, 0);
+    border-color: rgb(194 165 107 / 0.45);
+  }
+}
+.lux-frame:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* ── Caption ── */
+.lux-figure figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding-top: 1rem;
+}
+.lux-figure .n {
+  font-size: 0.5625rem;
+  letter-spacing: 0.28em;
+  color: var(--gold);
+}
+.lux-figure .t {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 1.5vw, 1.35rem);
+  line-height: 1.1;
+  color: var(--bone);
+}
+.lux-figure .d {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  color: var(--bone-faint);
+}
+
+.lux-gallery-foot { margin-top: clamp(2rem, 5vw, 3rem); }
+
+/* ── Phone and small tablet ──
+   Three columns become one swipeable row. This is not a fallback:
+   a phone screen cannot show three 3:4 photographs side by side at
+   any readable size, and stacking them vertically buries the third.
+   The tiles still explode — each frame animates as it swipes into
+   view, exactly as on desktop. */
+@media (max-width: 860px) {
+  .lux-rail {
+    display: flex;
+    grid-template-columns: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+
+    /* break out of the container so the row runs edge to edge */
+    margin-inline: calc(var(--gutter) * -1);
+    padding-inline: var(--gutter);
+    padding-bottom: 0.5rem;
+    scrollbar-width: none;
+  }
+  .lux-rail::-webkit-scrollbar { display: none; }
+
+  .lux-figure {
+    flex: 0 0 auto;
+    width: min(76vw, 320px);
+    scroll-snap-align: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .lux-figure { width: 72vw; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   2 — PAGE AND CATEGORY TRANSITION
+   ───────────────────────────────────────────────────────────────
+   One entrance, used by every route: home, a collection, a product,
+   the cart, the admin login. Consistency is the whole point — a
+   site where each page arrives differently feels assembled from
+   parts, not designed.
+
+   It runs on `src/app/template.js`. Next.js rebuilds a template on
+   every navigation (a layout, by contrast, is kept), so the element
+   is new each time and the animation plays without a single line of
+   JavaScript deciding when.
+
+   Interactivity is never gated on it: the content is in the DOM,
+   hit-testable and keyboard-reachable from the first frame. Only
+   opacity and position are in motion, and `pointer-events` is never
+   touched. Total 520ms, and every millisecond of it is skippable —
+   clicking during the animation works.
+   ═══════════════════════════════════════════════════════════════ */
+
+.lux-page {
+  animation: lux-page-in var(--lux-page-dur) var(--lux-ease) both;
+  transform-origin: 50% 0;
+}
+
+@keyframes lux-page-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.994);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+/* The home page opens behind a full-screen hero whose own reveal is
+   already running; adding a second movement on top of it reads as a
+   stutter. There it fades only. */
+.lux-page[data-route="/"] {
+  animation-name: lux-page-fade;
+}
+@keyframes lux-page-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   3 — OFF
+   ───────────────────────────────────────────────────────────────
+   The visitor's own setting, the build flag and the console
+   override all arrive here. Nothing is hidden when motion is off —
+   every element simply starts where it was going to finish.
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .lux-tile {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    will-change: auto !important;
+  }
+  .lux-frame::after { opacity: 0 !important; transition: none !important; }
+  .lux-rule { transform: scaleX(1) !important; transition: none !important; }
+  .lux-frame:hover { transform: none !important; }
+  .lux-page { animation: none !important; }
+}
+
+html[data-lux="off"] .lux-tile {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+  will-change: auto !important;
+}
+html[data-lux="off"] .lux-frame::after { opacity: 0 !important; }
+html[data-lux="off"] .lux-rule { transform: scaleX(1) !important; }
+html[data-lux="off"] .lux-page { animation: none !important; }
+
+/* If JavaScript never ran, the observer never fires and `is-in` is
+   never added — so the tiles would sit scattered and invisible for
+   ever. The site stamps `data-js="on"` from a line in <head> before
+   anything else; without it, the picture is simply whole. */
+html:not([data-js="on"]) .lux-tile {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+html:not([data-js="on"]) .lux-frame::after { opacity: 0 !important; }
+html:not([data-js="on"]) .lux-rule { transform: scaleX(1) !important; }
+html:not([data-js="on"]) .lux-page { animation: none !important; }

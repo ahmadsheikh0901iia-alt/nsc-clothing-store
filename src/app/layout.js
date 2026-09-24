@@ -71,6 +71,17 @@ export const metadata = {
     ],
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
+
+  /* iOS ke apne do ishare. Inke baghair iPhone home screen se
+     khulne par bhi Safari ki pata-patti dikhata rehta hai — yani
+     "app" wala ehsaas adhoora reh jata hai.
+       capable      : poori screen, browser ka chrome nahi
+       statusBarStyle: uper ki patti site ke kaale mein ghul jaye */
+  appleWebApp: {
+    capable: true,
+    title: 'NSC',
+    statusBarStyle: 'black-translucent',
+  },
   robots: {
     index: true,
     follow: true,
@@ -130,9 +141,22 @@ export const viewport = {
  * Ye qatar <head> mein sab se pehle chalti hai, kisi bundle ka
  * intezar nahi karti, aur is mein koi nayi zubaan nahi hai — is
  * liye har phone par chalti hai.
+ *
+ * Teesra kaam: zaroorat par animation band kar deti hai — <html>
+ * par `data-lux="off"` laga kar. Do raaste:
+ *   · build par:  NEXT_PUBLIC_LUX_ANIM=off
+ *   · chalti site par, browser console mein:
+ *         localStorage.setItem('nsc-lux','off'); location.reload()
+ * Doosra raasta pehle par bhaari hai, taake bina naya deploy kiye
+ * jaanch ki ja sake. Wapas chalu karne ke liye 'on'.
  */
+const LUX_OFF = process.env.NEXT_PUBLIC_LUX_ANIM === 'off';
+
 const NO_FLASH = `(function(){try{
 document.documentElement.setAttribute("data-js","on");
+var lux=${LUX_OFF ? '"off"' : 'null'};
+try{var o=localStorage.getItem("nsc-lux");if(o==="off"||o==="on")lux=o;}catch(e){}
+if(lux==="off")document.documentElement.setAttribute("data-lux","off");
 var s=localStorage.getItem(${JSON.stringify(THEME_KEY)});
 document.documentElement.dataset.theme=(s==="light"||s==="dark")?s:
 (window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");

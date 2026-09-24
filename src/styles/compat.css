@@ -203,134 +203,19 @@
 
 
 /* ═══════════════════════════════════════════════════════════════
-   3 — TEEN TUKRON WALA KHANA, PHONE PAR
+   3 — (khali)
    ───────────────────────────────────────────────────────────────
-   Bare screen par ye ek "pinned" khana hai: safha khara rehta hai
-   aur andar shirt, dupatta aur trouser scroll ke sath alag hote
-   hain. Wahan ye site ka sab se khoobsurat hissa hai — waise ka
-   waisa hai, us ko haath nahi lagaya.
+   Yahan pehle teen tukron wale khane (Anatomy) ka phone wala ilaj
+   tha: pinned runway todna aur us ki jagah ek swipe wali qatar.
 
-   Phone par wo teen wajhon se toot raha tha:
-
-     1. Poora hisaab `innerHeight` par tha, aur phone ki pata wali
-        patti scroll ke sath chhupti-khulti hai — har dafa qad
-        badal jata aur tukre chhalaang laga dete. (Asal ilaj
-        useScrollProgress.js mein hai: qad ab ek dafa naapa jata
-        hai.)
-     2. 220vh ka safar: angootha chalta rehta aur lagta safha
-        atak gaya hai.
-     3. Teen tasveerein ek chhote murabbe mein ek doosre ke uper —
-        koi bhi theek se nazar nahi aati thi.
-
-   Is liye phone par wo khana ab banta hi nahi. Us ki jagah teen
-   poore card hain jo angoothe se chalte hain aur har ek apni
-   jagah par ruk jata hai. Ye CSS ka apna scroll-snap hai — is
-   mein JavaScript ka ek lafz bhi nahi, is liye ye kabhi lag nahi
-   karta aur touch bilkul qudrati mehsoos hota hai.
+   Ab us ki zaroorat nahi rahi. Wo poora section naye sire se bana
+   diya gaya hai (Anatomy.jsx + lux-anim.css) aur ab wo kisi bhi
+   naap par scroll ko pakarta hi nahi — desktop par teen khane,
+   phone par ek swipe wali qatar, aur dono par wohi tile wala
+   reveal. Us ka apna intezam apni file mein hai, is liye yahan se
+   sab kuch hata diya gaya — do jagah ek hi cheez sambhalna wohi
+   galti hai jo pehle `scroll-behavior` ke sath hui thi.
    ═══════════════════════════════════════════════════════════════ */
-
-/* Bare screen par ye qatar maujood hi nahi */
-.anatomy-rail { display: none; }
-
-@media (max-width: 860px) {
-  /* Pinned runway khatam — safha apni asli lambai par aa jata hai */
-  .anatomy {
-    height: auto;
-    padding-block: clamp(4rem, 12vw, 7rem);
-  }
-  .anatomy-pin {
-    position: static;
-    height: auto;
-    overflow: visible;
-    display: block;
-  }
-  .anatomy-inner {
-    display: block;
-    padding-inline: 0;
-  }
-  .anatomy-copy {
-    padding-inline: var(--gutter);
-    max-width: none;
-  }
-  .anatomy-copy .lede { display: block; }
-
-  /* Purana stage aur uske callout — phone par nahi */
-  .anatomy-stage,
-  .anatomy-meter { display: none; }
-
-  /* ── Wo qatar jo angoothe se chalti hai ── */
-  .anatomy-rail {
-    display: flex;
-    gap: clamp(0.75rem, 3vw, 1.25rem);
-    margin-top: clamp(1.75rem, 6vw, 2.5rem);
-
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: var(--gutter);
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-inline: contain;
-
-    /* Pehla aur aakhri card kinare se utni hi door jitna baaqi
-       safha — warna qatar chipki hui lagti hai. */
-    padding-inline: var(--gutter);
-    padding-bottom: 0.5rem;
-
-    scrollbar-width: none;
-  }
-  .anatomy-rail::-webkit-scrollbar { display: none; }
-
-  .anatomy-card {
-    flex: 0 0 auto;
-    width: min(76vw, 320px);
-    scroll-snap-align: center;
-    margin: 0;
-  }
-
-  .anatomy-card-shot {
-    position: relative;
-    aspect-ratio: 3 / 4;
-    overflow: hidden;
-    background: var(--ink-3);
-    border: 1px solid var(--line);
-    box-shadow: var(--shadow-card);
-  }
-  .anatomy-card-shot img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .anatomy-card figcaption {
-    display: flex;
-    flex-direction: column;
-    gap: 0.28rem;
-    padding-top: 0.9rem;
-  }
-  .anatomy-card .n {
-    font-size: 0.5625rem;
-    letter-spacing: 0.28em;
-    color: var(--gold);
-  }
-  .anatomy-card .t {
-    font-family: var(--font-display);
-    font-size: 1.15rem;
-    line-height: 1.1;
-    color: var(--bone);
-  }
-  .anatomy-card .d {
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-    line-height: 1.55;
-    color: var(--bone-faint);
-  }
-}
-
-/* Chhote phone par teesra card bhi jhankta rahe, taake pata chale
-   ke aage aur bhi hai */
-@media (max-width: 420px) {
-  .anatomy-card { width: 72vw; }
-}
 
 
 /* ═══════════════════════════════════════════════════════════════
@@ -399,15 +284,14 @@ h1, h2, h3, h4, p, li, .card-name {
   .card-shot,
   .pdp-main,
   .spotlight-media,
-  .anatomy-card-shot {
+  .lux-frame {
     position: relative;
     height: 0;
     padding-top: 133.33%; /* 3:4 */
   }
   .card-shot > *,
   .pdp-main > *,
-  .spotlight-media > *,
-  .anatomy-card-shot > * {
+  .spotlight-media > * {
     position: absolute;
     inset: 0;
     height: 100%;
@@ -420,7 +304,7 @@ h1, h2, h3, h4, p, li, .card-name {
   .row > * + *,
   .option-row > * + *,
   .ad-chips > * + *,
-  .anatomy-rail > * + * {
+  .lux-rail > * + * {
     margin-left: 0.6rem;
   }
 }
@@ -554,7 +438,6 @@ h1, h2, h3, h4, p, li, .card-name {
   .card-shot,
   .reveal,
   .reveal-mask,
-  .anatomy-piece,
   .words .word > span {
     will-change: auto !important;
   }
@@ -600,8 +483,7 @@ h1, h2, h3, h4, p, li, .card-name {
   .atopen-media  { transform: scale(1.06) !important; }
   .creed-shot-a,
   .creed-shot-b,
-  .bridal-film,
-  .anatomy-piece { transform: none !important; }
+  .bridal-film { transform: none !important; }
 }
 
 

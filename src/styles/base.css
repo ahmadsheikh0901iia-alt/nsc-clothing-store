@@ -55,7 +55,28 @@ body {
      jo har jagah chalta hai, phir naya wala uske upar. */
   min-height: 100vh;
   min-height: 100dvh;
+
+  /* ── FOOTER APNI JAGAH PAR ──
+     Body ab ek khari qatar hai aur #main us ki saari bachi hui
+     jagah le leta hai. Is ka matlab: jab safhe par saman kam ho —
+     "koi product nahi mila", ya khali cart — tab bhi footer safhe
+     ke AAKHIR mein rehta hai, beech mein uth kar nahi aata.
+
+     Header, overlays aur grain sab `position: fixed` hain, yani is
+     qatar se bahar. Qatar mein sirf do cheezein reh jati hain:
+     #main aur footer. */
+  display: flex;
+  flex-direction: column;
 }
+
+/* Jitni jagah bache, sab #main ki. Footer ko wohi jagah jo wo khud
+   maangta hai — ek pixel zyada nahi. */
+#main {
+  flex: 1 0 auto;
+  min-width: 0;
+}
+
+.footer { flex: 0 0 auto; }
 
 /* Locks background scroll while the cart drawer / menu / search is open. */
 body[data-locked="true"] {

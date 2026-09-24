@@ -61,7 +61,9 @@ export default function manifest() {
     categories: ['shopping', 'lifestyle'],
 
     icons: [
+      { src: '/icon-152.png', sizes: '152x152', type: 'image/png', purpose: 'any' },
       { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+      { src: '/icon-384.png', sizes: '384x384', type: 'image/png', purpose: 'any' },
       { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
       {
         src: '/icon-maskable-512.png',

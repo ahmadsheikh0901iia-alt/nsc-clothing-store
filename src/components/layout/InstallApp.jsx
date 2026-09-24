@@ -121,12 +121,12 @@ export default function InstallApp({ heading = true }) {
       if (outcome === 'accepted') {
         setMode('done');
       } else {
-        setMessage('Koi baat nahi — jab chahein, yahin se laga lein.');
+        setMessage('No problem — you can install from here whenever you like.');
       }
       window.__nscInstallPrompt = null;
       setDeferred(null);
     } catch {
-      setMessage('Ye browser install ki ijazat nahi de raha. Chrome mein kholein.');
+      setMessage('This browser will not allow installing. Try opening the page in Chrome.');
     } finally {
       setBusy(false);
     }
@@ -143,27 +143,30 @@ export default function InstallApp({ heading = true }) {
         {/* ── Baayein: baat ── */}
         <div className="install-copy">
           <Reveal from="none">
-            <span className="eyebrow">{STORE.name} — aap ke phone par</span>
+            <span className="eyebrow">{STORE.name} — on your phone</span>
           </Reveal>
 
           {heading ? (
             <WordReveal
               as="h2"
               id="install-title"
-              segments={[{ text: 'Dukaan ab' }, { text: 'ek tap door.', em: true }]}
+              segments={[
+                { text: 'Install the NSC Shop —' },
+                { text: 'fast, offline, elegant.', em: true },
+              ]}
             />
           ) : (
             <h2 id="install-title" className="install-h2-plain">
-              Dukaan ab ek tap door.
+              Install the NSC Shop — fast, offline, elegant.
             </h2>
           )}
 
           <Reveal delay={0.12}>
             <p className="lede">
-              Home screen par apne nishan ke sath. Khulne par na pata-patti,
-              na browser ke button — poori screen, bilkul app ki tarah. Koi
-              store nahi, koi download nahi, jagah bhi taqreeban kuch nahi
-              leti.
+              Add NSC to your Home Screen for instant access and exclusive
+              offers. It opens full screen — no address bar, no browser
+              buttons — and takes almost no space on your phone. No app
+              store, no download.
             </p>
           </Reveal>
 
@@ -179,9 +182,9 @@ export default function InstallApp({ heading = true }) {
                 <span className="install-btn-mark" aria-hidden="true">
                   <PlusIcon width={16} height={16} />
                 </span>
-                {busy ? 'Ek lamha…' : 'Install karein'}
+                {busy ? 'One moment…' : 'Install App'}
               </button>
-              <span className="install-note">Do second — bas itna hi.</span>
+              <span className="install-note">Two seconds, that is all</span>
             </Reveal>
           )}
 
@@ -192,28 +195,28 @@ export default function InstallApp({ heading = true }) {
                 <li>
                   <span className="n">01</span>
                   <span className="s">
-                    Neeche{' '}
+                    Tap the{' '}
                     <span className="ios-mark" aria-hidden="true">
                       <ShareGlyph />
                     </span>{' '}
-                    wala nishan dabayein
+                    Share icon below
                   </span>
                 </li>
                 <li>
                   <span className="n">02</span>
                   <span className="s">
-                    List ko neeche kar ke <strong>Add to Home Screen</strong>
+                    Scroll the list and choose <strong>Add to Home Screen</strong>
                   </span>
                 </li>
                 <li>
                   <span className="n">03</span>
                   <span className="s">
-                    Uper daayein <strong>Add</strong> — ho gaya
+                    Tap <strong>Add</strong>, top right — done
                   </span>
                 </li>
               </ol>
               <span className="install-note">
-                Safari mein kholein — Chrome par iPhone ye ijazat nahi deta.
+                Open in Safari — iPhone does not allow this from Chrome
               </span>
             </Reveal>
           )}
@@ -224,7 +227,7 @@ export default function InstallApp({ heading = true }) {
               <span className="install-done-mark" aria-hidden="true">
                 <CheckIcon width={18} height={18} />
               </span>
-              <span>Lag chuki hai — aap abhi isi ke andar hain.</span>
+              <span>Already installed — you are in the app right now.</span>
             </Reveal>
           )}
 
@@ -234,19 +237,19 @@ export default function InstallApp({ heading = true }) {
               <ol>
                 <li>
                   <span className="n">01</span>
-                  <span className="s">Browser ka menu kholein (⋮)</span>
+                  <span className="s">Open your browser menu (⋮)</span>
                 </li>
                 <li>
                   <span className="n">02</span>
                   <span className="s">
-                    <strong>Install app</strong> ya{' '}
+                    Choose <strong>Install app</strong> or{' '}
                     <strong>Add to Home screen</strong>
                   </span>
                 </li>
               </ol>
               <span className="install-note">
-                Phone par Chrome ya Safari mein kholne par ek hi tap ka
-                button aa jata hai.
+                Open this page in Chrome or Safari on a phone and it becomes
+                a single-tap button
               </span>
             </Reveal>
           )}
