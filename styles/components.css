@@ -1,0 +1,2559 @@
+/* ═══════════════════════════════════════════════════════════════
+   COMPONENTS — buttons, header, cards, forms, drawer, footer
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────────────────────
+   BUTTONS
+   ─────────────────────────────────────────────────────────── */
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.95rem 1.9rem;
+  font-family: var(--font-sans);
+  font-size: var(--t-micro);
+  font-weight: 400;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  overflow: hidden;
+  isolation: isolate;
+  transition: color var(--d-fast) var(--ease-settle),
+    border-color var(--d-fast) var(--ease-settle),
+    background-color var(--d-fast) var(--ease-settle),
+    opacity var(--d-quick) linear;
+}
+
+/* The fill that wipes up from the bottom on hover */
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--gold);
+  transform: translate3d(0, 101%, 0);
+  transition: transform var(--d-fast) var(--ease-settle);
+}
+
+.btn:hover::before,
+.btn:focus-visible::before {
+  transform: translate3d(0, 0, 0);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn[disabled],
+.btn[aria-disabled="true"] {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Variants */
+.btn-primary {
+  background: var(--bone);
+  color: var(--ink);
+  border-color: var(--bone);
+}
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  color: var(--ink);
+  border-color: var(--gold);
+}
+
+.btn-gold {
+  background: var(--gold);
+  color: var(--ink);
+  border-color: var(--gold);
+}
+.btn-gold::before {
+  background: var(--bone);
+}
+
+.btn-outline {
+  color: var(--bone);
+  border-color: var(--line-strong);
+}
+.btn-outline:hover,
+.btn-outline:focus-visible {
+  color: var(--ink);
+  border-color: var(--gold);
+}
+
+.btn-ghost {
+  padding-inline: 0;
+  color: var(--bone-dim);
+  letter-spacing: 0.2em;
+}
+.btn-ghost::before {
+  display: none;
+}
+.btn-ghost:hover {
+  color: var(--gold);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-sm {
+  padding: 0.7rem 1.3rem;
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
+}
+
+.btn-lg {
+  padding: 1.15rem 2.6rem;
+}
+
+/* Arrow that nudges right on hover */
+.btn .arrow,
+.link-arrow .arrow {
+  display: inline-block;
+  transition: transform var(--d-fast) var(--ease-settle);
+}
+.btn:hover .arrow,
+.link-arrow:hover .arrow {
+  transform: translateX(5px);
+}
+
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: var(--t-micro);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--bone);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--line-mid);
+  transition: color var(--d-fast) var(--ease-settle),
+    border-color var(--d-fast) var(--ease-settle);
+}
+.link-arrow:hover {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+/* ───────────────────────────────────────────────────────────
+   HEADER / NAVIGATION
+   ─────────────────────────────────────────────────────────── */
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-header);
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid transparent;
+  transition: background-color var(--d-fast) var(--ease-settle),
+    border-color var(--d-fast) var(--ease-settle),
+    backdrop-filter var(--d-fast) linear,
+    transform var(--d-fast) var(--ease-settle);
+}
+
+/* While transparent over the hero, a soft gradient sits behind the
+   header so navigation stays legible whatever frame the film is on. */
+.header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--scrim-rgb) / 0.72),
+    rgb(var(--scrim-rgb) / 0)
+  );
+  height: calc(var(--header-h) * 1.9);
+  pointer-events: none;
+  transition: opacity var(--d-fast) var(--ease-settle);
+}
+.header[data-solid="true"]::before {
+  opacity: 0;
+}
+
+/* Solid once the page has scrolled past the hero */
+.header[data-solid="true"] {
+  background: var(--glass);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border-bottom-color: var(--line);
+}
+
+/* Slides away when scrolling down, returns instantly on scroll up */
+.header[data-hidden="true"] {
+  transform: translate3d(0, -100%, 0);
+}
+
+/* ───────────────────────────────────────────────────────────
+   QATAR KA HISAAB — aur wo kharabi jis mein naam logo par
+   charh jata tha
+   ───────────────────────────────────────────────────────────
+   Pehle yahan `1fr auto 1fr` tha: beech wali qatar (nav) apna
+   poora naap le leti thi aur dono taraf jo bacha wo aadha aadha
+   bant jata tha. Gyarah naam ke baad "jo bacha" logo ke asal
+   naap se KAM reh gaya — aur logo apne hi khane se bahar nikal
+   kar nav ke neeche chala gaya. Aankh ko ye yun dikhta tha ke
+   "Shop All" logo ke oopar likha hua hai.
+
+   Ab `auto minmax(0, 1fr) auto` hai: logo aur dayen ke button
+   apna poora naap pehle lete hain (`auto` — inhein dabaya nahi
+   ja sakta), aur nav ko jo bacha wo milta hai. `minmax(0, 1fr)`
+   ka sifar us ijazat ke liye hai ke nav zaroorat parne par
+   sikur jaye — wohi cheez jo pehle logo ke sath ho rahi thi,
+   ab us cheez ke sath hoti hai jo sikur sakti hai.
+   ─────────────────────────────────────────────────────────── */
+.header-inner {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* ───────────────────────────────────────────────────────────
+   HEADER KA LOGO — nishan aur naam, do alag cheezein
+   ───────────────────────────────────────────────────────────
+   Nishan tasveer hai (larki + Nsc), naam CSS ki likhi hui
+   tehreer. Wajah: 34px par tasveer ke andar likha hua hissa
+   teen pixel ka reh jata tha — parha nahi jata tha, bas ek
+   dhabba lagta tha, aur artwork ka wazan ek taraf hone ki
+   wajah se poora logo tera nazar aata tha.
+
+   Ab nishan apne kinaron tak saaf kata hua hai (is liye khane
+   ke beech mein theek baithta hai) aur naam asli tehreer hai,
+   jo har naap par seedha aur saaf rehti hai.
+
+   `line-height: 1` aur `align-items: center` ka jora ahem hai:
+   isi se nishan aur naam ek hi khat par baithte hain. Warna
+   font ka apna khali hissa naam ko halka sa neeche gira deta
+   hai — aur aankh usay "tera" parh leti hai.
+   ─────────────────────────────────────────────────────────── */
+.header-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.62rem;
+  justify-self: start;
+  line-height: 1;
+  /* Ye teen lakeerein us kharabi ki jar par hain: logo ka khana
+     apne andar ki cheezon se chhota nahi ho sakta, aur naam tootta
+     nahi. Warna khana sikur jata tha magar tehreer apni jagah rehti
+     thi — yani bahar nikal kar nav ke neeche. */
+  flex: none;
+  white-space: nowrap;
+  transition: opacity var(--d-quick) var(--ease-settle);
+}
+.header-logo:hover { opacity: 0.78; }
+
+.header-logo .header-mark {
+  display: block;
+  height: 32px;
+  width: auto;
+  flex: none;
+}
+
+.header-word {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-block-start: 2px;
+  flex: none;
+}
+.header-word strong {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.0625rem;
+  line-height: 1;
+  letter-spacing: 0.3em;
+  /* Yahan pehle `margin-inline-end: -0.3em` tha — letter-spacing ki
+     aakhri khali jagah wapas lene ke liye. Wo nazar ke liye theek
+     tha magar khane ko tehreer se CHHOTA kar deta tha, aur browser
+     phir us khane ke hisaab se jagah deta tha. Chand pixel ka faida
+     tha, aur qeemat ye ke naam qatar se bahar nikal jata tha.
+     Ab wo nahi hai. */
+  text-transform: uppercase;
+  color: var(--bone);
+  white-space: nowrap;
+}
+.header-word em {
+  font-style: normal;
+  font-size: 0.5rem;
+  line-height: 1;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .header-logo .header-mark { height: 29px; }
+  .header-word strong { font-size: 0.9375rem; }
+  .header-word em { font-size: 0.4375rem; }
+}
+
+/* Sab se chhoti screen par sirf nishan aur naam — neeche wali
+   chhoti line ke liye jagah nahi bachti. */
+@media (max-width: 400px) {
+  .header-logo { gap: 0.5rem; }
+  .header-logo .header-mark { height: 26px; }
+  .header-word em { display: none; }
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Gap ko thora kam barhne diya gaya hai. 1245px par purana
+     hisaab nav ko itna chaura kar deta tha ke logo aur nav ke
+     darmiyan sirf das pixel bachte thay — toota kuch nahi tha,
+     magar tang lagta tha. Ab har us naap par jahan qatar nazar
+     aati hai, dono taraf khula faasla rehta hai.
+
+     Doosri wajah: 1240 se 1300 ke darmiyan qatar ki poori chaurai
+     mojood jagah se sirf paanch pixel zyada reh jati thi, aur
+     "New In" aur "Top Sales" do do satron mein toot jate thay —
+     baqi aath naam ek hi satar mein. Faasla itna rakha gaya hai
+     ke har naam apni poori satar mein sama jaye. */
+  gap: clamp(0.85rem, 1.45vw, 2.2rem);
+  justify-self: center;
+  min-width: 0;
+}
+
+.nav-link {
+  position: relative;
+  font-size: var(--t-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  transition: color var(--d-quick) var(--ease-settle);
+  padding-block: 6px;
+  /* Do lafzon wale naam — "New In", "Top Sales" — beech ki
+     khali jagah se toot kar do satron mein chale jate thay, aur
+     qatar apni jagah se neechay tak phail jati thi. Naam ab
+     apni satar mein poora rehta hai. */
+  white-space: nowrap;
+}
+.nav-link:hover,
+.nav-link[data-active="true"] {
+  color: var(--bone);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.6rem, 1.4vw, 1.35rem);
+  justify-self: end;
+}
+
+.icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--bone);
+  border-radius: var(--radius-pill);
+  transition: color var(--d-quick) var(--ease-settle),
+    background-color var(--d-quick) var(--ease-settle);
+}
+.icon-btn:hover {
+  color: var(--gold);
+  background: rgb(var(--fg-rgb) / 0.06);
+}
+
+/* Cart count bubble */
+.cart-badge {
+  position: absolute;
+  top: 3px;
+  right: 1px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  display: grid;
+  place-items: center;
+  background: var(--gold);
+  color: var(--ink);
+  font-size: 0.5625rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  border-radius: var(--radius-pill);
+  animation: fade-up-in var(--d-quick) var(--ease-settle);
+}
+
+/* Hamburger */
+.burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  padding: 10px 8px;
+}
+.burger span {
+  display: block;
+  height: 1px;
+  width: 100%;
+  background: var(--bone);
+  transition: transform var(--d-fast) var(--ease-settle),
+    opacity var(--d-quick) linear;
+}
+.burger[data-open="true"] span:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+.burger[data-open="true"] span:nth-child(2) {
+  opacity: 0;
+}
+.burger[data-open="true"] span:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* Poori qatar ke liye jagah chahiye. Na ho to burger — naam ko
+   tang kar ke thoosne se behtar hai usay saaf menu mein dikhana.
+   1100 par wo tang par jati thi; 1240 par aaram se aati hai. */
+@media (max-width: 1240px) {
+  .nav { display: none; }
+  .burger { display: flex; }
+  .header-inner { grid-template-columns: auto 1fr auto; }
+}
+
+/* ── MOBILE MENU (full-screen) ─────────────────────────────── */
+
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: var(--ink);
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--header-h) + 2rem) var(--gutter) 2rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--d-fast) var(--ease-settle),
+    visibility var(--d-fast) linear;
+  overflow-y: auto;
+}
+.menu[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.menu-item {
+  overflow: hidden;
+}
+
+.menu-item a {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 9vw, 3.6rem);
+  font-weight: 300;
+  line-height: 1.22;
+  letter-spacing: -0.02em;
+  color: var(--bone);
+  transform: translate3d(0, 100%, 0);
+  opacity: 0;
+  transition: transform 0.85s var(--ease-settle), opacity 0.6s linear,
+    color var(--d-quick) linear;
+  transition-delay: calc(var(--i, 0) * 0.055s);
+}
+.menu[data-open="true"] .menu-item a {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+}
+.menu-item a:hover {
+  color: var(--gold);
+}
+
+.menu-item .idx {
+  font-family: var(--font-sans);
+  font-size: var(--t-micro);
+  letter-spacing: 0.2em;
+  color: var(--gold);
+}
+
+.menu-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--line);
+  font-size: var(--t-small);
+  color: var(--bone-dim);
+}
+
+/* ───────────────────────────────────────────────────────────
+   THEME TOGGLE
+   The header carries the icon form, the mobile menu the labelled
+   one. Both drive the same three-state store in ThemeContext.
+   ─────────────────────────────────────────────────────────── */
+
+.theme-btn {
+  overflow: hidden;
+}
+
+.theme-btn-stack {
+  position: relative;
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
+.theme-ico {
+  position: absolute;
+  inset: 0;
+  width: 20px;
+  height: 20px;
+  transition: transform var(--d-fast) var(--ease-settle),
+    opacity var(--d-quick) linear;
+}
+
+/* Show the DESTINATION, not the current state: on a dark page the
+   button offers you the sun. The two icons rotate through each other,
+   so it reads as one object turning rather than a swap.
+
+   This keys off <html data-theme>, which the inline script in
+   layout.js sets before the first paint — so the right icon is on
+   screen immediately, with no blank moment waiting for React, and it
+   still works with JavaScript switched off entirely. */
+.theme-ico-sun {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+.theme-ico-moon {
+  opacity: 0;
+  transform: rotate(-75deg) scale(0.5);
+}
+:root[data-theme="light"] .theme-ico-sun {
+  opacity: 0;
+  transform: rotate(75deg) scale(0.5);
+}
+:root[data-theme="light"] .theme-ico-moon {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+.menu-theme {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.9rem 1.5rem;
+  padding-bottom: 1.6rem;
+}
+
+.theme-seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line-mid);
+  border-radius: var(--radius-pill);
+}
+
+.theme-seg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.15rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sans);
+  font-size: var(--t-micro);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+  transition: color var(--d-quick) var(--ease-settle),
+    background-color var(--d-quick) var(--ease-settle);
+}
+.theme-seg-btn:hover {
+  color: var(--bone);
+}
+/* Same reasoning as the icon above: the live theme comes from the
+   <html> attribute, so the correct half is already lit on first paint. */
+:root[data-theme="light"] .theme-seg-btn[data-for="light"],
+:root[data-theme="dark"] .theme-seg-btn[data-for="dark"],
+:root:not([data-theme]) .theme-seg-btn[data-for="dark"] {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+/* ───────────────────────────────────────────────────────────
+   SEARCH OVERLAY
+   ─────────────────────────────────────────────────────────── */
+
+.search {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: rgb(var(--ground-rgb) / 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--d-fast) var(--ease-settle),
+    visibility var(--d-fast) linear;
+  overflow-y: auto;
+  padding: clamp(4rem, 12vh, 9rem) var(--gutter) 3rem;
+}
+.search[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+}
+
+.search-box {
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid var(--line-mid);
+  padding-bottom: 1rem;
+  transition: border-color var(--d-fast) var(--ease-settle);
+}
+.search-field:focus-within {
+  border-color: var(--gold);
+}
+
+.search-field input {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 5vw, 3rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--bone);
+}
+.search-field input::placeholder {
+  color: var(--bone-faint);
+}
+
+.search-results {
+  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: clamp(1rem, 2vw, 1.75rem);
+}
+
+.search-empty {
+  margin-top: 3rem;
+  color: var(--bone-dim);
+  font-size: var(--t-lede);
+}
+
+.search-suggest {
+  margin-top: 2.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+/* ───────────────────────────────────────────────────────────
+   CHIPS / PILLS / BADGES
+   ─────────────────────────────────────────────────────────── */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid var(--line-mid);
+  border-radius: var(--radius-pill);
+  font-size: var(--t-micro);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  white-space: nowrap;
+  transition: color var(--d-quick) var(--ease-settle),
+    border-color var(--d-quick) var(--ease-settle),
+    background-color var(--d-quick) var(--ease-settle);
+}
+.chip:hover {
+  color: var(--bone);
+  border-color: var(--line-strong);
+}
+.chip[data-active="true"] {
+  background: var(--bone);
+  border-color: var(--bone);
+  color: var(--ink);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.5625rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  background: var(--ink);
+  color: var(--bone);
+  border: 1px solid var(--line-mid);
+}
+.badge-gold {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
+}
+.badge-out {
+  background: transparent;
+  color: var(--bone-faint);
+}
+
+/* ───────────────────────────────────────────────────────────
+   PRODUCT CARD
+   ─────────────────────────────────────────────────────────── */
+
+.card {
+  position: relative;
+  display: block;
+  background: transparent;
+  /* The card reflows from its OWN width, not the viewport's, so a
+     narrow card behaves the same in a dense desktop grid as it does
+     on a phone. */
+  container-type: inline-size;
+}
+
+.card-media {
+  position: relative;
+  overflow: hidden;
+  background: var(--ink-3);
+  aspect-ratio: 3 / 4;
+}
+
+.card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.5s var(--ease-settle), opacity var(--d-slow) var(--ease-settle);
+}
+
+/* Second photograph cross-fades in on hover */
+.card-media .card-alt {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.card:hover .card-media img {
+  transform: scale(1.055);
+}
+.card:hover .card-media .card-alt {
+  opacity: 1;
+}
+
+.card-flags {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  z-index: 2;
+}
+
+/* The quick-look bar that rises from the bottom edge of the image */
+.card-quick {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 0.6rem;
+  background: linear-gradient(
+    to top,
+    rgb(var(--scrim-rgb) / 0.94),
+    rgb(var(--scrim-rgb) / 0)
+  );
+  transform: translate3d(0, 100%, 0);
+  opacity: 0;
+  transition: transform var(--d-fast) var(--ease-settle),
+    opacity var(--d-fast) var(--ease-settle);
+}
+.card:hover .card-quick,
+.card:focus-within .card-quick {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+}
+
+/* Tasveer ab khud ek link hai (pehle poora card ek link tha, aur
+   quick-add ka button us ke ANDAR — jo HTML mein jaiz nahi hai
+   aur screen reader ko uljha deta hai). */
+.card-shot {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.card-body {
+  padding-top: 0.8rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.card-name {
+  font-family: var(--font-display);
+  font-size: clamp(0.95rem, 2.4vw, 1.1rem);
+  font-weight: 400;
+  line-height: 1.22;
+  letter-spacing: -0.01em;
+  transition: color var(--d-quick) var(--ease-settle);
+}
+.card:hover .card-name {
+  color: var(--gold);
+}
+
+.card-cat {
+  margin-top: 0.22rem;
+  font-size: var(--t-micro);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+
+.card-price {
+  text-align: right;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.card-was {
+  display: block;
+  font-size: var(--t-small);
+  color: var(--bone-faint);
+  text-decoration: line-through;
+}
+
+/* Tiny colour dots under the name */
+.swatches {
+  display: flex;
+  gap: 4px;
+  margin-top: 0.45rem;
+}
+.swatch-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line-strong);
+}
+
+/* Below roughly 210px a card cannot hold a name and a price on the
+   same line without one of them wrapping badly, so stack them. */
+@container (max-width: 210px) {
+  .card-body {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+  .card-price {
+    text-align: left;
+  }
+  .card-was {
+    display: inline;
+    margin-right: 0.4rem;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────
+   FORMS
+   ─────────────────────────────────────────────────────────── */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: var(--t-micro);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--bone);
+  font-size: 0.95rem;
+  transition: border-color var(--d-quick) var(--ease-settle),
+    background-color var(--d-quick) var(--ease-settle);
+}
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--bone-faint);
+}
+.input:focus,
+.textarea:focus,
+.select:focus {
+  border-color: var(--gold);
+  background: var(--ink-3);
+}
+.textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+.select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--bone-dim) 50%),
+    linear-gradient(135deg, var(--bone-dim) 50%, transparent 50%);
+  background-position: calc(100% - 20px) calc(50% + 1px), calc(100% - 14px) calc(50% + 1px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 2.75rem;
+}
+.select option {
+  background: var(--ink-2);
+  color: var(--bone);
+}
+
+.field-error {
+  font-size: var(--t-small);
+  color: var(--error);
+}
+
+/* Size / colour option buttons on the product page */
+.option-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.option {
+  min-width: 52px;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--line-mid);
+  border-radius: var(--radius);
+  font-size: var(--t-micro);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  text-align: center;
+  transition: all var(--d-quick) var(--ease-settle);
+}
+.option:hover {
+  border-color: var(--bone-dim);
+  color: var(--bone);
+}
+.option[aria-pressed="true"] {
+  background: var(--bone);
+  border-color: var(--bone);
+  color: var(--ink);
+}
+.option[disabled] {
+  opacity: 0.3;
+  text-decoration: line-through;
+  pointer-events: none;
+}
+
+/* Quantity stepper */
+.qty {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line-mid);
+  border-radius: var(--radius);
+}
+.qty button {
+  width: 42px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: var(--bone-dim);
+  transition: color var(--d-quick) linear;
+}
+.qty button:hover {
+  color: var(--gold);
+}
+.qty span {
+  min-width: 40px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.95rem;
+}
+
+/* ───────────────────────────────────────────────────────────
+   CART DRAWER
+   ─────────────────────────────────────────────────────────── */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-overlay) - 1);
+  background: rgb(var(--scrim-rgb) / 0.78);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--d-fast) var(--ease-settle), visibility var(--d-fast) linear;
+}
+.scrim[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-overlay);
+  width: min(460px, 100vw);
+  background: var(--ink-2);
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  transform: translate3d(100%, 0, 0);
+  transition: transform var(--d-fast) var(--ease-settle);
+}
+.drawer[data-open="true"] {
+  transform: translate3d(0, 0, 0);
+}
+
+.drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.35rem var(--gutter);
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--gutter);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.drawer-foot {
+  flex: none;
+  padding: var(--gutter);
+  border-top: 1px solid var(--line);
+  background: var(--ink-3);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .drawer-head,
+  .drawer-body,
+  .drawer-foot {
+    padding-inline: 1.25rem;
+  }
+}
+
+/* A single line in the cart */
+.line {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 1rem;
+  animation: fade-up-in var(--d-fast) var(--ease-settle);
+}
+.line-media {
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--ink-3);
+}
+.line-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.line-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+.line-name {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+.line-meta {
+  font-size: var(--t-micro);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+}
+.line-foot {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.total-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 0.95rem;
+}
+.total-row strong {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ───────────────────────────────────────────────────────────
+   TOAST
+   ─────────────────────────────────────────────────────────── */
+
+.toast-wrap {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  transform: translateX(-50%);
+  z-index: calc(var(--z-overlay) + 5);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+  width: min(420px, calc(100vw - 2rem));
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.15rem;
+  background: var(--bone);
+  color: var(--ink);
+  font-size: var(--t-small);
+  letter-spacing: 0.04em;
+  box-shadow: var(--shadow-pop);
+  animation: fade-up-in var(--d-quick) var(--ease-settle);
+}
+
+/* ───────────────────────────────────────────────────────────
+   BREADCRUMB / PAGE HEAD
+   ─────────────────────────────────────────────────────────── */
+
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--t-micro);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+}
+.crumbs a:hover {
+  color: var(--bone);
+}
+
+.page-head {
+  padding-top: calc(var(--header-h) + clamp(3rem, 8vw, 7rem));
+  padding-bottom: clamp(2rem, 5vw, 4rem);
+}
+
+/* ───────────────────────────────────────────────────────────
+   EMPTY STATE
+   ─────────────────────────────────────────────────────────── */
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: clamp(3rem, 10vw, 7rem) 1rem;
+  text-align: center;
+}
+
+/* ───────────────────────────────────────────────────────────
+   FOOTER — the "monogram" footer
+   The giant NSC wordmark is the structure; the columns sit inside
+   its negative space, and a hairline grid runs behind everything.
+   ─────────────────────────────────────────────────────────── */
+
+.footer {
+  position: relative;
+  background: var(--ink);
+  border-top: 1px solid var(--line);
+  overflow: hidden;
+}
+
+/* Faint vertical rules that echo a cutting table */
+.footer-grid-lines {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  pointer-events: none;
+  opacity: 0.5;
+}
+.footer-grid-lines span {
+  border-left: 1px solid var(--line);
+}
+.footer-grid-lines span:first-child {
+  border-left: none;
+}
+
+.footer-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.footer-top {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: clamp(2.5rem, 6vw, 6.5rem);
+  /* Footer ab kushada hai — pehle columns kinaron se chipke hue
+     the aur poora hissa tanga hua lagta tha. */
+  padding-block: clamp(4.5rem, 10vw, 8rem) clamp(3.5rem, 7vw, 5.5rem);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .footer-top { grid-template-columns: 1fr; }
+}
+
+.footer-cols {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(2rem, 4vw, 3.5rem) clamp(1.5rem, 3vw, 3rem);
+}
+/* Chaar columns hain (Shop, Store, Help, Reach Us) — chaar ko
+   teen mein baantne se aakhri column akela neeche gir jata tha,
+   aur wohi "kuch chup raha hai" wala ehsaas deta tha. Do ka grid
+   do saaf qatarein banata hai. */
+@media (min-width: 1100px) {
+  .footer-cols { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 560px) {
+  .footer-cols { grid-template-columns: repeat(2, 1fr); gap: 2rem 1rem; }
+}
+
+.footer-col h4 {
+  font-family: var(--font-sans);
+  font-size: var(--t-micro);
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.1rem;
+}
+
+.footer-col ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.footer-col a,
+.footer-col li {
+  font-size: 0.9rem;
+  color: var(--bone-dim);
+  transition: color var(--d-quick) var(--ease-settle);
+}
+.footer-col a:hover {
+  color: var(--gold);
+}
+
+/* The oversized wordmark that fills the footer's width */
+/* ── WO CHEEZ JO CHUP RAHI THI ──
+   `overflow: hidden` aur `line-height: 0.86` ka jora NSC ke
+   harfon ki neeche wali gol ghumao kaat deta tha — khaas tor par
+   S aur C, jinke niche ka hissa baseline se zara neeche jata hai.
+   Wordmark adhoora dikhta tha aur samajh nahi aata tha kyun.
+
+   Ab neeche saans ki jagah hai, aur line-height utni hi barhai
+   gayi hai ke harf poore bhi rahein aur footer phaile bhi na. */
+.footer-mark {
+  position: relative;
+  border-top: 1px solid var(--line);
+  padding-top: clamp(1.5rem, 3vw, 2.5rem);
+  padding-bottom: clamp(0.5rem, 1.5vw, 1.25rem);
+  overflow: hidden;
+}
+
+.footer-word {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 300;
+  /* scales so the three letters always kiss both edges */
+  font-size: clamp(5rem, 29vw, 27rem);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  text-align: center;
+  white-space: nowrap;
+  padding-bottom: 0.1em;
+  background: linear-gradient(
+    180deg,
+    rgb(var(--fg-rgb) / 0.26) 0%,
+    rgba(194, 165, 107, 0.17) 52%,
+    rgba(194, 165, 107, 0.06) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  user-select: none;
+}
+
+/* The wordmark is uncovered from the bottom up when the footer scrolls
+   into view. It uses the same reveal-mask wrapper as the images, so the
+   page closes with the gesture the hero opened it with. */
+.footer-mark > .reveal-mask > .footer-word {
+  transition-duration: 2.6s;
+}
+
+.footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding-block: 1.9rem;
+  border-top: 1px solid var(--line);
+  font-size: var(--t-micro);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+
+.footer-clock {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-variant-numeric: tabular-nums;
+}
+.footer-clock .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--ok);
+  animation: pulse-dot 2.4s var(--ease-inout) infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.25; }
+}
+
+.footer-socials {
+  display: flex;
+  gap: 1.25rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FOOTER KA ADMIN DARWAZA
+   ───────────────────────────────────────────────────────────────
+   Ek chhota sunehri nishan jo chhoone par apna naam khol deta
+   hai — chaurai 0fr se 1fr tak, is liye jagah tabhi banti hai
+   jab zaroorat ho aur baqi footer apni jagah se hilta nahi.
+
+   Aankh ko sirf tab dikhta hai jab use dhoondha jaye: aam halat
+   mein halka, hover par sunehra.
+   ═══════════════════════════════════════════════════════════════ */
+
+.footer-admin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid rgb(194 165 107 / 0.45);
+  border-radius: 999px;
+  color: var(--gold);
+  background: rgb(194 165 107 / 0.06);
+  line-height: 1;
+  font-size: var(--t-micro);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color var(--d-quick) var(--ease-glide),
+              border-color var(--d-quick) var(--ease-glide),
+              background var(--d-quick) var(--ease-glide),
+              box-shadow var(--d-fast) var(--ease-settle);
+}
+
+.footer-admin-mark {
+  display: grid;
+  place-items: center;
+  transition: transform var(--d-fast) var(--ease-settle);
+}
+
+/* Naam hamesha nazar aata hai — pehle ye sirf hover par khulta tha
+   aur phone par hover hota hi nahi, is liye sirf ek chhota sa
+   nishan reh jata tha jise koi pehchaan hi nahi pata tha. */
+.footer-admin-label > span { white-space: nowrap; }
+
+.footer-admin:hover,
+.footer-admin:focus-visible {
+  border-color: var(--gold);
+  background: rgb(194 165 107 / 0.14);
+  box-shadow: 0 0 0 3px rgb(194 165 107 / 0.12);
+}
+.footer-admin:hover .footer-admin-mark {
+  transform: translateY(-1px);
+}
+
+/* Phone par thora aur numayan — footer wahan qatar mein lagta hai */
+@media (max-width: 720px) {
+  .footer-admin {
+    padding: 0.6rem 1rem;
+    font-size: 0.72rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-admin,
+  .footer-admin-mark { transition: none; }
+  .footer-admin:hover .footer-admin-mark { transform: none; }
+}
+
+/* Newsletter block inside the footer */
+.footer-news {
+  max-width: 520px;
+}
+.footer-news form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.1rem;
+  border-bottom: 1px solid var(--line-mid);
+  padding-bottom: 0.6rem;
+  transition: border-color var(--d-fast) var(--ease-settle);
+}
+.footer-news form:focus-within {
+  border-color: var(--gold);
+}
+.footer-news input {
+  flex: 1;
+  font-size: 0.95rem;
+  color: var(--bone);
+  min-width: 0;
+}
+.footer-news input::placeholder {
+  color: var(--bone-faint);
+}
+.footer-news button {
+  font-size: var(--t-micro);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  white-space: nowrap;
+  transition: opacity var(--d-quick) linear;
+}
+.footer-news button:hover {
+  opacity: 0.7;
+}
+
+/* ───────────────────────────────────────────────────────────
+   ORDER PANEL
+   The short path to a sale: press "Order now", fill five fields,
+   pay the courier. A side sheet on a desktop, a bottom sheet on a
+   phone — which is where a thumb already expects a form to appear.
+   ─────────────────────────────────────────────────────────── */
+
+.order-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-overlay);
+  width: min(520px, 100vw);
+  background: var(--ink-2);
+  border-left: 1px solid var(--line);
+  box-shadow: var(--shadow-pop);
+  display: flex;
+  flex-direction: column;
+  transform: translate3d(100%, 0, 0);
+  visibility: hidden;
+  transition: transform var(--d-fast) var(--ease-settle),
+    visibility var(--d-fast) linear;
+}
+.order-panel[data-open="true"] {
+  transform: translate3d(0, 0, 0);
+  visibility: visible;
+}
+
+.order-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.15rem var(--gutter);
+  border-bottom: 1px solid var(--line);
+}
+
+.order-body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--gutter);
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+}
+
+/* What is being ordered — shown before anything is asked for, so the
+   customer is never typing an address into an unlabelled form. */
+.order-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.order-line {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.order-line-img {
+  width: 56px;
+  flex: none;
+  overflow: hidden;
+  background: var(--ink-3);
+}
+.order-line-img img {
+  width: 100%;
+  height: auto;
+}
+
+.order-line-name {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.order-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 1.05rem;
+  border: 1px solid var(--line);
+  background: var(--ink);
+}
+.order-totals .total-row strong {
+  font-size: 1.35rem;
+}
+
+.order-panel .textarea {
+  min-height: 74px;
+}
+
+/* Success state */
+.order-done {
+  align-items: center;
+  text-align: center;
+  gap: 1.15rem;
+}
+.order-done .muted,
+.order-done .faint {
+  max-width: 42ch;
+}
+.order-done .order-totals {
+  width: 100%;
+  text-align: left;
+}
+
+.order-tick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+}
+
+@media (max-width: 640px) {
+  /* Bottom sheet: it arrives from where the thumb is, and stops short
+     of the top so the page behind stays visible and dismissible. */
+  .order-panel {
+    top: auto;
+    left: 0;
+    width: 100%;
+    max-height: 92dvh;
+    border-left: none;
+    border-top: 1px solid var(--line-mid);
+    border-radius: 10px 10px 0 0;
+    transform: translate3d(0, 100%, 0);
+  }
+  .order-head {
+    padding-block: 0.9rem;
+  }
+  /* Room for the home indicator on a modern phone. */
+  .order-body {
+    padding-bottom: calc(var(--gutter) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ───────────────────────────────────────────────────────────
+   PRODUCT PAGE — BUY BLOCK
+   ─────────────────────────────────────────────────────────── */
+
+.buy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.buy-primary {
+  min-width: 200px;
+}
+
+.buy-alt {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+
+.buy-note {
+  font-size: var(--t-micro);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  padding-top: 0.15rem;
+}
+
+/* ───────────────────────────────────────────────────────────
+   FLOATING WHATSAPP BUTTON
+   Most orders in this market are settled in a WhatsApp thread, so
+   the route to one is always a thumb away. It stays out of the way
+   over the hero (where the scroll cue already owns that corner) and
+   rises in once you are past the fold.
+   ─────────────────────────────────────────────────────────── */
+
+.wa-fab {
+  position: fixed;
+  right: clamp(1rem, 2.5vw, 2rem);
+  bottom: clamp(1rem, 2.5vw, 2rem);
+  z-index: calc(var(--z-overlay) - 2);
+
+  display: inline-flex;
+  align-items: center;
+  height: 56px;
+  padding-inline: 3px;
+  border-radius: var(--radius-pill);
+
+  /* Dono theme mein wohi gehri plate: WhatsApp ka nishan ek jani
+     pehchani shakl hai aur halke chip par ghalat parhta hai. */
+  border: 1px solid rgb(239 233 221 / 0.16);
+  background: rgb(var(--scrim-rgb) / 0.86);
+  color: var(--on-media);
+  box-shadow: 0 20px 44px -18px rgb(var(--scrim-rgb) / 0.92);
+  backdrop-filter: blur(12px) saturate(1.15);
+  -webkit-backdrop-filter: blur(12px) saturate(1.15);
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, 16px, 0) scale(0.94);
+  transition: opacity var(--d-fast) var(--ease-settle),
+    transform var(--d-fast) var(--ease-settle),
+    visibility var(--d-fast) linear,
+    border-color var(--d-fast) var(--ease-settle),
+    box-shadow var(--d-fast) var(--ease-settle);
+}
+
+.wa-fab[data-in="true"] {
+  opacity: 1;
+  visibility: visible;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.wa-fab:hover,
+.wa-fab:focus-visible {
+  border-color: rgb(194 165 107 / 0.55);
+  box-shadow: 0 26px 56px -18px rgb(var(--scrim-rgb) / 0.95);
+  transform: translate3d(0, -2px, 0) scale(1);
+}
+.wa-fab:active { transform: translate3d(0, 0, 0) scale(0.97); }
+
+/* ── Wo lakeer jo khud ko likhti hai ──
+   Jab button pehli dafa nazar aata hai, ye sunehri lakeer poora
+   daira apne aap khinchti hai — jaise kaghaz par qalam se. Ek
+   dafa. Uske baad khamosh. Yehi is button ka dastkhat hai. */
+.wa-fab-ring {
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 50px;
+  height: 50px;
+  pointer-events: none;
+  overflow: visible;
+}
+.wa-fab-ring circle {
+  fill: none;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+.wa-fab-ring-base {
+  stroke: rgb(239 233 221 / 0.12);
+  stroke-width: 1.2;
+}
+.wa-fab-ring-draw {
+  stroke: var(--on-media-gold);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1.9s var(--ease-settle);
+}
+.wa-fab[data-signed="true"] .wa-fab-ring-draw { stroke-dashoffset: 0; }
+
+.wa-fab-mark {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  transition: transform var(--d-fast) var(--ease-settle);
+}
+.wa-fab:hover .wa-fab-mark { transform: scale(1.06); }
+
+/* ── Naam andar se nikalta hai ──
+   0fr se 1fr — chaurai ki sab se narm animation jo CSS mein
+   mumkin hai. Koi jhatka, koi jump nahi. */
+.wa-fab-label {
+  display: grid;
+  grid-template-columns: 0fr;
+  opacity: 0;
+  transition: grid-template-columns var(--d-fast) var(--ease-settle),
+    opacity var(--d-quick) var(--ease-settle);
+}
+.wa-fab-label > span {
+  overflow: hidden;
+  white-space: nowrap;
+  min-width: 0;
+  font-family: var(--font-sans);
+  font-size: var(--t-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding-right: 0.95rem;
+  padding-left: 0.1rem;
+}
+.wa-fab:hover .wa-fab-label,
+.wa-fab:focus-visible .wa-fab-label {
+  grid-template-columns: 1fr;
+  opacity: 1;
+}
+
+/* ── Zinda hone ka nishan ──
+   "Open 24/7" likhne ke bajaye dikhaya gaya hai. */
+.wa-fab-live {
+  position: absolute;
+  left: 38px;
+  top: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: #4ad07d;
+  box-shadow: 0 0 0 2px rgb(var(--scrim-rgb) / 0.9);
+}
+.wa-fab-live::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #4ad07d;
+  animation: wa-breathe 3s var(--ease-inout) infinite;
+}
+@keyframes wa-breathe {
+  0%       { transform: scale(1);   opacity: 0.55; }
+  70%,100% { transform: scale(2.6); opacity: 0; }
+}
+
+@media (max-width: 640px) {
+  .wa-fab {
+    height: 52px;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+  .wa-fab-mark  { width: 46px; height: 46px; }
+  .wa-fab-ring  { width: 46px; height: 46px; }
+  .wa-fab-live  { left: 34px; top: 8px; }
+  /* Phone par naam nahi — angootha nishan pehchanta hai */
+  .wa-fab-label { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wa-fab-ring-draw { transition: none; stroke-dashoffset: 0; }
+  .wa-fab-live::after { animation: none; }
+}
+
+/* ───────────────────────────────────────────────────────────
+   SOCIAL MARKS
+   ─────────────────────────────────────────────────────────── */
+
+.social-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  color: var(--bone-dim);
+  transition: color var(--d-quick) var(--ease-settle),
+    border-color var(--d-quick) var(--ease-settle),
+    transform var(--d-quick) var(--ease-settle);
+}
+.social-btn:hover,
+.social-btn:focus-visible {
+  color: var(--gold);
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+
+/* ───────────────────────────────────────────────────────────
+   SHARE
+   Is market mein product share hona hi bikne ka sab se bara
+   zariya hai — koi apni behen ko WhatsApp par bhejta hai, aur
+   order wahin se banta hai. Ab wo link seedha site se jata hai,
+   screenshot ki shakal mein nahi.
+   ─────────────────────────────────────────────────────────── */
+
+.share { position: relative; }
+
+/* ── Card par: hover se khulta hai ── */
+.card-share {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 3;
+  opacity: 0;
+  transform: translate3d(0, -6px, 0) scale(0.92);
+  transition: opacity var(--d-fast) var(--ease-settle),
+    transform var(--d-fast) var(--ease-settle);
+}
+.card:hover .card-share,
+.card:focus-within .card-share,
+.card-share[data-open="true"] {
+  opacity: 1;
+  transform: none;
+}
+/* Touch par hover hota hi nahi — wahan hamesha maujood */
+@media (hover: none) {
+  .card-share { opacity: 1; transform: none; }
+}
+
+.share-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: color var(--d-fast) var(--ease-settle),
+    border-color var(--d-fast) var(--ease-settle),
+    background var(--d-fast) var(--ease-settle),
+    transform var(--d-quick) var(--ease-settle);
+}
+
+.share-icon .share-trigger {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgb(239 233 221 / 0.2);
+  background: rgb(var(--scrim-rgb) / 0.6);
+  color: var(--on-media);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.share-icon .share-trigger:hover,
+.share-icon .share-trigger:focus-visible {
+  border-color: var(--on-media-gold);
+  color: var(--on-media-gold);
+  background: rgb(var(--scrim-rgb) / 0.78);
+}
+/* Teen nuqte halke se ghoom jate hain — chhoti si cheez, magar
+   button zinda mehsoos hota hai. */
+.share-trigger svg {
+  transition: transform var(--d-fast) var(--ease-settle);
+}
+.share-trigger:hover svg { transform: rotate(-18deg); }
+.share-trigger:active { transform: scale(0.94); }
+
+/* ── Product ke safhe par: poora button ── */
+.share-full .share-trigger {
+  padding: 0.7rem 1.2rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--bone);
+  font-size: var(--t-micro);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+.share-full .share-trigger:hover,
+.share-full .share-trigger:focus-visible {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* ── Panel ──
+   Ek zaroori ehtiyat: `[hidden]` browser ka apna qanoon hai aur
+   wo kisi bhi class se KAMZOR hota hai. Neeche `display: flex`
+   likha hua tha, aur usi ne `hidden` ko be-asar kar diya tha —
+   panel hamesha maujood rehta tha aur phone par (jahan hover
+   hota hi nahi) seedha product ki tasveer par aa baithta tha.
+   Ab panel React se hi tabhi banta hai jab khola jaye, aur
+   neeche wali line doosri hifazat hai. */
+.share-pop[hidden] { display: none !important; }
+
+/* ── Laptop ka panel ── */
+.share-pop {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  right: 0;
+  z-index: 20;
+  min-width: 208px;
+  padding: 0.85rem 0.75rem 0.6rem;
+  background: var(--ink-3);
+  border: 1px solid var(--line-mid);
+  box-shadow: var(--shadow-pop);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  transform-origin: top right;
+  animation: share-in var(--d-quick) var(--ease-settle);
+}
+@keyframes share-in {
+  from { opacity: 0; transform: translate3d(0, -6px, 0) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+.share-pop-title {
+  font-size: var(--t-micro);
+  color: var(--bone-faint);
+  padding: 0 0.55rem 0.5rem;
+}
+
+.share-route {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.6rem 0.55rem;
+  font-size: 0.875rem;
+  color: var(--bone-dim);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-sans);
+  border-radius: var(--radius);
+  transition: color var(--d-quick) var(--ease-settle),
+    background var(--d-quick) var(--ease-settle),
+    padding-left var(--d-quick) var(--ease-settle);
+}
+.share-route:hover,
+.share-route:focus-visible {
+  color: var(--gold);
+  background: rgb(var(--fg-rgb) / 0.04);
+  padding-left: 0.8rem;
+}
+
+.share-close {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 0;
+  color: var(--bone-faint);
+  cursor: pointer;
+  transition: color var(--d-quick) linear;
+}
+.share-close:hover { color: var(--bone); }
+
+/* Card ke andar panel kinare se bahar na nikle */
+.card-share .share-pop { right: 0; left: auto; }
+
+/* ───────────────────────────────────────────────────────────
+   PHONE PAR — neeche se uthta hua sheet
+   ───────────────────────────────────────────────────────────
+   Ye teh `document.body` mein rehti hai, card ke andar nahi
+   (ShareButton.jsx ka portal). Wajah: card par transform lagta
+   hai, aur transform wala koi bhi baap `fixed` ka matlab badal
+   deta hai — wo screen ke bajaye usi card ke hisaab se lag jata
+   hai. Isi liye selector bhi ab `.share-pop[data-sheet]` hai,
+   `.share .share-pop` nahi: DOM mein ab wo `.share` ke andar
+   hai hi nahi.
+   ───────────────────────────────────────────────────────────
+   Chhoti screen par popover ki jagah hi nahi hoti: wo product
+   ki tasveer par aa jata hai aur ungli ke liye chhota bhi hai.
+   Wahan ab ye safhe ke neeche se uthta hai, apne parde ke sath.
+   Parde par kahin bhi chhoo dein — band. Cross bhi kaam karta
+   hai, magar ab us par saara bojh nahi.
+   ─────────────────────────────────────────────────────────── */
+.share-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 190;
+  border: 0;
+  padding: 0;
+  background: rgb(var(--scrim-rgb) / 0.62);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  animation: share-veil-in var(--d-fast) linear;
+  cursor: pointer;
+}
+
+.share-pop[data-sheet="true"] {
+  position: fixed;
+  inset: auto 0 0 0;
+  top: auto;
+  z-index: 191;
+  min-width: 0;
+  width: 100%;
+  padding: 1.1rem 1.1rem calc(1.1rem + env(safe-area-inset-bottom));
+  border: 0;
+  border-top: 1px solid var(--line-mid);
+  border-radius: 14px 14px 0 0;
+  gap: 0.25rem;
+  transform-origin: bottom center;
+  animation: share-sheet-in 0.26s var(--ease-settle);
+}
+
+/* Ungli ke naap ke khane */
+.share-pop[data-sheet="true"] .share-route {
+  padding: 0.95rem 0.7rem;
+  font-size: 0.95rem;
+}
+.share-pop[data-sheet="true"] .share-route:hover,
+.share-pop[data-sheet="true"] .share-route:focus-visible {
+  padding-left: 0.7rem;
+}
+.share-pop[data-sheet="true"] .share-pop-title {
+  padding: 0 0.7rem 0.55rem;
+}
+.share-pop[data-sheet="true"] .share-close {
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-pill);
+  background: rgb(var(--fg-rgb) / 0.06);
+}
+
+/* Sheet ke oopar chhota sa handle — nazar ko batata hai ke ye
+   neeche se aaya hai aur neeche hi jayega */
+.share-pop[data-sheet="true"]::before {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
+  translate: -50% 0;
+  width: 36px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--line-strong);
+}
+
+@keyframes share-veil-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes share-sheet-in {
+  from { opacity: 0; transform: translate3d(0, 100%, 0); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .share-pop, .share-veil { animation: none !important; }
+}
+
+
+/* ───────────────────────────────────────────────────────────
+   POORI SITE KA SMOOTH
+   ───────────────────────────────────────────────────────────
+   Alag alag jagah alag raftar ho to site "hand-made" nahi,
+   "jori hui" lagti hai. Ye block har us cheez ko jo dabai,
+   chhui ya hover ki jati hai, ek hi curve aur ek hi raftar par
+   le aata hai — wohi `--ease-settle` jo baqi site chalti hai.
+   ─────────────────────────────────────────────────────────── */
+
+/* Har dabne wali cheez ka ek hi jawab */
+.btn:active,
+.chip:active,
+.option:active,
+.icon-btn:active,
+.qty button:active,
+.social-btn:active,
+.pdp-thumb:active,
+.spotlight-thumb:active {
+  transform: scale(0.97);
+}
+
+.btn,
+.chip,
+.option,
+.icon-btn,
+.qty button,
+.social-btn,
+.pdp-thumb,
+.spotlight-thumb,
+.swatch-dot,
+.acc-btn,
+.input,
+.select,
+.textarea {
+  transition: color var(--d-fast) var(--ease-settle),
+    background-color var(--d-fast) var(--ease-settle),
+    border-color var(--d-fast) var(--ease-settle),
+    opacity var(--d-quick) var(--ease-settle),
+    transform var(--d-quick) var(--ease-settle);
+}
+
+/* Icon button hover par halka sa ghoomta hai */
+.icon-btn svg { transition: transform var(--d-fast) var(--ease-settle); }
+.icon-btn:hover svg { transform: scale(1.08); }
+
+/* Social marks — footer mein, uthte hue */
+.social-btn { transition: color var(--d-fast) var(--ease-settle),
+                          transform var(--d-fast) var(--ease-settle); }
+.social-btn:hover { transform: translateY(-2px); }
+
+/* Khane focus par narmi se khulte hain */
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+/* Keyboard se chalane walon ke liye ek hi nishan, har jagah */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: var(--radius);
+}
+
+/* Yahan bhi pehle `html { scroll-behavior: smooth }` tha — wohi
+   qatar jo base.css se nikali gayi hai, isi wajah se: safha
+   badalte waqt wo upar jaane ki koshish ko adhoora chhor deti
+   thi aur naya safha apne aakhir se khulta tha.
+
+   Narmi ab JavaScript se aati hai, sirf wahan jahan chahiye:
+   "Top" ka button (BackToTop.jsx) aur andar ke jump links. */
+
+/* Jisay harkat se taklif hai, us ke liye sab kuch foran */
+@media (prefers-reduced-motion: reduce) {
+  .btn:active, .chip:active, .option:active, .icon-btn:active,
+  .qty button:active, .social-btn:active, .social-btn:hover,
+  .icon-btn:hover svg, .share-trigger:hover svg {
+    transform: none !important;
+  }
+  .share-pop { animation: none; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   ADMIN SHORTCUT KI TASDEEQ
+   ───────────────────────────────────────────────────────────────
+   Alt + A dabate hi ya "admin" likhte hi ek lamhe ke liye ye
+   nazar aata hai. Wajah: safha achanak badal jaye to lagta hai
+   kuch ghalat ho gaya. Chhoti si tasdeeq us ghalat-fehmi ko
+   khatam kar deti hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+.admin-flash {
+  position: fixed;
+  z-index: 120;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  background: rgb(var(--scrim-rgb) / 0.55);
+  backdrop-filter: blur(3px);
+  animation: admin-flash-in var(--d-quick) var(--ease-glide);
+}
+
+.admin-flash > span {
+  font-size: var(--t-micro);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  background: var(--ink-2);
+  padding: 0.85rem 1.6rem;
+  box-shadow: 0 0 60px -12px rgb(194 165 107 / 0.5);
+  animation: admin-flash-rise var(--d-fast) var(--ease-settle);
+}
+
+@keyframes admin-flash-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes admin-flash-rise {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-flash,
+  .admin-flash > span { animation: none; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   HARKAT — har button, har card
+   ───────────────────────────────────────────────────────────────
+   Is site ka har chhoone wala hissa ab teen cheezein karta hai,
+   aur teenon ek hi tarteeb se:
+
+     1. UTHNA   — hover par do se chhe pixel upar. Itna hi ke
+                  cheez ungli ki taraf aati mehsoos ho.
+     2. CHAMAK  — ek roshni ka tukra jo ek dafa guzar jata hai.
+                  Loop mein nahi chalta; chalta rehta to sasta
+                  lagta.
+     3. DABNA   — press par wapas neeche, thora sa chhota. Yehi
+                  wo lamha hai jis se "click hua" mehsoos hota
+                  hai bina kisi awaz ke.
+
+   Ye block file ke AAKHIR mein hai, jaan boojh kar. Upar wale
+   qawaneen mein `:hover` aur `:active` pehle se likhe hain; ek
+   hi wazan ke do qawaneen mein baad wala jeetta hai. Is liye
+   dabne wale qawaneen yahan dobara likhe gaye hain — warna
+   hover ka uthna press ke dabne ko kha jata.
+
+   Jise harkat se taklif ho, sab kuch file ke aakhir mein band
+   ho jata hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── BUTTONS ─────────────────────────────────────────────── */
+
+/* Ek chamak jo hover par ek dafa guzarti hai. `::before` pehle se
+   bhari hui teh hai (neeche se uthta hua rang) — ye us ke oopar
+   se guzarti hai, aur dono harf ke neeche rehte hain. */
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgb(255 255 255 / 0.3) 50%,
+    transparent 62%
+  );
+  transform: translate3d(-150%, 0, 0);
+  opacity: 0;
+  transition:
+    transform 0.9s var(--ease-glide),
+    opacity 0.18s linear;
+}
+.btn:hover::after,
+.btn:focus-visible::after {
+  transform: translate3d(150%, 0, 0);
+  opacity: 1;
+}
+
+/* Ghost button ka koi khana hi nahi — us par chamak bemani hai. */
+.btn-ghost::after { display: none; }
+
+.btn:hover,
+.btn:focus-visible { transform: translate3d(0, -2px, 0); }
+.btn:active { transform: translate3d(0, 1px, 0) scale(0.985); }
+
+/* Ghost sirf apne harf ke sath sarakta hai, uthta nahi —
+   us ke peeche koi satah nahi jo uthe. */
+.btn-ghost:hover,
+.btn-ghost:focus-visible { transform: translate3d(3px, 0, 0); }
+.btn-ghost:active { transform: translate3d(1px, 0, 0); }
+
+/* Teer pehle se sarakta hai; ab wapas aate waqt bhi utni hi
+   narmi se aata hai. */
+.link-arrow { transition: color var(--d-fast) var(--ease-settle); }
+.link-arrow:hover { color: var(--gold); }
+
+/* ── CHIPS ───────────────────────────────────────────────── */
+
+.chip {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Halka sa khana jo neeche se bhar jata hai. Rang bone nahi,
+   ink-4 hai — warna wo chip jo pehle se chuni hui hai (bone par
+   ink) aur ye, dono ek jaise lagne lagte. */
+.chip::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--ink-4);
+  transform: translate3d(0, 101%, 0);
+  transition: transform var(--d-fast) var(--ease-settle);
+}
+.chip:hover::before,
+.chip:focus-visible::before { transform: translate3d(0, 0, 0); }
+
+.chip:hover,
+.chip:focus-visible { transform: translate3d(0, -2px, 0); }
+.chip:active { transform: translate3d(0, 0, 0) scale(0.97); }
+
+/* Chuni hui chip ka khana pehle hi bhara hua hai */
+.chip[data-active="true"]::before,
+.chip[data-on="true"]::before { display: none; }
+
+/* ── PRODUCT CARD ────────────────────────────────────────── */
+
+.card {
+  transition: transform var(--d-fast) var(--ease-settle);
+}
+.card:hover { transform: translate3d(0, -6px, 0); }
+.card:active { transform: translate3d(0, -2px, 0); }
+
+.card-media {
+  transition: box-shadow var(--d-fast) var(--ease-glide);
+}
+.card:hover .card-media { box-shadow: var(--shadow-card); }
+
+/* Tasveer ke neeche ek sunehri lakeer jo baayein se khinchti hai */
+.card-media::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold-deep), var(--gold));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--d-fast) var(--ease-settle);
+  pointer-events: none;
+}
+.card:hover .card-media::after,
+.card:focus-within .card-media::after { transform: scaleX(1); }
+
+/* Qeemat bhi thori si aati hai — poora card ek hi simt mein
+   harkat karta hai, tukron mein nahi. */
+.card-price { transition: color var(--d-quick) var(--ease-settle); }
+.card:hover .card-price { color: var(--bone); }
+
+.card-cat { transition: color var(--d-quick) var(--ease-settle); }
+.card:hover .card-cat { color: var(--bone-dim); }
+
+/* Nishan (Sale, Naya) hover par zara sa aage aate hain */
+.card-flags { transition: transform var(--d-fast) var(--ease-settle); }
+.card:hover .card-flags { transform: translate3d(3px, 0, 0); }
+
+/* ── CATEGORY CELL ───────────────────────────────────────── */
+
+/* Khane ke kinare par sunehri lakeer — neeche se poori chaurai */
+.cat-cell::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  transform: scaleX(0);
+  transition: transform var(--d-slow) var(--ease-settle);
+  pointer-events: none;
+}
+.cat-cell:hover::after { transform: scaleX(1); }
+
+/* ── SAB KE LIYE EK HI KHAMOSHI ──────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .btn::after,
+  .chip::before,
+  .card-media::after,
+  .cat-cell::after { display: none; }
+
+  .btn:hover, .btn:focus-visible, .btn:active,
+  .btn-ghost:hover, .btn-ghost:focus-visible, .btn-ghost:active,
+  .chip:hover, .chip:focus-visible, .chip:active,
+  .card:hover, .card:active,
+  .card:hover .card-flags {
+    transform: none;
+  }
+
+  .card, .card-media, .card-price, .card-cat, .card-flags {
+    transition: none;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   DARWAZA — safha khulte hi ka logo
+   ───────────────────────────────────────────────────────────────
+   Tarteeb badli gayi hai. Pehle logo neeche se mask ke zariye
+   "bharta" tha, aur us poore dauran wo adhoora nazar aata tha.
+   Ab wo pehle POORA aata hai — ek hi sanse mein — aur us ke
+   BAAD harkat hoti hai.
+
+   Logo aur us ke neeche wali lakeer ek hi khare column ke andar
+   hain, aur wo column screen ke beech mein rakha jata hai. Is
+   liye dono hamesha ek hi markaz par. Pehle lakeer alag se
+   hisaab laga kar rakhi gayi thi (`top: 50% + …`), aur isi wajah
+   se kabhi ek taraf ho jati thi.
+
+   Waqt ka hisaab:
+     0.00s  teh poori, gehri
+     0.10s  logo ubharna shuru — poora, adhoora nahi
+     0.72s  logo poori tarah maujood
+     0.90s  neeche lakeer khinchti hai (pehle se ek second tez)
+     1.05s  sunehri chamak us ke oopar se guzarti hai
+     2.95s  teh oopar uthna shuru
+     3.60s  teh ja chuki
+     3.90s  React ise DOM se nikal deta hai (Intro.jsx)
+
+   Poora tamasha CSS chalati hai, JavaScript nahi. Agar script
+   kisi wajah se na chale to bhi koi shakhs is teh ke peechay
+   phansa nahi rehta — `forwards` khud ise raaste se hata deta
+   hai. JavaScript ka kaam sirf baad ki safai hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  animation: intro-panel 3.6s var(--ease-settle) forwards;
+}
+
+/* Peechay halka sunehri ujala */
+.intro-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    46% 34% at 50% 48%,
+    rgb(194 165 107 / 0.17),
+    transparent 70%
+  );
+  opacity: 0;
+  animation: intro-glow 1.8s var(--ease-glide) forwards;
+}
+
+/* Logo aur lakeer — ek hi column, beech mein */
+.intro-stack {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1.15rem, 3vw, 1.9rem);
+}
+
+.intro-mark {
+  position: relative;
+  display: block;
+  width: min(44vw, 250px);
+  overflow: hidden;
+}
+
+.intro-mark img {
+  display: block;
+  width: 100%;
+  height: auto;
+  opacity: 0;
+  transform: scale(0.955);
+  animation: intro-rise 0.62s var(--ease-settle) 0.1s forwards;
+}
+
+/* Shishe par se guzarti chamak — logo poora ho jane ke BAAD */
+.intro-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    104deg,
+    transparent 40%,
+    rgb(255 255 255 / 0.5) 50%,
+    transparent 60%
+  );
+  transform: translate3d(-140%, 0, 0);
+  animation: intro-sheen 0.95s var(--ease-glide) 1.05s forwards;
+}
+
+/* Baal jaisi sunehri lakeer — pehle 0.95s thi, ab 0.45s */
+.intro-rule {
+  width: min(32vw, 180px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  transform: scaleX(0);
+  animation: intro-rule 0.45s var(--ease-settle) 0.9s forwards;
+}
+
+@keyframes intro-panel {
+  0%, 82%   { opacity: 1; transform: translate3d(0, 0, 0); }
+  100%      { opacity: 0; transform: translate3d(0, -2%, 0); visibility: hidden; }
+}
+@keyframes intro-glow {
+  0%        { opacity: 0; }
+  100%      { opacity: 1; }
+}
+@keyframes intro-rise {
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes intro-sheen {
+  to { transform: translate3d(140%, 0, 0); }
+}
+@keyframes intro-rule {
+  to { transform: scaleX(1); }
+}
+
+/* Chhoti screen par thora chhota, warna logo kinaron ko chhoone lagta hai */
+@media (max-width: 520px) {
+  .intro-mark { width: min(56vw, 205px); }
+  .intro-rule { width: min(44vw, 150px); }
+}
+
+/* Jise harkat se taklif ho: poora intezar us par nahi thopa jata */
+@media (prefers-reduced-motion: reduce) {
+  .intro { animation: intro-panel-quick 0.45s linear forwards; }
+  .intro-mark img { opacity: 1; transform: none; animation: none; }
+  .intro-sheen { display: none; }
+  .intro-rule { transform: scaleX(1); animation: none; }
+  .intro-glow { opacity: 0.5; animation: none; }
+
+  @keyframes intro-panel-quick {
+    0%   { opacity: 1; }
+    100% { opacity: 0; visibility: hidden; }
+  }
+}

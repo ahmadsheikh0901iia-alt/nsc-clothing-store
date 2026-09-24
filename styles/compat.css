@@ -1,0 +1,541 @@
+/* ═══════════════════════════════════════════════════════════════
+   COMPAT — purane phone, aur har phone par narmi
+   ───────────────────────────────────────────────────────────────
+   Ye file sab se AAKHIR mein parhi jati hai (globals.css dekhein),
+   is liye jo bhi yahan likha hai wo upar ki har cheez par bhaari
+   hai. Do kaam karti hai:
+
+     1. UPAR JANE WALA BUTTON aur NAV KA ADMIN NISHAN — do nayi
+        cheezein jo footer se yahan aayi hain.
+
+     2. PURANE PHONE — 2017-2020 ke Android aur iPhone. Un par
+        kuch nayi CSS ki qatarein chalti hi nahi, aur jab ek qatar
+        samajh na aaye to browser POORA block chhor deta hai. Isi
+        liye site ke kuch hisse wahan toot-e hue lagte thay. Har
+        aisi jagah par yahan pehle purana naap rakha gaya hai,
+        phir naya uske upar.
+
+     3. PHONE PAR NARMI — blur, parallax aur grain teen sab se
+        bhaari cheezein hain. Bara screen unhein aasani se chala
+        leta hai; phone ka processor har frame par latakta hai.
+        Phone par ye halki kar di gayi hain — nazar ka farq
+        mamooli hai, chalne ka farq saaf.
+   ═══════════════════════════════════════════════════════════════ */
+
+
+/* ═══════════════════════════════════════════════════════════════
+   1 — UPAR JANE WALA BUTTON
+   ───────────────────────────────────────────────────────────────
+   WhatsApp ke gol button ke theek SAAMNE — neeche baayein kone
+   mein — aur bilkul usi tarah banaya gaya hai: wohi plate, wohi
+   naap, wohi lakeer jo khud ko khinchti hai, wohi naam jo chhoone
+   par khulta hai. Do bhai, do kinaron par.
+   ═══════════════════════════════════════════════════════════════ */
+
+.top-fab {
+  position: fixed;
+  left: clamp(1rem, 2.5vw, 2rem);
+  bottom: clamp(1rem, 2.5vw, 2rem);
+  z-index: calc(var(--z-overlay) - 2);
+
+  display: inline-flex;
+  align-items: center;
+  height: 56px;
+  padding-inline: 3px;
+  border-radius: var(--radius-pill);
+
+  /* Wohi gehri plate jo WhatsApp wale button ki hai */
+  border: 1px solid rgb(239 233 221 / 0.16);
+  background: rgb(var(--scrim-rgb) / 0.86);
+  color: var(--on-media);
+  box-shadow: 0 20px 44px -18px rgb(var(--scrim-rgb) / 0.92);
+  backdrop-filter: blur(12px) saturate(1.15);
+  -webkit-backdrop-filter: blur(12px) saturate(1.15);
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, 16px, 0) scale(0.94);
+  transition: opacity var(--d-fast) var(--ease-settle),
+    transform var(--d-fast) var(--ease-settle),
+    visibility var(--d-fast) linear,
+    border-color var(--d-fast) var(--ease-settle),
+    box-shadow var(--d-fast) var(--ease-settle);
+}
+
+.top-fab[data-in="true"] {
+  opacity: 1;
+  visibility: visible;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.top-fab:hover,
+.top-fab:focus-visible {
+  border-color: rgb(194 165 107 / 0.55);
+  box-shadow: 0 26px 56px -18px rgb(var(--scrim-rgb) / 0.95);
+  transform: translate3d(0, -2px, 0) scale(1);
+}
+.top-fab:active { transform: translate3d(0, 0, 0) scale(0.97); }
+
+/* ── Wo lakeer jo khud ko likhti hai ──
+   WhatsApp wale button ka dastkhat. Yahan bhi wohi, taake dono
+   ek hi khandan ke lagein. Ek dafa. Uske baad khamosh. */
+.top-fab-ring {
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 50px;
+  height: 50px;
+  pointer-events: none;
+  overflow: visible;
+}
+.top-fab-ring circle {
+  fill: none;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+.top-fab-ring-base {
+  stroke: rgb(239 233 221 / 0.12);
+  stroke-width: 1.2;
+}
+.top-fab-ring-draw {
+  stroke: var(--on-media-gold);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1.9s var(--ease-settle);
+}
+.top-fab[data-signed="true"] .top-fab-ring-draw { stroke-dashoffset: 0; }
+
+/* Dabane par daira ek dafa phir se bhar kar khali hota hai —
+   yehi is button ka jawab hai ke "haan, chal diya". */
+.top-fab[data-lift="true"] .top-fab-ring-draw {
+  animation: top-fab-sweep 0.7s var(--ease-settle);
+}
+@keyframes top-fab-sweep {
+  0%   { stroke-dashoffset: 1; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* ── Teer ──
+   ArrowRight ko ek chauthai ghuma kar upar kar diya gaya hai —
+   wohi teer jo footer mein tha, ab apne asal kaam par. */
+.top-fab-mark {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  transform: rotate(-90deg);
+  transition: transform var(--d-fast) var(--ease-settle);
+}
+.top-fab:hover .top-fab-mark { transform: rotate(-90deg) scale(1.06); }
+
+/* Dabate hi teer upar nikal kar doosri taraf se wapas aata hai */
+.top-fab[data-lift="true"] .top-fab-mark {
+  animation: top-fab-lift 0.7s var(--ease-settle);
+}
+@keyframes top-fab-lift {
+  0%   { transform: rotate(-90deg) translateX(0);    opacity: 1; }
+  45%  { transform: rotate(-90deg) translateX(16px); opacity: 0; }
+  55%  { transform: rotate(-90deg) translateX(-16px); opacity: 0; }
+  100% { transform: rotate(-90deg) translateX(0);    opacity: 1; }
+}
+
+/* ── Naam andar se nikalta hai ──
+   0fr se 1fr — chaurai ki sab se narm animation jo CSS mein
+   mumkin hai. Purane browser is par nahi chalte, is liye neeche
+   @supports mein unke liye saada raasta rakha hai. */
+.top-fab-label {
+  display: grid;
+  grid-template-columns: 0fr;
+  opacity: 0;
+  transition: grid-template-columns var(--d-fast) var(--ease-settle),
+    opacity var(--d-quick) var(--ease-settle);
+}
+.top-fab-label > span {
+  overflow: hidden;
+  white-space: nowrap;
+  min-width: 0;
+  font-family: var(--font-sans);
+  font-size: var(--t-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding-right: 0.95rem;
+  padding-left: 0.1rem;
+}
+.top-fab:hover .top-fab-label,
+.top-fab:focus-visible .top-fab-label {
+  grid-template-columns: 1fr;
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .top-fab {
+    height: 52px;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+  .top-fab-mark { width: 46px; height: 46px; }
+  .top-fab-ring { width: 46px; height: 46px; }
+  /* Phone par naam nahi — angootha nishan pehchanta hai */
+  .top-fab-label { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .top-fab-ring-draw { transition: none; stroke-dashoffset: 0; }
+  .top-fab[data-lift="true"] .top-fab-ring-draw,
+  .top-fab[data-lift="true"] .top-fab-mark { animation: none; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   2 — NAV KA ADMIN NISHAN
+   ───────────────────────────────────────────────────────────────
+   Pehle footer ki aakhri qatar mein tha, jahan phone par wo
+   WhatsApp ke button ke neeche chhup jata tha. Ab upar ki patti
+   mein baaqi nishanon ke sath — har naap par ek hi jagah.
+
+   Halka sunehri, taake nazar mein aaye magar grahak ka dhyan na
+   khinche. Search engine ise nahi parhte (nofollow + noindex).
+   ═══════════════════════════════════════════════════════════════ */
+
+.header-admin {
+  color: var(--gold);
+  opacity: 0.72;
+  transition: opacity var(--d-quick) var(--ease-settle),
+    color var(--d-quick) var(--ease-settle),
+    background-color var(--d-quick) var(--ease-settle);
+}
+.header-admin:hover,
+.header-admin:focus-visible { opacity: 1; }
+
+/* Sab se tang phone: khane thore chhote, aur ujala/andhera wala
+   nishan sirf menu ke andar (wahan pehle se maujood hai) — taake
+   paanchon nishan ek hi qatar mein aaram se aa jayein aur admin
+   ka nishan kabhi kinare se bahar na jaye. */
+@media (max-width: 560px) {
+  .header-actions { gap: 0.3rem; }
+  .header-actions .icon-btn,
+  .header-actions .burger { width: 38px; height: 38px; }
+  .header-actions .theme-btn { display: none; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   3 — PURANE PHONE
+   ───────────────────────────────────────────────────────────────
+   Qaida: pehle wo naap jo har jagah chalta hai, phir naya uske
+   upar. Naya samajh aaya to naya chalega; na aaya to purana
+   maujood hai — kuch khaali nahi rehta.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── dvh / svh / lvh ──
+   iOS 15.4 aur Chrome 108 se pehle ye naap nahi thay. Jin jagahon
+   par poora safha chahiye wahan pehle vh, phir dvh. */
+.hero,
+.hero-media,
+.menu,
+.intro,
+.search-wrap {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ── :has() ──
+   Chrome 105 / Safari 15.4 se pehle nahi tha. admin.css is par
+   header, footer aur WhatsApp ka button chhupata hai; purane
+   phone par wo qatar nazar-andaz ho jati thi aur admin panel ke
+   upar poora header aa baithta tha.
+
+   Ab admin ka safha khud apne aap ko `data-admin` ka nishan de
+   deta hai (AdminLayout), aur asal chhupane ka kaam wahi karta
+   hai — har phone par, purana ho ya naya. */
+body[data-admin="true"] :is(.header, .footer, .wa-fab, .top-fab, .grain, .toast-wrap) {
+  display: none !important;
+}
+body[data-admin="true"] #main {
+  padding: 0 !important;
+}
+
+/* ── JAVASCRIPT NA CHALE TO BHI SAFHA NAZAR AAYE ──
+   Ye is poori file ki sab se ahem qatar hai.
+
+   Site ke jumle aur tasveerein shuru mein `opacity: 0` par hoti
+   hain, aur JavaScript unhein nazar mein aate hi kholti hai. Us
+   ka matlab ye bhi tha: JavaScript kisi wajah se na chali, to
+   safha khulta tha — magar bilkul KHALI. Purane phone par aksar
+   yehi hota tha, aur lagta tha ke site hi toot gayi.
+
+   Ab chhupane ka kaam `html[data-js="on"]` ke sath bandha hua
+   hai, aur wo nishan sirf tab lagta hai jab <head> wali chhoti
+   si qatar khud chal chuki ho (layout.js — NO_FLASH).
+
+   Na chali? To neeche wali qatarein sab kuch foran khol deti
+   hain — koi harkat nahi, magar HAR cheez nazar aati hai: har
+   tasveer, har lafz, har daam, har button. Jo grahak 2018 ke
+   phone se aaya hai wo bhi poori dukaan dekh leta hai.          */
+
+html:not([data-js="on"]) .reveal,
+html:not([data-js="on"]) .reveal-mask,
+html:not([data-js="on"]) .reveal-mask > *,
+html:not([data-js="on"]) .words .word > span,
+html:not([data-js="on"]) [class*="reveal"] {
+  opacity: 1 !important;
+  transform: none !important;
+  clip-path: none !important;
+  -webkit-clip-path: none !important;
+  visibility: visible !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Jinhon ne browser mein JavaScript khud band kar rakhi hai */
+/* ── text-wrap: balance / pretty ──
+   Chrome 114 / Safari 17.5 se pehle nahi thay. Inke baghair bhi
+   sab parha jata hai — sirf qatarein thori kam barabar hoti
+   hain. Kuch karne ki zaroorat nahi, magar `text-wrap` ke sath
+   `overflow-wrap` rakhna zaroori hai taake lamba naam kinare se
+   bahar na nikle. */
+h1, h2, h3, h4, p, li, .card-name {
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+/* ── aspect-ratio ──
+   Safari 14 se pehle nahi tha. Tasveer ka khana wahan gir jata
+   tha. `padding-top` wala purana tareeqa un hi ke liye. */
+@supports not (aspect-ratio: 1 / 1) {
+  .card-shot,
+  .pdp-main,
+  .spotlight-media {
+    position: relative;
+    height: 0;
+    padding-top: 133.33%; /* 3:4 */
+  }
+  .card-shot > *,
+  .pdp-main > *,
+  .spotlight-media > * {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+  }
+}
+
+/* ── gap flexbox mein ──
+   Safari 14.0 se pehle flex ke andar `gap` nahi chalta tha, aur
+   sab nishan aapas mein chipak jate thay. */
+@supports not (gap: 1px) {
+  .header-actions > * + *,
+  .row > * + *,
+  .option-row > * + *,
+  .ad-chips > * + * {
+    margin-left: 0.6rem;
+  }
+}
+
+/* ── backdrop-filter ──
+   Jahan blur na chale wahan plate ko gehra kar dena zaroori hai,
+   warna uske peeche ka text uske aar-paar parha jata hai. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .header[data-solid="true"],
+  .wa-fab,
+  .top-fab,
+  .menu,
+  .cart,
+  .search-wrap {
+    background: var(--ink-2);
+  }
+}
+
+/* ── grid-template-columns ki animation ──
+   0fr → 1fr sirf naye browser par narm hoti hai. Purane par naam
+   achanak khul jata tha; wahan sirf saada chaurai. */
+@supports not (grid-template-columns: 0fr) {
+  .wa-fab-label,
+  .top-fab-label { display: none; }
+}
+
+/* ── input type="color" ──
+   Har phone is par apna daira khud kholta hai. Hum sirf uska
+   apna chehra chhupa kar apna gol nishan dikhate hain. */
+.ad-dot-pick {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid rgb(239 233 221 / 0.28);
+}
+.ad-dot-pick input[type="color"] {
+  position: absolute;
+  inset: -25%;
+  width: 150%;
+  height: 150%;
+  padding: 0;
+  border: none;
+  background: none;
+  opacity: 0;
+  cursor: pointer;
+}
+.ad-dot-lg {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  flex: none;
+}
+
+/* Jo rang jor diya gaya — uske sath hatane ka chhota nishan */
+.ad-chip-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 0.15rem;
+  border-radius: 50%;
+  opacity: 0.55;
+  transition: opacity var(--d-quick) var(--ease-settle),
+    background-color var(--d-quick) var(--ease-settle);
+}
+.ad-chip-x:hover {
+  opacity: 1;
+  background: rgb(239 233 221 / 0.12);
+}
+.ad-chip-color.is-on {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   4 — PHONE PAR NARMI
+   ───────────────────────────────────────────────────────────────
+   Teen cheezein har frame par phone ka processor kha jati hain:
+
+     blur()        — har frame par poora peeche ka manzar dobara
+                     dhundhla karna parta hai
+     parallax      — scroll ke sath tasveer ka apna safar
+     grain         — poore safhe par chalti hui roshnai
+
+   Bara screen inhein aasani se chalata hai. Phone — khaas kar
+   2020 se pehle wala — har ek par latakta hai. Neeche teenon
+   phone par halki ki gayi hain. Nazar ka farq mamooli hai;
+   chalne ka farq har scroll par mehsoos hota hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+  /* ── Blur ki jagah gehri plate ──
+     Dekhne mein taqreeban wohi, chalne mein kai guna halka. */
+  .header,
+  .header[data-solid="true"],
+  .wa-fab,
+  .top-fab,
+  .menu,
+  .cart,
+  .search-wrap,
+  .toast,
+  .admin-flash,
+  .share-pop {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .header[data-solid="true"] { background: var(--ink-2); }
+  .wa-fab,
+  .top-fab { background: rgb(var(--scrim-rgb) / 0.96); }
+
+  /* ── Sab se bhaari parallax thehra diya ──
+     Ye chhe tasveerein poore safhe jitni bari hain aur scroll ke
+     sath apna alag safar karti hain. Bara screen ise aasani se
+     chalata hai; phone ko har frame par itni bari tasveer dobara
+     banani parti hai.
+
+     Ye qeemat jama kar di gayi hai (thehri hui), harkat nahi
+     hati: nazar aane ka andaz wohi hai, bas ab wo scroll ke sath
+     hilti nahi. Baaqi har chhoti harkat jaisi thi waisi hai —
+     yahan sirf wohi rukein hain jo sach much bhaari thin. */
+  .hero-media    { transform: scale(1.06) !important; }
+  .atopen-media  { transform: scale(1.06) !important; }
+  .atplate-shot img { transform: scale(1.14) !important; }
+  .creed-shot-a,
+  .creed-shot-b  { transform: none !important; }
+  .bridal-film   { transform: none !important; }
+  .anatomy-piece { transform: none !important; }
+
+  /* ── Grain thehri hui ──
+     Roshnai wahin rehti hai — sirf uski harkat band. Ye akele
+     har second mein paanch frame bachati hai. */
+  .grain {
+    animation: none !important;
+    opacity: calc(var(--grain-opacity) * 0.6);
+  }
+
+  /* ── will-change sirf jab zaroorat ho ──
+     Har `will-change: transform` phone par ek alag parat (layer)
+     bana deta hai. Bees paratein banti thin aur memory bhar jati
+     thi — phir har scroll par jhatka. */
+  .hero-media,
+  .anatomy-piece,
+  .bridal-film,
+  .atopen-media,
+  .creed-shot,
+  .card,
+  .card-media,
+  .card-shot,
+  .reveal,
+  .reveal-mask,
+  .words .word > span {
+    will-change: auto !important;
+  }
+
+  /* ── Scroll khud narm ──
+     Chalte hue angooth ko rokna nahi chahiye; ye qatar iOS par
+     scroll ko uska apna asli behaav wapas deti hai. */
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ── Chhoone wale har device par (screen chhota ho ya bara) ──
+   Hover phone par hota hi nahi, magar browser phir bhi us ki
+   tayyari karta hai. Ye qatar wo tayyari band kar deti hai. */
+@media (hover: none) {
+  .card:hover .card-media img,
+  .card-shot:hover img {
+    transform: none !important;
+  }
+
+  /* Har chhone layak cheez kam az kam 44px — Apple aur Google
+     dono ka yehi naap hai. Chhote nishan par ungli phisal jati
+     hai, aur phir lagta hai ke "button kaam hi nahi karta". */
+  .icon-btn,
+  .burger,
+  .option,
+  .chip,
+  .qty button,
+  .social-btn,
+  .footer-col a,
+  .nav-link {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .nav-link,
+  .footer-col a {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* ── Jise harkat se taklif hai ──
+   Yahan sab se aakhir mein, taake upar ki har qatar par bhaari
+   rahe. */
+@media (prefers-reduced-motion: reduce) {
+  .grain { animation: none !important; }
+  .hero-media    { transform: scale(1.06) !important; }
+  .atopen-media  { transform: scale(1.06) !important; }
+  .creed-shot-a,
+  .creed-shot-b,
+  .bridal-film,
+  .anatomy-piece { transform: none !important; }
+}
