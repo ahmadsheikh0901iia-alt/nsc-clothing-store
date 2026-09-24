@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Reveal from '@/components/motion/Reveal';
 import WordReveal from '@/components/motion/WordReveal';
 import { useStore } from '@/context/StoreContext';
-import { colorHex, DELIVERY, formatPKR, getCategory } from '@/lib/constants';
+import { colorHex, colorName, DELIVERY, formatPKR, getCategory } from '@/lib/constants';
 import { imageList, toArray } from '@/lib/utils';
 import { ArrowRight, TruckIcon, RefreshIcon, ShieldIcon } from '@/components/ui/Icons';
 
@@ -27,12 +27,23 @@ export default function Spotlight({ product }) {
   const colors = toArray(product?.colors);
 
   const [active, setActive] = useState(0);
-  const [size, setSize] = useState(sizes[0] || null);
-  const [color, setColor] = useState(colors[0] || null);
+  /* Ek se zyada shakl ho to grahak khud chunta hai — pehle yahan
+     pehli qeemat khud ba khud lag jati thi, aur order us rang ka
+     chala jata tha jo kisi ne maanga hi nahi tha. */
+  const [size, setSize] = useState(sizes.length === 1 ? sizes[0] : null);
+  const [color, setColor] = useState(
+    colors.length === 1 ? colorName(colors[0]) : null
+  );
 
   if (!product) return null;
 
   const category = getCategory(product.category);
+
+  /* Jab tak chunna baaqi hai, button khud bata deta hai kya chahiye. */
+  const needsSize = sizes.length > 1 && !size;
+  const needsColor = colors.length > 0 && !color;
+  const blocked = needsSize || needsColor;
+  const blockedLabel = needsSize ? 'Select a size' : needsColor ? 'Select a colour' : null;
 
   return (
     <section className="section container band-top">
@@ -125,15 +136,15 @@ export default function Spotlight({ product }) {
           {/* ── Colour ── */}
           {colors.length > 0 && (
             <Reveal delay={0.16} className="field">
-              <span className="label">Colour — {color}</span>
+              <span className="label">Colour{color ? ` — ${color}` : ''}</span>
               <div className="option-row">
                 {colors.map((c) => (
                   <button
                     key={c}
                     type="button"
                     className="option"
-                    aria-pressed={color === c}
-                    onClick={() => setColor(c)}
+                    aria-pressed={color === colorName(c)}
+                    onClick={() => setColor(colorName(c))}
                     style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
                   >
                     <span
@@ -141,7 +152,7 @@ export default function Spotlight({ product }) {
                       style={{ background: colorHex(c), width: 11, height: 11 }}
                       aria-hidden="true"
                     />
-                    {c}
+                    {colorName(c)}
                   </button>
                 ))}
               </div>
@@ -153,9 +164,13 @@ export default function Spotlight({ product }) {
             <button
               type="button"
               className="btn btn-primary btn-lg btn-block"
-              onClick={() => addItem(product, { size, color, qty: 1 })}
+              disabled={blocked}
+              onClick={() => {
+                if (blocked) return;
+                addItem(product, { size, color, qty: 1 });
+              }}
             >
-              Add to bag — {formatPKR(product.price)}
+              {blockedLabel || `Add to bag — ${formatPKR(product.price)}`}
             </button>
             <Link href={`/shop/${product.slug}`} className="btn btn-outline btn-block">
               Full details

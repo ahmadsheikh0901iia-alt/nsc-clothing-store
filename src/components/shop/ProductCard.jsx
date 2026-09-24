@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useStore } from '@/context/StoreContext';
 import ShareButton from '@/components/shop/ShareButton';
-import { colorHex, formatPKR, getCategory } from '@/lib/constants';
+import { colorHex, colorName, formatPKR, getCategory } from '@/lib/constants';
 import {
   discountPct,
   primaryImage,
@@ -47,17 +47,28 @@ export default function ProductCard({ product, priority = false, sizes }) {
   const category = getCategory(product.category);
   const soldOut = product.in_stock === false || product.stock_count === 0;
 
+  /* ── Bag mein seedha daalna ──
+     Pehle yahan pehla size aur pehla rang khud ba khud chun liya
+     jata tha. Grahak ne kabhi kaha hi nahi ke usay Maroon chahiye
+     — aur order Maroon ka chala jata tha.
+
+     Pehle sirf size dekha jata tha. Ab rang bhi: jahan chunne ko
+     kuch hai — do se zyada size ya do se zyada rang — wahan ye
+     jagah "Choose options" ban jati hai jo product ke safhe par le
+     jati hai. Jahan ek hi shakl hai (jaise shawl), wahan pehle ki
+     tarah ek hi dabane par bag mein chala jata hai. */
+  const mustChoose = productSizes.length > 1 || colors.length > 1;
+
   const handleQuickAdd = (e) => {
     e.preventDefault();
     e.stopPropagation();
     addItem(product, {
       size: productSizes[0] || null,
-      color: colors[0] || null,
+      color: colors.length ? colorName(colors[0]) : null,
       qty: 1,
     });
   };
 
-  const onlyOneSize = productSizes.length <= 1;
   const imageSizes = sizes || '(max-width: 640px) 50vw, (max-width: 1100px) 33vw, 25vw';
 
   return (
@@ -102,7 +113,7 @@ export default function ProductCard({ product, priority = false, sizes }) {
         {/* Quick add */}
         {!soldOut && (
           <div className="card-quick">
-            {onlyOneSize ? (
+            {!mustChoose ? (
               <button
                 type="button"
                 className="btn btn-primary btn-sm btn-block"
@@ -116,7 +127,7 @@ export default function ProductCard({ product, priority = false, sizes }) {
                 className="btn btn-outline btn-sm btn-block"
                 style={{ background: 'rgba(10,10,9,.55)' }}
               >
-                Choose size
+                Choose options
               </Link>
             )}
           </div>
@@ -129,13 +140,16 @@ export default function ProductCard({ product, priority = false, sizes }) {
           <p className="card-cat">{category?.name || product.category}</p>
 
           {colors.length > 0 && (
-            <div className="swatches" aria-label={`Colours: ${colors.join(', ')}`}>
+            <div
+              className="swatches"
+              aria-label={`Colours: ${colors.map(colorName).join(', ')}`}
+            >
               {colors.slice(0, 5).map((c) => (
                 <span
                   key={c}
                   className="swatch-dot"
                   style={{ background: colorHex(c) }}
-                  title={c}
+                  title={colorName(c)}
                 />
               ))}
             </div>

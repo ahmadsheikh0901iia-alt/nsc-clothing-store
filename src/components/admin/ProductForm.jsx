@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import {
   CATEGORIES,
-  COLOR_HEX,
   SIZE_PRESETS,
   colorHex,
+  colorName,
+  colorValue,
   formatPKR,
   subCollections,
   NEW_ARRIVAL_LIMIT,
@@ -26,8 +27,8 @@ import { CloseIcon, PlusIcon, TrashIcon } from '@/components/ui/Icons';
  *  · Sizes category se khud aate hain — SIZE_PRESETS se, jo
  *    constants.js mein pehle se likhi thi magar poore project
  *    mein kahin istemal nahi ho rahi thi.
- *  · Colour ke naam wohi list se chunay jate hain jo COLOR_HEX
- *    mein hain, is liye har swatch ka rang hamesha sahi rehta
+ *  · Colour ke naam aap khud likhte hain. Sirf wohi nazar aate
+ *    hain jo aap ne is product ke liye likhe — aur koi nahi
  *    hai. Apna naam bhi likh sakte hain — magar phir wo grey
  *    dikhega, aur form ye saaf bata deta hai.
  *
@@ -64,7 +65,9 @@ const slugify = (value) =>
     .replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, '');
 
-const COLOR_NAMES = Object.keys(COLOR_HEX);
+/* Naya rang chunte waqt ka pehla ishara — sirf ek shuruati
+   qeemat, aap jo marzi chun lein. */
+const DEFAULT_SWATCH = '#b79ea1';
 
 export default function ProductForm({ product, onSave, onCancel }) {
   const editing = Boolean(product?.id);
@@ -75,6 +78,7 @@ export default function ProductForm({ product, onSave, onCancel }) {
   const [message, setMessage] = useState('');
   const [uploading, setUploading] = useState(false);
   const [customColor, setCustomColor] = useState('');
+  const [customHex, setCustomHex] = useState(DEFAULT_SWATCH);
 
   /* Bahar se tasveer utha kar andar chhorne ke liye */
   const [dropping, setDropping] = useState(false);
@@ -123,6 +127,37 @@ export default function ProductForm({ product, onSave, onCancel }) {
       [key]: f[key].includes(value)
         ? f[key].filter((v) => v !== value)
         : [...f[key], value],
+    }));
+
+  /* ── Rang jorna aur hatana ──
+     Naam aur rang dono ek hi likhai mein jate hain — "Peach|#ffd7b5" —
+     magar grahak ko hamesha sirf "Peach" nazar aata hai. */
+
+  const addColor = () => {
+    const name = colorName(customColor);
+    if (!name) return;
+
+    const already = form.colors.some(
+      (c) => colorName(c).toLowerCase() === name.toLowerCase()
+    );
+    if (already) {
+      setCustomColor('');
+      return;
+    }
+
+    setForm((f) => ({ ...f, colors: [...f.colors, colorValue(name, customHex)] }));
+    setCustomColor('');
+    setCustomHex(DEFAULT_SWATCH);
+  };
+
+  const removeColor = (value) =>
+    setForm((f) => ({ ...f, colors: f.colors.filter((c) => c !== value) }));
+
+  /* Jora hua rang baad mein badalna ho to — naam wohi, nishan naya. */
+  const recolor = (value, hex) =>
+    setForm((f) => ({
+      ...f,
+      colors: f.colors.map((c) => (c === value ? colorValue(colorName(c), hex) : c)),
     }));
 
   /* ── Tasveerein ── */
@@ -544,61 +579,106 @@ export default function ProductForm({ product, onSave, onCancel }) {
           )}
         </section>
 
-        {/* ── Rang ── */}
-        <section className="ad-form-section">
-          <p className="ad-block-title">Colour</p>
-          <div className="ad-chips">
-            {COLOR_NAMES.map((name) => (
-              <button
-                key={name}
-                type="button"
-                className="ad-chip ad-chip-color"
-                aria-pressed={form.colors.includes(name)}
-                onClick={() => toggleIn('colors', name)}
-              >
-                <span className="ad-dot" style={{ background: colorHex(name) }} aria-hidden="true" />
-                {name}
-              </button>
-            ))}
-          </div>
+        {/* ── Rang ──
+            Pehle yahan pentees rang pehle se lage rehte thay — un
+            mein se aksar kisi product par kabhi istemal hi nahi
+            hote thay, aur chunte waqt asli rang unhi ke beech kho
+            jata tha.
 
+            Ab is khane mein sirf wohi rang hain jo aap ne is
+            product ke liye khud likhe. Naam aap likhte hain, aur
+            us ke sath ka nishan bhi aap hi chunte hain — is liye
+            site par dikhne wala daira hamesha theek rehta hai aur
+            constants.js kholne ki zaroorat kabhi nahi parti.
+
+            Grahak ko order karte waqt inhi mein se ek chunna parta
+            hai; ek se zyada rang hon to bina chune bag mein nahi
+            ja sakta. */}
+        <section className="ad-form-section">
+          <p className="ad-block-title">
+            Colour
+            <span className="ad-label-dim">
+              {' '}— sirf wohi jo aap likhein
+            </span>
+          </p>
+
+          {/* Jo aap ne joray — har ek ke sath uska apna nishan */}
+          {form.colors.length > 0 ? (
+            <div className="ad-chips">
+              {form.colors.map((value) => (
+                <span key={value} className="ad-chip ad-chip-color is-on">
+                  <label
+                    className="ad-dot ad-dot-pick"
+                    style={{ background: colorHex(value) }}
+                    title={`${colorName(value)} — nishan ka rang badlein`}
+                  >
+                    <input
+                      type="color"
+                      value={colorHex(value)}
+                      onChange={(e) => recolor(value, e.target.value)}
+                      aria-label={`${colorName(value)} ka nishan`}
+                    />
+                  </label>
+
+                  {colorName(value)}
+
+                  <button
+                    type="button"
+                    className="ad-chip-x"
+                    onClick={() => removeColor(value)}
+                    aria-label={`${colorName(value)} hatayein`}
+                    title="Hatayein"
+                  >
+                    <CloseIcon width={11} height={11} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="ad-hint">
+              Abhi koi rang nahi. Neeche naam likh kar{' '}
+              <strong>Add</strong> dabayein — jo aap likhenge, bas wohi
+              grahak ko nazar aayega.
+            </p>
+          )}
+
+          {/* Naya rang — naam, nishan, Add */}
           <div className="ad-row-fields ad-row-tight">
+            <label
+              className="ad-dot ad-dot-pick ad-dot-lg"
+              style={{ background: customHex }}
+              title="Is rang ka nishan chunein"
+            >
+              <input
+                type="color"
+                value={customHex}
+                onChange={(e) => setCustomHex(e.target.value)}
+                aria-label="Naye rang ka nishan"
+              />
+            </label>
+
             <input
               className="ad-input"
               value={customColor}
-              placeholder="New colour — say Peach"
+              placeholder="Rang ka naam — jaise Peach"
               onChange={(e) => setCustomColor(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key !== 'Enter') return;
                 e.preventDefault();
-                const name = customColor.trim();
-                if (name && !form.colors.includes(name)) toggleIn('colors', name);
-                setCustomColor('');
+                addColor();
               }}
             />
-            <button
-              type="button"
-              className="ad-btn ad-btn-ghost"
-              onClick={() => {
-                const name = customColor.trim();
-                if (name && !form.colors.includes(name)) toggleIn('colors', name);
-                setCustomColor('');
-              }}
-            >
+
+            <button type="button" className="ad-btn ad-btn-ghost" onClick={addColor}>
               Add
             </button>
           </div>
 
-          {form.colors.some((c) => !COLOR_HEX[c]) && (
-            <p className="ad-hint ad-hint-warn">
-              {form.colors.filter((c) => !COLOR_HEX[c]).join(', ')} —{' '}
-              {form.colors.filter((c) => !COLOR_HEX[c]).length === 1
-                ? 'this colour has'
-                : 'these colours have'}{' '}
-              no entry in COLOR_HEX, so the dot shows grey on the site. Open{' '}
-              <code>src/lib/constants.js</code> and add the right hex there.
-            </p>
-          )}
+          <p className="ad-hint">
+            Naam likhein, us ke baayein wala gol nishan dabakar asli rang
+            chunein, phir <strong>Add</strong>. Ek se zyada rang hon to
+            grahak ko order se pehle ek chunna hi parta hai.
+          </p>
         </section>
 
         {/* ── Stock aur nazar ── */}

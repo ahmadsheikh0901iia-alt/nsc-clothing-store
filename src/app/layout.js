@@ -8,6 +8,9 @@ import SearchOverlay from '@/components/layout/SearchOverlay';
 import Toasts from '@/components/layout/Toasts';
 import WhatsAppButton from '@/components/layout/WhatsAppButton';
 import AdminShortcut from '@/components/layout/AdminShortcut';
+import BackToTop from '@/components/layout/BackToTop';
+import ScrollTop from '@/components/layout/ScrollTop';
+import PWA from '@/components/layout/PWA';
 import Intro from '@/components/layout/Intro';
 import { getProducts } from '@/lib/data/products';
 import { DELIVERY, SOCIALS, STORE } from '@/lib/constants';
@@ -55,6 +58,19 @@ export const metadata = {
     description: STORE.description,
   },
   alternates: { canonical: '/' },
+
+  /* ── PHONE KI HOME SCREEN KA NISHAN ──
+     iOS `apple-touch-icon` ke baghair site ka ek dhundla sa
+     screenshot laga deta hai. Pehle yahan apple-icon.jsx thi jo
+     sirf "NSC" TYPE kar ke ek dabba banati thi — wo file ab
+     khatam kar di gayi hai, aur us ki jagah asli nishan hai. */
+  icons: {
+    icon: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
   robots: {
     index: true,
     follow: true,
@@ -95,8 +111,28 @@ export const viewport = {
  * Runs before the browser paints a single pixel, so the page never
  * flashes the wrong theme. Deliberately tiny and dependency-free:
  * read the saved choice, fall back to the OS, stamp <html>.
+ *
+ * Ab ek doosra kaam bhi karti hai: <html> par `data-js="on"` laga
+ * deti hai.
+ *
+ * Wajah: site ke jumle aur tasveerein shuru mein `opacity: 0` par
+ * hoti hain aur JavaScript unhein nazar mein aate hi khol deti
+ * hai. Agar kisi purane phone par JavaScript chali hi na — purani
+ * zubaan samajh na aaye, ya bundle beech mein ruk jaye — to wo
+ * sab hamesha ke liye chhupe reh jate thay. Safha khulta tha,
+ * magar khali.
+ *
+ * Ab chhupane ka kaam sirf tab hota hai jab ye chhoti si qatar
+ * khud chal chuki ho. Na chali — to kuch chhupta hi nahi, poora
+ * safha seedha nazar aata hai. Chal gayi — to sab kuch jaisa tha
+ * waisa, narmi ke sath.
+ *
+ * Ye qatar <head> mein sab se pehle chalti hai, kisi bundle ka
+ * intezar nahi karti, aur is mein koi nayi zubaan nahi hai — is
+ * liye har phone par chalti hai.
  */
 const NO_FLASH = `(function(){try{
+document.documentElement.setAttribute("data-js","on");
 var s=localStorage.getItem(${JSON.stringify(THEME_KEY)});
 document.documentElement.dataset.theme=(s==="light"||s==="dark")?s:
 (window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");
@@ -245,7 +281,20 @@ export default async function RootLayout({ children }) {
             <CartDrawer />
             <SearchOverlay products={products} />
             <Toasts />
+
+            {/* Neeche do gol button, do kinaron par:
+                daayein WhatsApp, baayein upar jane wala. */}
             <WhatsAppButton />
+            <BackToTop />
+
+            {/* Har naya safha apne upar se shuru ho — na ke aakhir
+                se. Kuch dikhata nahi, sirf ye ek kaam karta hai. */}
+            <ScrollTop />
+
+            {/* Service worker, aur Chrome ka install wala parwana —
+                wo parwana ek hi dafa aata hai, is liye sunna safhe
+                ke shuru mein hi shuru karna parta hai. */}
+            <PWA />
 
             {/* Alt + A, ya kahin bhi "admin" likh dein */}
             <AdminShortcut />

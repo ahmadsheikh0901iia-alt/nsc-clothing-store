@@ -30,16 +30,25 @@ import { ArrowRight } from '@/components/ui/Icons';
 const PIECES = [
   {
     key: 'shirt',
+    n: '01',
+    t: 'The Shirt',
+    d: 'Mirror-cut placket, lace-edged sleeve.',
     src: '/products/womens-stitched-01-detail.jpg',
     alt: 'Block-print shirt front with mirror-cut placket',
   },
   {
     key: 'dupatta',
+    n: '02',
+    t: 'The Dupatta',
+    d: 'Printed cotton net, 2.5m, border matched to the daaman.',
     src: '/products/womens-stitched-01-dupatta.jpg',
     alt: 'The printed dupatta of the same three piece',
   },
   {
     key: 'trouser',
+    n: '03',
+    t: 'The Trouser',
+    d: 'Dyed cotton, cut on the straight grain.',
     src: '/products/womens-stitched-01-trouser.jpg',
     alt: 'The matching trouser with its lace daaman',
   },
@@ -139,6 +148,54 @@ export default function Anatomy() {
                 <span className="t">{label.t}</span>
                 <span className="d">{label.d}</span>
               </div>
+            ))}
+          </div>
+
+          {/* ── Phone ka raasta ──
+              Uper wala stage 320vh ka ek "pinned" khana hai: safha
+              khara rehta hai aur andar ke teen tukre scroll ke
+              hisaab se alag hote hain. Bare screen par ye khoobsurat
+              hai. Phone par teen wajhon se toot jata tha:
+
+              1. Phone ka apna pata-patti wala hissa scroll ke sath
+                 chhupta aur wapas aata hai. Us se `innerHeight`
+                 badal jati hai — aur poora hisaab usi par tha. Har
+                 dafa patti hilti, tukre jhatka khate.
+              2. 220vh ka safar phone par bohat lamba lagta hai:
+                 angootha chalta rehta hai aur lagta hai safha
+                 atak gaya.
+              3. Teen tasveerein ek chhote se murabbe mein ek doosre
+                 ke uper — koi bhi theek se nazar nahi aati thi.
+
+              Is liye phone par ab wo khana bilkul nahi banta. Us ki
+              jagah ye qatar hai: teen poore card, angoothe se
+              baayein-daayein, har card apni jagah par ruk jata hai
+              (CSS ka apna scroll-snap — koi JavaScript nahi, is
+              liye kabhi latakta nahi). Har card ke neeche us ka
+              apna naam aur tafseel, jo bare screen par kinaron par
+              likhi hoti hai.
+
+              Ek hi cheez dono jagah alag hai: raasta. Baat wohi
+              hai — shirt, dupatta, trouser, teen alag faisle. */}
+          <div className="anatomy-rail" aria-label="The three pieces">
+            {PIECES.map((piece) => (
+              <figure className="anatomy-card" key={piece.key}>
+                <div className="anatomy-card-shot">
+                  <Image
+                    quality={90}
+                    src={piece.src}
+                    alt={piece.alt}
+                    width={900}
+                    height={1200}
+                    sizes="76vw"
+                  />
+                </div>
+                <figcaption>
+                  <span className="n">{piece.n}</span>
+                  <span className="t">{piece.t}</span>
+                  <span className="d">{piece.d}</span>
+                </figcaption>
+              </figure>
             ))}
           </div>
         </div>

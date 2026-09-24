@@ -16,7 +16,21 @@
 
 html {
   background: var(--ink);
-  scroll-behavior: smooth;
+
+  /* Yahan pehle `scroll-behavior: smooth` tha, aur wohi us masle
+     ki jar tha ke naya safha apne AAKHIR se khulta tha.
+
+     Hota ye tha: safha badalte hi browser upar jaane ki koshish
+     karta hai, magar "smooth" us koshish ko ek animation bana
+     deta hai. Us animation ke darmiyan purana safha gayab hota
+     hai, safhe ki lambai achanak chhoti ho jati hai, aur adhoori
+     harkat wahin ki wahin ruk jati hai — yani neeche.
+
+     Ab narmi sirf wahan hai jahan sach much chahiye: "Top" wale
+     button mein aur andar ke anchor jump mein, dono JavaScript se
+     (BackToTop.jsx). Safha badalna foran hai, jaisa hona chahiye.
+     Upar le jane ka kaam ScrollTop.jsx sambhalta hai. */
+
   /* Stops the page shifting sideways when a modal locks the scrollbar. */
   scrollbar-gutter: stable;
   -webkit-text-size-adjust: 100%;
@@ -34,6 +48,12 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+
+  /* `dvh` sirf iOS 15.4 / Chrome 108 ke baad chalta hai. Purane
+     phone us qatar ko nazar-andaz kar dete thay aur body ki koi
+     kam se kam oonchai reh hi nahi jati thi. Ab pehle wo naap
+     jo har jagah chalta hai, phir naya wala uske upar. */
+  min-height: 100vh;
   min-height: 100dvh;
 }
 
@@ -186,6 +206,7 @@ p {
   html {
     scroll-behavior: auto;
   }
+
   *,
   *::before,
   *::after {

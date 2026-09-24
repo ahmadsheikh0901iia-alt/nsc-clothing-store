@@ -2164,11 +2164,13 @@
   border-radius: var(--radius);
 }
 
-/* Safha khud bhi narmi se chalta hai — anchor link, "Top",
-   policies ke jump links, sab. */
-@media (prefers-reduced-motion: no-preference) {
-  html { scroll-behavior: smooth; }
-}
+/* Yahan bhi pehle `html { scroll-behavior: smooth }` tha — wohi
+   qatar jo base.css se nikali gayi hai, isi wajah se: safha
+   badalte waqt wo upar jaane ki koshish ko adhoora chhor deti
+   thi aur naya safha apne aakhir se khulta tha.
+
+   Narmi ab JavaScript se aati hai, sirf wahan jahan chahiye:
+   "Top" ka button (BackToTop.jsx) aur andar ke jump links. */
 
 /* Jisay harkat se taklif hai, us ke liye sab kuch foran */
 @media (prefers-reduced-motion: reduce) {

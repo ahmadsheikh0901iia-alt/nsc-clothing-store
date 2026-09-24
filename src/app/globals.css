@@ -13,6 +13,11 @@
      track.css       /order — customer ka order tracking
      admin.css       the /admin panel — tokens.css ke baad hi, kyunke
                      wo apna har rang wahin se leta hai
+     install.css     "NSC aap ke phone par" — install ka khana
+     compat.css      SAB SE AAKHIR — purane phone ka sahara, phone
+                     par narmi, aur do naye button (upar jane wala
+                     aur nav ka admin nishan). Aakhir mein is liye
+                     ke ye upar ki har qatar par bhaari rahe.
    ═══════════════════════════════════════════════════════════════ */
 
 @import "../styles/tokens.css";
@@ -23,3 +28,5 @@
 @import "../styles/sections.css";
 @import "../styles/track.css";
 @import "../styles/admin.css";
+@import "../styles/install.css";
+@import "../styles/compat.css";

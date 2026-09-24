@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 import { useStore } from '@/context/StoreContext';
 import { subscribe } from '@/lib/scroll';
 import { NAV_LINKS, STORE } from '@/lib/constants';
-import { BagIcon, SearchIcon } from '@/components/ui/Icons';
+import { BagIcon, SearchIcon, ShieldIcon } from '@/components/ui/Icons';
 import MobileMenu from '@/components/layout/MobileMenu';
 import ThemeToggle from '@/components/layout/ThemeToggle';
 
@@ -114,6 +114,28 @@ export default function Header() {
 
           {/* ── Actions ── */}
           <div className="header-actions">
+            {/* ── Admin ka darwaza ──
+                Pehle ye footer ki aakhri qatar mein tha. Phone par
+                wo qatar tang par jati thi aur ye nishan WhatsApp ke
+                gol button ke neeche chhup jata tha — aap ko wo mil
+                hi nahi raha tha.
+
+                Ab yahan hai, upar ki patti mein, har naap par aik
+                hi jagah. Search engine ise kabhi nahi parhte:
+                /admin par middleware `X-Robots-Tag: noindex` lagata
+                hai aur is link par `nofollow` hai. Andar bhi
+                password ke baghair kuch nazar nahi aata — ye sirf
+                raasta hai, taala wahin ka wahin hai. */}
+            <Link
+              href="/admin"
+              className="icon-btn header-admin"
+              rel="nofollow"
+              title="Admin panel — Alt + A"
+              aria-label="Admin panel"
+            >
+              <ShieldIcon width={18} height={18} />
+            </Link>
+
             <ThemeToggle />
 
             <button

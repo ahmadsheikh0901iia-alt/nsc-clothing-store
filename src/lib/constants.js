@@ -763,8 +763,60 @@ export const COLOR_HEX = {
   Camel: '#8d795e',
 };
 
-/** Falls back to a neutral tone for any colour not in the map above. */
-export const colorHex = (name) => COLOR_HEX[name] || '#6a655c';
+/* ═══════════════════════════════════════════════════════════════
+   RANG — naam aur uska hex, ek hi qatar mein
+   ───────────────────────────────────────────────────────────────
+   Pehle sirf upar wali list ke rang chal sakte thay. Aap koi naya
+   naam likhte — "Peach" — to site par uska nishan bhoora nazar
+   aata, aur theek karne ke liye constants.js kholni parti thi.
+
+   Ab admin ke form mein aap naam ke sath uska rang bhi chun lete
+   hain. Dono ek hi likhai mein mehfooz hote hain:
+
+       "Peach|#ffd7b5"
+
+   Ye sirf andar ka intezam hai. Grahak ko, pachi mein, order ki
+   parchi mein aur WhatsApp ke paigham mein hamesha sirf "Peach"
+   hi jata hai — colorName() us se naam alag kar deta hai.
+
+   Purane 44 product jaise thay waise hi chalte rahenge: un mein
+   sirf naam hai, koi `|` nahi, to colorHex() upar wali list se
+   dekh leta hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+/** "Peach|#ffd7b5" se sirf "Peach" — aur saada naam jyon ka tyon. */
+export const colorName = (value) => {
+  const text = String(value == null ? '' : value);
+  const cut = text.indexOf('|');
+  return (cut === -1 ? text : text.slice(0, cut)).trim();
+};
+
+/**
+ * Nishan ka rang. Teen jagah dekhta hai, isi tarteeb se:
+ *   1. naam ke sath likha hua hex  — "Peach|#ffd7b5"
+ *   2. upar wali COLOR_HEX ki list — "Sage"
+ *   3. neutral bhoora             — jab kuch na mile
+ */
+export const colorHex = (value) => {
+  const text = String(value == null ? '' : value);
+  const cut = text.indexOf('|');
+
+  if (cut !== -1) {
+    const hex = text.slice(cut + 1).trim();
+    if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(hex)) return hex;
+  }
+
+  return COLOR_HEX[text.trim()] || '#6a655c';
+};
+
+/** Naam ke sath rang jorne ke liye — admin ka form yahi banata hai. */
+export const colorValue = (name, hex) => {
+  const clean = colorName(name);
+  if (!clean) return '';
+  return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(String(hex || '').trim())
+    ? `${clean}|${String(hex).trim().toLowerCase()}`
+    : clean;
+};
 
 
 /**

@@ -1,0 +1,421 @@
+/* ═══════════════════════════════════════════════════════════════
+   NSC — PHONE PAR
+   ───────────────────────────────────────────────────────────────
+   Do hisse: baayein baat, daayein ek phone jis ki home screen par
+   nishan aa kar apni jagah leta hai.
+
+   Poori harkat CSS ki hai, aur sirf do cheezon par: `transform`
+   aur `opacity`. Ye dono browser apne GPU par chalata hai — yani
+   safhe ko dobara banane ki zaroorat nahi parti. Isi liye ye
+   khana purane phone par bhi utna hi narm chalta hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+.install {
+  position: relative;
+  padding-block: clamp(4.5rem, 11vw, 9rem);
+  background: var(--ink);
+  overflow: hidden;
+}
+
+/* Peechay ek halka sunehri ujala — gehrai ke liye, nazar ke liye
+   nahi. Bilkul thehra hua, is liye muft hai. */
+.install::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 12%;
+  width: min(120vw, 1100px);
+  aspect-ratio: 1;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgb(194 165 107 / 0.09) 0%,
+    rgb(194 165 107 / 0.03) 42%,
+    transparent 68%
+  );
+  pointer-events: none;
+}
+
+.install-inner {
+  position: relative;
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: clamp(2.5rem, 6vw, 6rem);
+  align-items: center;
+}
+
+.install-copy { max-width: 46ch; }
+.install-copy h2,
+.install-h2-plain {
+  margin-block: 1.25rem 1.5rem;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: var(--t-title);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+/* ── Install ka button ───────────────────────────────────────── */
+
+.install-act {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.25rem;
+  margin-top: 2rem;
+}
+
+.install-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+/* Nishan ke gird ek daira jo halke se saans leta hai — grahak ki
+   nazar isi par jani chahiye. */
+.install-btn-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-pill);
+  border: 1px solid currentColor;
+  flex: none;
+}
+.install-btn-mark::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1px solid currentColor;
+  animation: install-pulse 2.8s var(--ease-inout) infinite;
+}
+@keyframes install-pulse {
+  0%       { transform: scale(1);    opacity: 0.5; }
+  70%,100% { transform: scale(1.75); opacity: 0; }
+}
+
+.install-note {
+  font-size: var(--t-micro);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+}
+
+.install-msg {
+  margin-top: 1rem;
+  font-size: var(--t-small);
+  color: var(--bone-dim);
+}
+
+/* ── iPhone ke teen qadam ────────────────────────────────────── */
+
+.install-steps { margin-top: 2rem; }
+
+.install-steps ol {
+  display: grid;
+  gap: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+.install-steps li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 0.9rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--line);
+}
+.install-steps li:last-child { border-bottom: 0; padding-bottom: 0; }
+
+.install-steps .n {
+  font-size: 0.5625rem;
+  letter-spacing: 0.28em;
+  color: var(--gold);
+}
+.install-steps .s {
+  font-size: var(--t-small);
+  line-height: 1.6;
+  color: var(--bone-dim);
+}
+.install-steps strong {
+  font-weight: 400;
+  color: var(--bone);
+}
+
+/* Share ka nishan jumle ke beech — usi qad par jis par likhai hai */
+.ios-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  vertical-align: -6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  color: var(--gold);
+}
+
+/* ── Pehle se lagi hui ───────────────────────────────────────── */
+
+.install-done {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 2rem;
+  font-size: var(--t-small);
+  color: var(--bone-dim);
+}
+.install-done-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgb(194 165 107 / 0.5);
+  color: var(--gold);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PHONE
+   ═══════════════════════════════════════════════════════════════ */
+
+.install-stage {
+  display: grid;
+  place-items: center;
+  perspective: 1200px;
+}
+
+.phone {
+  position: relative;
+  width: min(78%, 300px);
+  aspect-ratio: 9 / 19;
+  border-radius: 38px;
+  padding: 10px;
+  background: linear-gradient(160deg, #24231f, #0c0c0b 55%);
+  border: 1px solid rgb(239 233 221 / 0.14);
+  box-shadow:
+    0 50px 90px -30px rgb(var(--scrim-rgb) / 0.9),
+    0 0 0 1px rgb(194 165 107 / 0.12) inset;
+  transform: rotateY(-11deg) rotateX(3deg);
+  transform-style: preserve-3d;
+}
+
+.phone-notch {
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  translate: -50% 0;
+  width: 34%;
+  height: 20px;
+  border-radius: 0 0 12px 12px;
+  background: #0c0c0b;
+  z-index: 3;
+}
+
+.phone-screen {
+  position: relative;
+  height: 100%;
+  border-radius: 29px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgb(194 165 107 / 0.1), transparent 60%),
+    linear-gradient(180deg, #14140f, #08080a);
+  padding: 2.1rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.phone-time {
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  color: var(--bone-faint);
+  text-align: center;
+  margin-bottom: 1.1rem;
+}
+
+.phone-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem 0.6rem;
+  align-content: start;
+}
+
+/* Baaqi app — jaan boojh kar be-shakl, taake nazar sirf NSC par
+   jaye. Ye is tasveer mein "baaqi duniya" hain. */
+.app-dummy {
+  aspect-ratio: 1;
+  border-radius: 22%;
+  background: rgb(239 233 221 / 0.055);
+}
+
+/* ── NSC ka nishan ──
+   Uper se aa kar apni jagah par baithta hai, aur baithte hi uske
+   gird ek sunehri lakeer khinch jati hai. Ek dafa. */
+.app-nsc {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  border-radius: 22%;
+  overflow: visible;
+  animation: app-land 1.05s var(--ease-settle) 0.45s both;
+}
+.app-nsc img {
+  width: 100%;
+  height: 100%;
+  border-radius: 22%;
+  object-fit: cover;
+  box-shadow: 0 8px 18px -6px rgb(0 0 0 / 0.75);
+}
+.app-nsc::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 26%;
+  border: 1px solid var(--gold);
+  opacity: 0;
+  animation: app-ring 2.6s var(--ease-settle) 1.3s infinite;
+}
+
+/* Icon ke neeche wala naam — bilkul waise jaise phone likhta hai */
+.app-nsc em {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 5px);
+  translate: -50% 0;
+  font-style: normal;
+  font-size: 0.42rem;
+  letter-spacing: 0.06em;
+  color: var(--bone-dim);
+  white-space: nowrap;
+  animation: app-name 0.5s var(--ease-settle) 1.15s both;
+}
+
+@keyframes app-land {
+  0%   { opacity: 0; transform: translate3d(0, -26px, 0) scale(0.6); }
+  60%  { opacity: 1; transform: translate3d(0, 3px, 0)   scale(1.04); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0)     scale(1); }
+}
+@keyframes app-name {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes app-ring {
+  0%       { opacity: 0.85; transform: scale(1); }
+  45%,100% { opacity: 0;    transform: scale(1.22); }
+}
+
+.phone-dock {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+  padding: 0.6rem;
+  border-radius: 20px;
+  background: rgb(239 233 221 / 0.05);
+}
+.phone-dock span {
+  aspect-ratio: 1;
+  border-radius: 24%;
+  background: rgb(239 233 221 / 0.07);
+}
+
+.phone-bar {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  translate: -50% 0;
+  width: 32%;
+  height: 3px;
+  border-radius: 3px;
+  background: rgb(239 233 221 / 0.3);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   /install — poore safhe ka baaqi hissa
+   ═══════════════════════════════════════════════════════════════ */
+
+.install-tail { padding-bottom: clamp(4rem, 10vw, 7rem); }
+
+.install-facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  padding-top: clamp(2rem, 5vw, 3rem);
+  border-top: 1px solid var(--line);
+}
+.install-facts .n {
+  display: block;
+  font-size: 0.5625rem;
+  letter-spacing: 0.28em;
+  color: var(--gold);
+  margin-bottom: 0.9rem;
+}
+.install-facts h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+  font-weight: 300;
+  margin-bottom: 0.6rem;
+}
+.install-facts p {
+  font-size: var(--t-small);
+  line-height: 1.7;
+  color: var(--bone-faint);
+}
+
+.install-back { margin-top: clamp(2.5rem, 6vw, 4rem); }
+
+/* ═══════════════════════════════════════════════════════════════
+   CHHOTI SCREEN
+   ───────────────────────────────────────────────────────────────
+   Phone par phone ki tasveer dikhana bewaqoofi hoti — grahak
+   apne haath mein asli phone pakre hue hai. Is liye wahan wo
+   chhoti ho kar baat ke UPER aa jati hai: pehle nishan nazar
+   aaye, phir baat, phir button. Wohi tarteeb jo nazar ki hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+  .install-inner {
+    grid-template-columns: 1fr;
+    gap: clamp(2rem, 7vw, 3rem);
+    text-align: center;
+  }
+  .install-copy {
+    max-width: 52ch;
+    margin-inline: auto;
+    order: 2;
+  }
+  .install-stage { order: 1; }
+
+  .phone {
+    width: min(58%, 210px);
+    transform: none;   /* teerha phone chhote naap par tootta lagta hai */
+  }
+
+  .install-act { justify-content: center; }
+  .install-done { justify-content: center; }
+  .install-steps { text-align: left; max-width: 34ch; margin-inline: auto; }
+
+  .install-facts {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .install-back { text-align: center; }
+}
+
+@media (max-width: 420px) {
+  .phone { width: min(64%, 190px); }
+  .phone-grid { gap: 0.55rem 0.45rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-nsc,
+  .app-nsc em { animation: none; opacity: 1; transform: none; }
+  .app-nsc::after,
+  .install-btn-mark::after { animation: none; opacity: 0; }
+}

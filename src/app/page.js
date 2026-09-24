@@ -11,6 +11,7 @@ import Workflow from '@/components/home/Workflow';
 import Assurance from '@/components/home/Assurance';
 import Testimonials from '@/components/home/Testimonials';
 import CtaBand from '@/components/home/CtaBand';
+import InstallApp from '@/components/layout/InstallApp';
 import { getCategoryCounts, getFeaturedProducts } from '@/lib/data/products';
 
 /* ═══════════════════════════════════════════════════════════════
@@ -71,7 +72,16 @@ export default async function HomePage() {
       {/* 11 — What people say */}
       <Testimonials />
 
-      {/* 12 — Closing call to action (newsletter lives in the footer) */}
+      {/* 12 — NSC phone par.
+             Jaan boojh kar yahan: grahak ne is waqt tak dukaan dekh
+             li hai, cloth ka kaam dekh liya hai aur logon ki baat
+             parh li hai. Ab "apne phone par laga lein" ek paishkash
+             lagti hai — safhe ke shuru mein wo sirf ek rukawat
+             hoti. Jis phone par ye ho hi nahi sakta, wahan ye khana
+             khud ko chhupa leta hai. */}
+      <InstallApp heading />
+
+      {/* 13 — Closing call to action (newsletter lives in the footer) */}
       <CtaBand />
     </>
   );

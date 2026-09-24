@@ -9,6 +9,7 @@ import ShareButton from '@/components/shop/ShareButton';
 import { useStore } from '@/context/StoreContext';
 import {
   colorHex,
+  colorName,
   DELIVERY,
   formatPKR,
   getCategory,
@@ -43,7 +44,7 @@ export default function ProductDetail({ product }) {
 
   const [active, setActive] = useState(0);
   const [size, setSize] = useState(sizes.length === 1 ? sizes[0] : null);
-  const [color, setColor] = useState(colors.length === 1 ? colors[0] : null);
+  const [color, setColor] = useState(colors.length === 1 ? colorName(colors[0]) : null);
   const [qty, setQty] = useState(1);
   const [open, setOpen] = useState('details');
   const [orderOpen, setOrderOpen] = useState(false);
@@ -53,7 +54,7 @@ export default function ProductDetail({ product }) {
   const soldOut = product.in_stock === false || product.stock_count === 0;
 
   const needsSize = sizes.length > 1 && !size;
-  const needsColor = colors.length > 1 && !color;
+  const needsColor = colors.length > 0 && !color;
   const blocked = soldOut || needsSize || needsColor;
 
   /* One label for both buttons, so a blocked state explains itself
@@ -189,8 +190,8 @@ export default function ProductDetail({ product }) {
                   key={c}
                   type="button"
                   className="option"
-                  aria-pressed={color === c}
-                  onClick={() => setColor(c)}
+                  aria-pressed={color === colorName(c)}
+                  onClick={() => setColor(colorName(c))}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
                 >
                   <span
@@ -198,7 +199,7 @@ export default function ProductDetail({ product }) {
                     style={{ background: colorHex(c), width: 11, height: 11 }}
                     aria-hidden="true"
                   />
-                  {c}
+                  {colorName(c)}
                 </button>
               ))}
             </div>

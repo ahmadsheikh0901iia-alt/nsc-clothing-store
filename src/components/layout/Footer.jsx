@@ -7,7 +7,7 @@ import ScrollScene from '@/components/motion/ScrollScene';
 import Reveal from '@/components/motion/Reveal';
 import { subscribeToNewsletter } from '@/lib/data/orders';
 import { CATEGORIES, POLICIES, SOCIALS, STORE, WHATSAPP_CHAT } from '@/lib/constants';
-import { ArrowRight, ShieldIcon, SOCIAL_ICONS } from '@/components/ui/Icons';
+import { SOCIAL_ICONS } from '@/components/ui/Icons';
 
 /**
  * ═══════════════════════════════════════════════════════════════
@@ -183,6 +183,9 @@ export default function Footer() {
                   <Link href="/order">Track an order</Link>
                 </li>
                 <li>
+                  <Link href="/install">Get the app</Link>
+                </li>
+                <li>
                   <a href={WHATSAPP_CHAT} target="_blank" rel="noreferrer">
                     Order on WhatsApp
                   </a>
@@ -271,37 +274,6 @@ export default function Footer() {
               </nav>
             )}
 
-            {/* ── Admin ka darwaza ──
-                Sirf aap ke liye. Chhota sunehri nishan, jo chhoone
-                par apna naam khol deta hai. Search engine ise kabhi
-                nahi parhte: /admin par middleware `X-Robots-Tag:
-                noindex` lagata hai, aur is link par `nofollow` hai.
-                Andar bhi password ke baghair kuch nazar nahi aata —
-                ye sirf raasta hai, taala wahin ka wahin hai. */}
-            <Link
-              href="/admin"
-              className="footer-admin"
-              rel="nofollow"
-              title="Admin panel — Alt + A"
-              aria-label="Admin panel, shortcut Alt plus A"
-            >
-              <span className="footer-admin-mark" aria-hidden="true">
-                <ShieldIcon width={14} height={14} />
-              </span>
-              <span className="footer-admin-label">
-                <span>Admin</span>
-              </span>
-            </Link>
-
-            <a
-              href="#top"
-              className="row link-wipe"
-              style={{ gap: '0.5rem' }}
-              aria-label="Back to top"
-            >
-              Top
-              <ArrowRight width={15} height={15} style={{ transform: 'rotate(-90deg)' }} />
-            </a>
           </div>
         </div>
       </div>

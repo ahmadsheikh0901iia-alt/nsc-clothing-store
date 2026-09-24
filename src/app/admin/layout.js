@@ -1,3 +1,5 @@
+import AdminBodyFlag from '@/components/admin/AdminBodyFlag';
+
 export const metadata = {
   title: 'Admin',
   robots: {
@@ -13,5 +15,12 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default function AdminLayout({ children }) {
-  return <div className="admin-root">{children}</div>;
+  return (
+    <div className="admin-root">
+      {/* <body> par data-admin ka nishan — purane phone ke liye.
+          Tafseel AdminBodyFlag.jsx mein. */}
+      <AdminBodyFlag />
+      {children}
+    </div>
+  );
 }

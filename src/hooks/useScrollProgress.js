@@ -4,6 +4,51 @@ import { useEffect, useRef } from 'react';
 import { subscribe } from '@/lib/scroll';
 import { clamp, prefersReducedMotion } from '@/lib/utils';
 
+/* ═══════════════════════════════════════════════════════════════
+   PHONE KI PATTI, AUR WO JHATKA JO WAHAN SE AATA THA
+   ───────────────────────────────────────────────────────────────
+   Har phone ke browser mein uper pata likhne wali patti hoti hai
+   jo neeche scroll karte waqt chhup jati hai aur uper karte hi
+   wapas aa jati hai. Jis lamhe wo hilti hai, `window.innerHeight`
+   ki qeemat badal jati hai — taqreeban sau pixel ka farq.
+
+   Yahan ka poora hisaab usi qeemat par khara tha. Natija: patti
+   hilte hi har chalti hui cheez ka hisaab ek dam badal jata,
+   aur tasveerein apni jagah se chhalaang laga deti thin. Yehi wo
+   "atakna" tha jo sirf phone par mehsoos hota tha — laptop par
+   kabhi nahi, kyunke wahan patti hilti hi nahi.
+
+   Ab qad ek dafa naap kar rakh liya jata hai, aur sirf tab dobara
+   naapa jata hai jab sach much kuch badla ho: phone ghumaya jaye,
+   ya qad mein sau pixel se zyada ka farq aaye (yani asli screen
+   badli, mehz patti nahi). Patti apna kaam karti rahe — hamara
+   hisaab ab us se nahi hilta.
+   ═══════════════════════════════════════════════════════════════ */
+
+let vh = 0;
+
+function viewportHeight() {
+  if (vh) return vh;
+  vh = window.innerHeight || document.documentElement.clientHeight || 1;
+  return vh;
+}
+
+if (typeof window !== 'undefined') {
+  const remeasure = (force) => {
+    const now = window.innerHeight || document.documentElement.clientHeight || 1;
+    /* Sau pixel se kam ka farq = patti hili hai, screen nahi. Us ko
+       nazar-andaz karna hi wo jhatka khatam karta hai. */
+    if (force || !vh || Math.abs(now - vh) > 100) vh = now;
+  };
+
+  window.addEventListener('resize', () => remeasure(false), { passive: true });
+  window.addEventListener(
+    'orientationchange',
+    () => window.setTimeout(() => remeasure(true), 120),
+    { passive: true }
+  );
+}
+
 /**
  * Writes a scroll progress value (0 → 1) into the CSS custom property
  * `--p` on the element you attach the returned ref to.
@@ -37,7 +82,7 @@ export function useScrollProgress(mode = 'cover') {
 
     // Reduced motion: freeze at a sensible resting value and do no work.
     if (prefersReducedMotion()) {
-      el.style.setProperty('--p', mode === 'pin' ? '0.5' : '0.5');
+      el.style.setProperty('--p', '0.5');
       return undefined;
     }
 
@@ -45,14 +90,14 @@ export function useScrollProgress(mode = 'cover') {
 
     const update = () => {
       const rect = el.getBoundingClientRect();
-      const vh = window.innerHeight || 1;
+      const h = viewportHeight();
       let p;
 
       if (mode === 'pin') {
-        const runway = rect.height - vh;
+        const runway = rect.height - h;
         p = runway <= 0 ? 0 : clamp(-rect.top / runway, 0, 1);
       } else {
-        p = clamp((vh - rect.top) / (vh + rect.height), 0, 1);
+        p = clamp((h - rect.top) / (h + rect.height), 0, 1);
       }
 
       // Round to 3dp — stops us writing to the DOM for sub-pixel noise.
