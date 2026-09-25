@@ -154,6 +154,29 @@ const LUX_OFF = process.env.NEXT_PUBLIC_LUX_ANIM === 'off';
 
 const NO_FLASH = `(function(){try{
 document.documentElement.setAttribute("data-js","on");
+
+/* ── REFRESH PAR FOOTER KI JHALAK ──
+   Ye qatar yahan HONI hi thi, aur yehi ek jagah hai jahan ye kaam
+   karti hai.
+
+   Browser safha dobara kholte waqt aap ki purani jagah khud
+   "restore" karta hai — aur ye wo sab se pehla kaam hai jo wo
+   karta hai, safha dikhane se bhi pehle. Agar aap neeche thay, to
+   pehli hi jhalak footer ki hoti hai.
+
+   ScrollTop.jsx bhi yehi qatar chalata hai, magar wo React ke
+   hydrate hone ke BAAD chalti hai — us waqt tak browser apna kaam
+   kar chuka hota hai aur safha ek dafa dikh chuka hota hai. Is
+   liye wahan se refresh wali jhalak kabhi nahi ruk sakti thi.
+
+   Yahan ye qatar <head> ke sab se pehle script mein hai, yani
+   browser ke restore karne se PEHLE. "manual" keh dene par browser
+   jagah wapas rakhta hi nahi — aur jhalak ka mauqa hi nahi banta.
+
+   Back / forward ka safar ScrollTop.jsx sambhalta hai, wahan
+   purani jagah par lautna theek hai. */
+try{if("scrollRestoration" in history)history.scrollRestoration="manual";}catch(e){}
+
 var lux=${LUX_OFF ? '"off"' : 'null'};
 try{var o=localStorage.getItem("nsc-lux");if(o==="off"||o==="on")lux=o;}catch(e){}
 if(lux==="off")document.documentElement.setAttribute("data-lux","off");
