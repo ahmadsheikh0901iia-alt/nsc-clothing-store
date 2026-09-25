@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Reveal from '@/components/motion/Reveal';
 import QuickOrder from '@/components/shop/QuickOrder';
 import ShareButton from '@/components/shop/ShareButton';
+import WhatsAppShare from '@/components/shop/WhatsAppShare';
 import { useStore } from '@/context/StoreContext';
 import {
   colorHex,
@@ -268,6 +269,20 @@ export default function ProductDetail({ product }) {
                 se bara zariya hai — koi apni behen ko bhejta hai
                 aur order wahin se banta hai. */}
             <ShareButton product={product} variant="full" />
+          </div>
+
+          {/* ── Poori tafseel ke sath WhatsApp par ──
+              Uper wala WhatsApp ka button dukaan se BAAT karne ke
+              liye hai. Ye alag cheez hai: ye product ko KISI AUR
+              ko bhejne ke liye hai — naam, daam, size, rang, link
+              aur tasveer, sab ek hi paighaam mein.
+
+              Pehle paighaam dikhta hai, phir WhatsApp khulta hai.
+              Jo size aur rang grahak ne abhi chuna hai wohi
+              paighaam mein jata hai; kuch na chuna ho to jitne
+              maujood hain sab. */}
+          <div className="buy-share">
+            <WhatsAppShare product={product} size={size} color={color} />
           </div>
 
           <p className="buy-note faint">
