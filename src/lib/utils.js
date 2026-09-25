@@ -145,3 +145,60 @@ export function cleanText(input = '', max = 0) {
 
   return out;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   WHATSAPP PAR PRODUCT BHEJNA
+   ───────────────────────────────────────────────────────────────
+   Do qatarein, dono bina kisi import ke — ye file jaan boojh kar
+   khaali rakhi gayi hai taake server, browser, aur test script,
+   teenon jagah bina kisi taam jhaam ke chal jaye.
+
+   `getWhatsAppShareUrl` ko SAAF SHUDA product milta hai — yani wo
+   shakl jis mein `title`, `price`, `url` waghera pehle se tayyar
+   hain. Database ki kachchi qatar ko is shakl mein badalna
+   `lib/share.js` ka kaam hai, kyunke us ke liye STORE ka pata aur
+   rangon ke naam chahiye hote hain, aur wo cheezein yahan nahi
+   aani chahiyein.
+
+   ── EK BAAT JO NAHI HO SAKTI ──
+   `wa.me` ke zariye TASVEER KI FILE khud ba khud nahi lagti —
+   WhatsApp aisa koi raasta deta hi nahi. Is liye do cheezein ki
+   gayi hain: tasveer ka pata paighaam mein likha jata hai, aur
+   product ke safhe par Open Graph ke nishan lage hue hain — is
+   liye jab link bheja jata hai to WhatsApp khud us safhe se
+   tasveer utha kar card bana deta hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+/**
+ * Paighaam ki asli likhai. Alag se is liye ke sirf paighaam bhi
+ * chahiye hota hai — preview dikhane aur "Copy" ke liye.
+ *
+ * @param {{title:string, currency?:string, price:string|number,
+ *          variant?:string, url:string, imageUrl?:string,
+ *          shortDescription?:string}} product
+ */
+export function buildShareMessage(product = {}) {
+  const lines = [
+    `Product: ${product.title || ''}`,
+    `Price: ${product.currency || 'PKR'} ${product.price}`,
+    `Size/Color: ${product.variant || '-'}`,
+    `Link: ${product.url || ''}`,
+    `Image: ${product.imageUrl || 'Image not available'}`,
+  ];
+
+  /* Tafseel na ho to khaali "Description:" likhne ka koi faida
+     nahi — qatar hi nahi aati. */
+  const desc = String(product.shortDescription || '').trim();
+  if (desc) lines.push(`Description: ${desc}`);
+
+  return lines.join('\n');
+}
+
+/**
+ * Wohi paighaam, `wa.me` ke link ki shakl mein. Phone par WhatsApp
+ * ki app khulti hai, laptop par WhatsApp Web. Number nahi diya
+ * jata, is liye WhatsApp khud poochta hai ke kis ko bhejna hai.
+ */
+export function getWhatsAppShareUrl(product = {}) {
+  return 'https://wa.me/?text=' + encodeURIComponent(buildShareMessage(product));
+}
