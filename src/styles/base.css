@@ -83,6 +83,29 @@ body {
 #main {
   flex: 1 0 auto;
   min-width: 0;
+
+  /* ── FOOTER PEHLI SCREEN PAR KABHI NAHI ──
+     Ye doosri wajah thi, aur scroll se us ka koi taalluq nahi tha.
+
+     Body ki kam se kam oonchai ek screen hai aur #main bachi hui
+     jagah leta hai — yani chhote safhe par (khali cart, khali
+     category, chhota safha) #main ki oonchai "ek screen MANFI
+     footer" ban jati thi. Natija: scroll bilkul 0 par hote hue
+     bhi footer screen ke neeche wale kinare par MAUJOOD hota tha.
+
+     Aur safha khulte waqt .lux-page apni animation ke shuru mein
+     ghaib hota hai (opacity 0 se 1). Footer us animation se bahar
+     hai — is liye us aadhe second mein screen par SIRF footer
+     bachta tha. Yehi wo "pehle footer" wali jhalak hai.
+
+     Ab #main khud poori ek screen leta hai, is liye footer hamesha
+     pehli screen se neeche shuru hota hai. Animation chale ya na
+     chale, footer pehle nazar nahi aa sakta.
+
+     `svh` — phone ka pata-patti chhupne se naap na badle. Pehle
+     wo naap jo har jagah chalta hai, phir naya wala uske upar. */
+  min-height: 100vh;
+  min-height: 100svh;
 }
 
 .footer { flex: 0 0 auto; }
