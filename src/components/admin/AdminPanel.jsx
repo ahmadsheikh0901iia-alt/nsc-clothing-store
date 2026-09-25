@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -8,6 +9,7 @@ import { formatPKR, STORE } from '@/lib/constants';
 import { ORDER_STATUSES, getStatus } from '@/lib/order-status';
 import OrderCard from '@/components/admin/OrderCard';
 import ProductForm from '@/components/admin/ProductForm';
+import WhatsAppShare from '@/components/shop/WhatsAppShare';
 import {
   ArrowUpRight,
   CheckIcon,
@@ -51,6 +53,24 @@ export default function AdminPanel() {
   const [stats, setStats] = useState({});
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
+
+  /* ── Poochne wala khana ──
+     `window.confirm` browser ka apna daira hai: na is par dukaan
+     ka rang chalta hai, na phone par wo theek lagta hai, aur kuch
+     browser use rok bhi dete hain. Ab apna khana hai. Shakl:
+     { title, body, confirmLabel, onConfirm } */
+  const [confirming, setConfirming] = useState(null);
+
+  /* Product save hone ke baad — WhatsApp ka tayyar paighaam. */
+  const [shareProduct, setShareProduct] = useState(null);
+
+  /* Daire `document.body` mein bheje jate hain, kyunke har safha
+     ek animation wale khol ke andar hota hai aur us par transform
+     lagta hai — aur transform wala baap `position: fixed` ka
+     matlab apne hisaab se badal deta hai. Server par portal nahi
+     banta, is liye ye nishan. */
+  const [portalReady, setPortalReady] = useState(false);
+  useEffect(() => setPortalReady(true), []);
 
   /* Orders */
   const [orders, setOrders] = useState([]);
@@ -177,15 +197,8 @@ export default function AdminPanel() {
      magar wo aap ki aasani hai, hifazat nahi; hifazat server par
      hai. */
 
-  const deleteOrder = useCallback(
+  const runDeleteOrder = useCallback(
     async (order) => {
-      const sure = window.confirm(
-        `Are you sure you want to permanently delete this order?\n\n` +
-          `${order.order_number} — ${order.customer_name || 'no name'}\n\n` +
-          `This cannot be undone.`
-      );
-      if (!sure) return;
-
       const before = orders;
       // Pehle screen par — intezar kiye baghair.
       setOrders((list) => list.filter((o) => o.order_number !== order.order_number));
@@ -224,21 +237,25 @@ export default function AdminPanel() {
     [orders, guard, say]
   );
 
+  /* Poochna pehle, mitana baad mein. */
+  const deleteOrder = useCallback(
+    (order) => {
+      setConfirming({
+        title: `Delete order ${order.order_number}?`,
+        body:
+          `${order.customer_name || 'No name'} — this order disappears from the ` +
+          `panel and cannot be brought back from here. The deletion is recorded ` +
+          `in the audit log.`,
+        confirmLabel: 'Delete order',
+        onConfirm: () => runDeleteOrder(order),
+      });
+    },
+    [runDeleteOrder]
+  );
+
   const cancelledCount = orders.filter((o) => o.status === 'cancelled').length;
 
-  const clearCancelled = useCallback(async () => {
-    const count = orders.filter((o) => o.status === 'cancelled').length;
-    if (count === 0) {
-      say('There are no cancelled orders.', 'error');
-      return;
-    }
-
-    const sure = window.confirm(
-      `Are you sure you want to permanently delete all ${count} cancelled ` +
-        `order${count === 1 ? '' : 's'}?\n\nThis cannot be undone.`
-    );
-    if (!sure) return;
-
+  const runClearCancelled = useCallback(async () => {
     const before = orders;
     setOrders((list) => list.filter((o) => o.status !== 'cancelled'));
 
@@ -264,6 +281,22 @@ export default function AdminPanel() {
       say('Could not reach the server.', 'error');
     }
   }, [orders, guard, say]);
+
+  const clearCancelled = useCallback(() => {
+    const count = orders.filter((o) => o.status === 'cancelled').length;
+    if (count === 0) {
+      say('There are no cancelled orders.', 'error');
+      return;
+    }
+    setConfirming({
+      title: `Delete all ${count} cancelled order${count === 1 ? '' : 's'}?`,
+      body:
+        `They disappear from the panel and cannot be brought back from here. ` +
+        `The deletion is recorded in the audit log.`,
+      confirmLabel: `Delete ${count}`,
+      onConfirm: () => runClearCancelled(),
+    });
+  }, [orders, say, runClearCancelled]);
 
   /* ── Products ── */
   const loadProducts = useCallback(
@@ -305,6 +338,11 @@ export default function AdminPanel() {
         );
         setEditing(null);
         say(id ? 'Product saved.' : 'Product added — it is live on the site.');
+
+        /* Save hote hi WhatsApp ka paighaam tayyar. Khulta hai,
+           bhejta nahi — bhejne ka faisla hamesha aap ka. */
+        if (data.product) setShareProduct(data.product);
+
         loadOrders({ quiet: true });
         return { ok: true };
       } catch {
@@ -345,12 +383,8 @@ export default function AdminPanel() {
     [guard, say]
   );
 
-  const deleteProduct = useCallback(
+  const runDeleteProduct = useCallback(
     async (product) => {
-      const sure = window.confirm(
-        `"${product.name}" will be deleted for good.\n\nIf you only want it off the site, switch off "Show on the site" instead — that way the name stays readable in old orders.\n\nDelete it?`
-      );
-      if (!sure) return;
 
       try {
         const res = await fetch(`/api/admin/products?id=${encodeURIComponent(product.id)}`, {
@@ -370,6 +404,23 @@ export default function AdminPanel() {
       }
     },
     [guard, say]
+  );
+
+  /* Product mitana bhi ab usi poochne wale khane se guzarta hai —
+     brief ki shart: har mitane wala kaam pehle poochta hai. */
+  const deleteProduct = useCallback(
+    (product) => {
+      setConfirming({
+        title: `Delete “${product.name}”?`,
+        body:
+          'If you only want it off the site, switch off “Show on the site” ' +
+          'instead — that way the name stays readable in old orders. ' +
+          'Deleting is recorded in the audit log.',
+        confirmLabel: 'Delete product',
+        onConfirm: () => runDeleteProduct(product),
+      });
+    },
+    [runDeleteProduct]
   );
 
   /* ── Inbox ── */
@@ -782,9 +833,88 @@ export default function AdminPanel() {
         </div>
       )}
 
+      {/* ══ Poochne wala khana ══
+          `document.body` mein, taake safhe ke animation wale khol
+          ka transform is ke `fixed` par asar na kare. */}
+      {confirming && portalReady &&
+        createPortal(
+          <ConfirmDialog
+            {...confirming}
+            onCancel={() => setConfirming(null)}
+            onConfirm={() => {
+              const run = confirming.onConfirm;
+              setConfirming(null);
+              run?.();
+            }}
+          />,
+          document.body
+        )}
+
+      {/* ══ Product save hone ke baad — WhatsApp ka paighaam ══
+          Khud nahi bhejta. Paighaam dikhta hai, aur WhatsApp tab
+          khulta hai jab aap kehte hain. */}
+      <WhatsAppShare
+        product={shareProduct}
+        open={Boolean(shareProduct)}
+        onClose={() => setShareProduct(null)}
+        hint="Saved. Here is the ready message — check it, then open WhatsApp."
+      />
+
       {/* ══ Toast ══ */}
       <div className="ad-toasts" aria-live="polite">
         {toast && <div className={`ad-toast ad-toast-${toast.tone}`}>{toast.message}</div>}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   POOCHNE WALA KHANA
+   ───────────────────────────────────────────────────────────────
+   Mitane se pehle hamesha ye. Teen baatein jaan boojh kar:
+
+   · Khulte hi focus "Cancel" par jata hai, "Delete" par nahi —
+     taake jaldi mein Enter dabane se kuch mit na jaye.
+   · Escape band kar deta hai.
+   · Bahar chhoona bhi band kar deta hai, magar sirf tab jab ungli
+     waqai bahar uthi ho — andar se shuru ho kar bahar khatam hone
+     wali harkat khana band nahi karti.
+   ═══════════════════════════════════════════════════════════════ */
+function ConfirmDialog({ title, body, confirmLabel = 'Delete', onConfirm, onCancel }) {
+  const cancelRef = useRef(null);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') onCancel?.();
+    };
+    document.addEventListener('keydown', onKey);
+    const t = window.setTimeout(() => cancelRef.current?.focus(), 30);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      window.clearTimeout(t);
+    };
+  }, [onCancel]);
+
+  return (
+    <div
+      className="ad-ask-veil"
+      role="presentation"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onCancel?.();
+      }}
+    >
+      <div className="ad-ask" role="alertdialog" aria-modal="true" aria-labelledby="ad-ask-t">
+        <h2 id="ad-ask-t">{title}</h2>
+        <p>{body}</p>
+        <div className="ad-ask-row">
+          <button type="button" className="ad-btn ad-btn-ghost" onClick={onCancel} ref={cancelRef}>
+            Cancel
+          </button>
+          <button type="button" className="ad-btn ad-btn-danger" onClick={onConfirm}>
+            <TrashIcon width={14} height={14} />
+            {confirmLabel}
+          </button>
+        </div>
       </div>
     </div>
   );
