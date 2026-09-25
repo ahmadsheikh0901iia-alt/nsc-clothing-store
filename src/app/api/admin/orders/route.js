@@ -14,6 +14,50 @@ const json = (body, status = 200) =>
   NextResponse.json(body, { status, headers: NO_STORE });
 
 /* ═══════════════════════════════════════════════════════════════
+   SOFT DELETE — AUR MIGRATION SE PEHLE BHI NA TOOTNA
+   ───────────────────────────────────────────────────────────────
+   Ab order mitaya nahi jata, chhupaya jata hai: `deleted = true`,
+   `deleted_by`, `deleted_at`. Faida saaf hai — ghalti se mita hua
+   order database mein maujood rehta hai aur wapas laya ja sakta
+   hai. Migration `migrations/2026-09-25-orders-soft-delete.sql`
+   mein hai.
+
+   Magar ek khatra tha: agar ye code chadh jaye aur migration na
+   chalayi gayi ho, to `deleted` naam ka koi khana hota hi nahi —
+   aur Supabase ki har wo query jo us khane ka naam leti, nakaam
+   ho jati. Natija: poora orders ka safha khaali. Ek chhoti si
+   tarteeb ki ghalti se dukaan ka panel band.
+
+   Is liye do ehtiyaat:
+
+   1. Mitane ki koshish PEHLE soft-delete se hoti hai. Agar khana
+      maujood na ho (Postgres 42703, ya PostgREST PGRST204), to
+      code khud purane tareeqe — asli delete — par chala jata hai
+      aur jawab mein `mode` bata deta hai ke kya hua.
+
+   2. Chhupe hue order GET mein SQL se nahi, JavaScript se chhante
+      jate hain. SQL mein `deleted` ka naam lena hi us soorat mein
+      nakaami hai jab wo khana na ho; JavaScript mein `o.deleted`
+      sirf `undefined` hota hai — aur sab kuch chalta rehta hai.
+
+   Yani: ye code migration se pehle bhi theek chalta hai, aur baad
+   mein bhi. Tarteeb ki koi shart nahi.
+   ═══════════════════════════════════════════════════════════════ */
+const columnMissing = (error) =>
+  Boolean(
+    error &&
+      (error.code === '42703' ||
+        error.code === 'PGRST204' ||
+        /column .*(deleted|does not exist)/i.test(String(error.message || '')))
+  );
+
+/* Kaun mitaya — is app mein admin ek hi hai, is liye naam wohi.
+   Kis pate se aur kab, wo `audit()` alag se admin_log mein likhta
+   hai; ye do khane us par nazar dalne ke liye order ke sath hi
+   reh jate hain. */
+const DELETED_BY = 'admin';
+
+/* ═══════════════════════════════════════════════════════════════
    GET    /api/admin/orders   orders + dashboard ke numbers
    PATCH  /api/admin/orders   status badalna, ya courier / note
    DELETE /api/admin/orders   sirf cancelled order mitana
@@ -71,7 +115,12 @@ export async function GET(request) {
     return json({ ok: false, error: 'server' }, 500);
   }
 
-  return json({ ok: true, orders: orders || [], stats: stats || {} });
+  /* Chhupe hue (soft-deleted) order panel par nahi aate.
+     Chhantai yahan JavaScript mein hai, SQL mein nahi — wajah
+     uper likhi hai. */
+  const visible = (orders || []).filter((o) => !o?.deleted);
+
+  return json({ ok: true, orders: visible, stats: stats || {} });
 }
 
 export async function PATCH(request) {
@@ -195,25 +244,47 @@ export async function DELETE(request) {
   const all = str(params.get('all'), 20);
   const orderNumber = str(params.get('order'), 40).toUpperCase();
 
+  const stamp = new Date().toISOString();
+
   /* ── Sab cancelled, ek sath ── */
   if (all === 'cancelled') {
-    const { data, error } = await db
+    let removed = null;
+    let mode = 'soft';
+
+    const soft = await db
       .from('orders')
-      .delete()
+      .update({ deleted: true, deleted_by: DELETED_BY, deleted_at: stamp })
       .eq('status', 'cancelled')
       .select('order_number');
 
-    if (error) {
+    if (soft.error && columnMissing(soft.error)) {
+      /* Migration abhi nahi chali — purane tareeqe se. */
+      mode = 'hard';
+      const hard = await db
+        .from('orders')
+        .delete()
+        .eq('status', 'cancelled')
+        .select('order_number');
+
+      if (hard.error) {
+        // eslint-disable-next-line no-console
+        console.error('[NSC] orders bulk delete:', hard.error.message);
+        return json({ ok: false, error: 'server' }, 500);
+      }
+      removed = hard.data;
+    } else if (soft.error) {
       // eslint-disable-next-line no-console
-      console.error('[NSC] orders bulk delete:', error.message);
+      console.error('[NSC] orders bulk soft-delete:', soft.error.message);
       return json({ ok: false, error: 'server' }, 500);
+    } else {
+      removed = soft.data;
     }
 
-    const removed = (data || []).map((o) => o.order_number);
-    await audit(request, 'order.delete.bulk', { count: removed.length });
+    const list = (removed || []).map((o) => o.order_number);
+    await audit(request, 'order.delete.bulk', { count: list.length, mode });
 
     const { data: stats } = await db.rpc('admin_stats');
-    return json({ ok: true, removed, count: removed.length, stats: stats || {} });
+    return json({ ok: true, removed: list, count: list.length, mode, stats: stats || {} });
   }
 
   /* ── Ek order ── */
@@ -241,20 +312,38 @@ export async function DELETE(request) {
     );
   }
 
-  const { error } = await db
-    .from('orders')
-    .delete()
-    .eq('order_number', orderNumber)
-    .eq('status', 'cancelled'); // dobara, race ki soorat mein
+  let mode = 'soft';
 
-  if (error) {
+  /* `.eq('status','cancelled')` dobara — do admin ek sath kaam kar
+     rahe hon aur beech mein status badal jaye, to bhi kuch ghalat
+     nahi hota. */
+  const soft = await db
+    .from('orders')
+    .update({ deleted: true, deleted_by: DELETED_BY, deleted_at: stamp })
+    .eq('order_number', orderNumber)
+    .eq('status', 'cancelled');
+
+  if (soft.error && columnMissing(soft.error)) {
+    mode = 'hard';
+    const hard = await db
+      .from('orders')
+      .delete()
+      .eq('order_number', orderNumber)
+      .eq('status', 'cancelled');
+
+    if (hard.error) {
+      // eslint-disable-next-line no-console
+      console.error('[NSC] order delete:', hard.error.message);
+      return json({ ok: false, error: 'server' }, 500);
+    }
+  } else if (soft.error) {
     // eslint-disable-next-line no-console
-    console.error('[NSC] order delete:', error.message);
+    console.error('[NSC] order soft-delete:', soft.error.message);
     return json({ ok: false, error: 'server' }, 500);
   }
 
-  await audit(request, 'order.delete', { order: orderNumber });
+  await audit(request, 'order.delete', { order: orderNumber, mode });
 
   const { data: stats } = await db.rpc('admin_stats');
-  return json({ ok: true, order: orderNumber, stats: stats || {} });
+  return json({ ok: true, order: orderNumber, mode, stats: stats || {} });
 }
