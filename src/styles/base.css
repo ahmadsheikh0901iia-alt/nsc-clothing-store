@@ -49,6 +49,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 
+  /* ── SCROLL ANCHORING BAND ──
+     Browser khud-ba-khud "anchoring" karta hai: jab safhe ka saman
+     badalta hai to wo aap ki jagah barqarar rakhne ke liye scroll
+     ko khiska deta hai. Safha badalte waqt ye hamare upar jaane ke
+     kaam se takrata hai aur kabhi kabhi wapas neeche le aata hai.
+     Yahan is ki zaroorat nahi — har naya safha apne shuru se hi
+     khulna chahiye. (ScrollTop.jsx dekhein.) */
+  overflow-anchor: none;
+
   /* `dvh` sirf iOS 15.4 / Chrome 108 ke baad chalta hai. Purane
      phone us qatar ko nazar-andaz kar dete thay aur body ki koi
      kam se kam oonchai reh hi nahi jati thi. Ab pehle wo naap
