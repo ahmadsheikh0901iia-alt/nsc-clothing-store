@@ -7,7 +7,7 @@ import ScrollScene from '@/components/motion/ScrollScene';
 import Reveal from '@/components/motion/Reveal';
 import { subscribeToNewsletter } from '@/lib/data/orders';
 import { CATEGORIES, POLICIES, SOCIALS, STORE, WHATSAPP_CHAT } from '@/lib/constants';
-import { SOCIAL_ICONS } from '@/components/ui/Icons';
+import { ShieldIcon, SOCIAL_ICONS } from '@/components/ui/Icons';
 
 /**
  * ═══════════════════════════════════════════════════════════════
@@ -273,8 +273,48 @@ export default function Footer() {
                 })}
               </nav>
             )}
-
           </div>
+        </div>
+
+        {/* ── Admin ka darwaza ──
+            Ye button pehle uper wali qatar ke andar tha, socials ke
+            saath. Wahan phone par wo nazar hi nahi aata tha — aur
+            wajah CSS nahi thi, uske uper koi cheez aa jati thi:
+
+            375 x 812 par, safhe ke bilkul neeche, WhatsApp ka gol
+            button x 306-359 par baithta hai aur socials ki qatar
+            x 114-364 tak jati hai. Yani aakhri nishan uske theek
+            neeche dab jata tha. (Naapa gaya, andaza nahi.)
+
+            Ab do tabdeeliyan. Pehli: ye apni alag qatar mein hai,
+            beech mein, kisi ke saath nahi. Doosri: footer ke neeche
+            utni jagah chhor di gayi hai jitni wo gol button ghere
+            hue hain, is liye ab wo kisi bhi cheez ke uper nahi aate
+            — na is button ke, na socials ke.
+
+            Uper ki patti mein bhi yehi darwaza maujood hai. Dono ek
+            saath rehne mein koi harj nahi: uper wala tez hai, ye
+            wala wahan hai jahan log dhoondhne aate hain.
+
+            Search engine ise nahi parhte — /admin par middleware
+            `X-Robots-Tag: noindex` lagata hai aur is link par
+            `nofollow` hai. Andar bhi password ke baghair kuch nazar
+            nahi aata; ye sirf raasta hai, taala wahin ka wahin. */}
+        <div className="footer-admin-row">
+          <Link
+            href="/admin"
+            className="footer-admin"
+            rel="nofollow"
+            title="Admin panel — Alt + A"
+            aria-label="Admin panel, shortcut Alt plus A"
+          >
+            <span className="footer-admin-mark" aria-hidden="true">
+              <ShieldIcon width={15} height={15} />
+            </span>
+            <span className="footer-admin-label">
+              <span>Admin panel</span>
+            </span>
+          </Link>
         </div>
       </div>
     </ScrollScene>
