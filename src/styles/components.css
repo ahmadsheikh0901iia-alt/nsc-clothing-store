@@ -1424,6 +1424,57 @@
 }
 
 /* Phone par thora aur numayan — footer wahan qatar mein lagta hai */
+/* ═══════════════════════════════════════════════════════════════
+   FOOTER KE NEECHE KHALI JAGAH — GOL BUTTONON KE LIYE
+   ───────────────────────────────────────────────────────────────
+   Do gol button safhe par tairte rehte hain: WhatsApp neeche
+   daayein, uper jane wala neeche baayein. Dono `position: fixed`
+   hain, yani safhe ke bahaav se bilkul alag — wo kisi ko jagah
+   nahi dete, seedha uper aa baithte hain.
+
+   Safhe ke bilkul aakhir mein pahunch kar yehi hota tha. 375x812
+   par naapa gaya:
+
+       .footer-bottom      y 654 – 812
+       WhatsApp ka button  y 744 – 796,  x 306 – 359
+       uper jane wala      y 744 – 796,  x  16 –  69
+       socials ki qatar    y 733 – 777,  x 114 – 364
+
+   Yani dono button footer ki aakhri qatar ke UPER thay, aur
+   WhatsApp wala socials ke aakhri nishan ko dhak raha tha. Jo bhi
+   cheez us qatar mein rakhi jati — admin ka button bhi — wo isi
+   tarah dab jati.
+
+   Ilaj: footer ke neeche utni jagah chhor do jitni wo button
+   ghere hue hain. Hisaab:
+
+       gol button ki oonchai        52px (640px se neeche)
+       kinare se uska faasla        1rem
+       thora saans                  1rem
+       + phone ki apni neeche wali patti (env safe-area)
+
+   Ab wo kisi cheez ke uper nahi aate — na admin ke, na socials ke.
+   ═══════════════════════════════════════════════════════════════ */
+
+.footer {
+  --fab-clear: calc(56px + 2rem + 1rem + env(safe-area-inset-bottom, 0px));
+  padding-bottom: var(--fab-clear);
+}
+@media (max-width: 640px) {
+  .footer { --fab-clear: calc(52px + 1rem + 1rem + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* ── Admin ki apni qatar ──
+   Jaan boojh kar akeli. Pehle ye socials aur ghari ke saath ek hi
+   lipatne wali qatar mein thi, jahan tang screen par wo teesri
+   line mein ja girti thi aur wahan koi dhoondhta hi nahi. */
+.footer-admin-row {
+  display: flex;
+  justify-content: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+
 @media (max-width: 720px) {
   .footer-admin {
     padding: 0.6rem 1rem;
@@ -1431,10 +1482,39 @@
   }
 }
 
+/* ── Chhone layak naap ──
+   Apple aur Google dono 44px kehte hain. Us se chhota nishan
+   ungli ke neeche phisal jata hai, aur phir lagta hai ke button
+   kaam hi nahi karta. */
+.footer-admin {
+  min-height: 44px;
+  justify-content: center;
+}
+
+/* Dabane ka jawab — phone par hover hota hi nahi, is liye yahan
+   se pata chalta hai ke tap lag gaya. */
+.footer-admin:active {
+  transform: scale(0.97);
+  background: rgb(194 165 107 / 0.18);
+}
+
+/* Ek halki sunehri saans, sirf itni ke nazar us par ruk jaye.
+   Sirf `box-shadow` badalti hai — na layout hilta hai, na kuch
+   dobara banana parta hai. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .footer-admin { animation: footer-admin-glow 4.5s var(--ease-inout) infinite; }
+  .footer-admin:hover { animation: none; }
+}
+@keyframes footer-admin-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(194 165 107 / 0); }
+  50%      { box-shadow: 0 0 0 4px rgb(194 165 107 / 0.10); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .footer-admin,
-  .footer-admin-mark { transition: none; }
+  .footer-admin-mark { transition: none; animation: none; }
   .footer-admin:hover .footer-admin-mark { transform: none; }
+  .footer-admin:active { transform: none; }
 }
 
 /* Newsletter block inside the footer */
