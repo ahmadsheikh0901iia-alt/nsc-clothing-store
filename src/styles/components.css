@@ -2637,3 +2637,199 @@
     100% { opacity: 0; visibility: hidden; }
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   WHATSAPP PAR BHEJNE KA KHANA  +  POOCHNE WALA KHANA
+   ───────────────────────────────────────────────────────────────
+   Dono daire `document.body` mein bheje jate hain (portal se).
+   Wajah: har safha ek animation wale khol (.lux-page) ke andar
+   hota hai jis par transform lagta hai — aur transform wala koi
+   bhi baap apne neeche wale `position: fixed` ka matlab badal
+   deta hai: wo screen ke bajaye USI khol ke hisaab se lagta hai.
+   Portal se bahar nikal aane par ye masla khatam.
+
+   z-index 200 — cart aur menu (190, 191) ke uper, kyunke ye
+   khana un ke jawab mein khulta hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+.wshare-veil,
+.ad-ask-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background: rgb(0 0 0 / 0.66);
+  animation: wshare-veil-in 0.18s var(--ease-glide) both;
+  overscroll-behavior: contain;
+}
+
+@keyframes wshare-veil-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.wshare,
+.ad-ask {
+  width: min(30rem, 100%);
+  max-height: min(86vh, 46rem);
+  max-height: min(86dvh, 46rem);
+  overflow-y: auto;
+  background: var(--ink-2);
+  border: 1px solid var(--line-mid);
+  color: var(--bone);
+  padding: 1.35rem 1.35rem 1.15rem;
+  animation: wshare-in 0.22s var(--ease-glide) both;
+}
+
+@keyframes wshare-in {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+.wshare:focus-visible,
+.wshare:focus { outline: none; }
+
+/* ── Sar ── */
+.wshare-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+}
+.wshare-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+.wshare-x {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--bone-dim);
+  cursor: pointer;
+  padding: 0.3rem;
+  line-height: 0;
+  border-radius: 999px;
+  transition: color var(--d-quick) var(--ease-glide);
+}
+.wshare-x:hover { color: var(--bone); }
+
+.wshare-hint {
+  margin: 0 0 0.9rem;
+  font-size: 0.82rem;
+  color: var(--gold);
+}
+
+/* ── Tasveer aur paighaam ── */
+.wshare-body {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 0.9rem;
+  align-items: start;
+}
+
+.wshare-shot {
+  width: 84px;
+  aspect-ratio: 3 / 4;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--ink);
+}
+.wshare-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.wshare-shot-none {
+  font-size: 0.62rem;
+  line-height: 1.4;
+  text-align: center;
+  padding: 0.35rem;
+  color: var(--bone-dim);
+}
+
+/* Paighaam bilkul waisa hi jaisa WhatsApp par jayega — koi
+   sajawat nahi, nayi lines apni jagah. */
+.wshare-msg {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.74rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--bone-dim);
+  background: var(--ink);
+  border: 1px solid var(--line);
+  padding: 0.7rem 0.8rem;
+}
+
+.wshare-warn {
+  margin: 0.8rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--gold);
+  border-left: 2px solid var(--gold);
+  padding-left: 0.7rem;
+}
+
+/* ── Neeche ke button ── */
+.wshare-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+.wshare-foot .btn { flex: 1 1 10rem; justify-content: center; min-height: 44px; }
+
+.wshare-note {
+  margin: 0.75rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: var(--bone-dim);
+}
+
+/* Product ke safhe par apni qatar — warna chaar button ek sath
+   tang pad jate hain. */
+.buy-share { margin-top: 0.7rem; }
+.buy-share .btn { width: 100%; justify-content: center; min-height: 44px; }
+
+/* ── Poochne wala khana ── */
+.ad-ask h2 {
+  margin: 0 0 0.6rem;
+  font-size: 1.02rem;
+  font-weight: 400;
+}
+.ad-ask p {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.65;
+  color: var(--bone-dim);
+}
+.ad-ask-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.15rem;
+}
+.ad-ask-row .ad-btn { min-height: 44px; }
+
+@media (max-width: 420px) {
+  .wshare-body { grid-template-columns: 64px 1fr; }
+  .wshare-shot { width: 64px; }
+  .ad-ask-row .ad-btn { flex: 1 1 auto; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wshare-veil,
+  .ad-ask-veil,
+  .wshare,
+  .ad-ask { animation: none; }
+}
