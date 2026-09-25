@@ -169,6 +169,102 @@ export default function AdminPanel() {
     [orders, guard, say]
   );
 
+  /* ── Cancelled order mitana ──
+     Server par teen taalay hain (dekhein api/admin/orders ka
+     DELETE): admin ka login, order ka status khud dobara parhna,
+     aur audit. Yahan ka kaam sirf poochhna aur list seedhi rakhna
+     hai. Delete ka button bhi sirf cancelled par dikhta hai —
+     magar wo aap ki aasani hai, hifazat nahi; hifazat server par
+     hai. */
+
+  const deleteOrder = useCallback(
+    async (order) => {
+      const sure = window.confirm(
+        `Are you sure you want to permanently delete this order?\n\n` +
+          `${order.order_number} — ${order.customer_name || 'no name'}\n\n` +
+          `This cannot be undone.`
+      );
+      if (!sure) return;
+
+      const before = orders;
+      // Pehle screen par — intezar kiye baghair.
+      setOrders((list) => list.filter((o) => o.order_number !== order.order_number));
+
+      try {
+        const res = await fetch(
+          `/api/admin/orders?order=${encodeURIComponent(order.order_number)}`,
+          { method: 'DELETE' }
+        );
+        if (guard(res)) {
+          setOrders(before);
+          return;
+        }
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!data.ok) {
+          setOrders(before);
+          if (data.error === 'not_cancelled') {
+            say('Only cancelled orders can be deleted.', 'error');
+          } else if (data.error === 'not_found') {
+            say('That order is no longer there.', 'error');
+          } else {
+            say('Could not delete that order.', 'error');
+          }
+          return;
+        }
+
+        if (data.stats) setStats(data.stats);
+        say(`${order.order_number} deleted.`);
+      } catch {
+        setOrders(before);
+        say('Could not reach the server.', 'error');
+      }
+    },
+    [orders, guard, say]
+  );
+
+  const cancelledCount = orders.filter((o) => o.status === 'cancelled').length;
+
+  const clearCancelled = useCallback(async () => {
+    const count = orders.filter((o) => o.status === 'cancelled').length;
+    if (count === 0) {
+      say('There are no cancelled orders.', 'error');
+      return;
+    }
+
+    const sure = window.confirm(
+      `Are you sure you want to permanently delete all ${count} cancelled ` +
+        `order${count === 1 ? '' : 's'}?\n\nThis cannot be undone.`
+    );
+    if (!sure) return;
+
+    const before = orders;
+    setOrders((list) => list.filter((o) => o.status !== 'cancelled'));
+
+    try {
+      const res = await fetch('/api/admin/orders?all=cancelled', { method: 'DELETE' });
+      if (guard(res)) {
+        setOrders(before);
+        return;
+      }
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!data.ok) {
+        setOrders(before);
+        say('Could not clear those orders.', 'error');
+        return;
+      }
+
+      if (data.stats) setStats(data.stats);
+      say(`${data.count} cancelled order${data.count === 1 ? '' : 's'} deleted.`);
+    } catch {
+      setOrders(before);
+      say('Could not reach the server.', 'error');
+    }
+  }, [orders, guard, say]);
+
   /* ── Products ── */
   const loadProducts = useCallback(
     async ({ quiet = false } = {}) => {
@@ -487,6 +583,23 @@ export default function AdminPanel() {
                   aria-label="Search orders"
                 />
               </div>
+
+              {/* Sab cancelled ek sath. Jaan boojh kar sirf tab
+                  dikhta hai jab aap Cancelled ki chaan laga chuke
+                  hon — us waqt aap ki nazar ke saamne wohi list
+                  hoti hai jo mitne ja rahi hai. Har waqt dikhta
+                  rehta to ek ghalat click bohat mehnga parta. */}
+              {orderFilter === 'cancelled' && cancelledCount > 0 && (
+                <button
+                  type="button"
+                  className="ad-btn ad-btn-danger"
+                  onClick={clearCancelled}
+                  title="Delete every cancelled order for good"
+                >
+                  <TrashIcon width={14} height={14} />
+                  Clear all cancelled ({cancelledCount})
+                </button>
+              )}
             </div>
 
             {loadingOrders && orders.length === 0 ? (
@@ -507,6 +620,7 @@ export default function AdminPanel() {
                     key={order.order_number}
                     order={order}
                     onPatch={patchOrder}
+                    onDelete={deleteOrder}
                     defaultOpen={i === 0 && order.status === 'pending'}
                   />
                 ))}

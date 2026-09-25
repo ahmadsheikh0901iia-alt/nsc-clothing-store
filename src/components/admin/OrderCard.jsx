@@ -13,6 +13,7 @@ import {
   CheckIcon,
   ChevronDown,
   PhoneIcon,
+  TrashIcon,
   TruckIcon,
   WhatsAppMark,
 } from '@/components/ui/Icons';
@@ -45,11 +46,11 @@ function timeAgo(iso) {
   const seconds = Math.round((Date.now() - then) / 1000);
   if (seconds < 60) return 'just now';
   const minutes = Math.round(seconds / 60);
-  if (minutes < 60) return `${minutes} min ago`;
+  if (minutes < 60) return `${minutes} minute pehle`;
   const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours} hr ago`;
+  if (hours < 24) return `${hours} ghante pehle`;
   const days = Math.round(hours / 24);
-  if (days < 30) return `${days} day${days === 1 ? '' : 's'} ago`;
+  if (days < 30) return `${days} din pehle`;
   return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
 
@@ -69,7 +70,7 @@ function clockPK(iso) {
   }
 }
 
-export default function OrderCard({ order, onPatch, defaultOpen = false }) {
+export default function OrderCard({ order, onPatch, onDelete, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen);
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState('');
@@ -99,7 +100,7 @@ export default function OrderCard({ order, onPatch, defaultOpen = false }) {
     if (!result.ok) {
       setError(
         result.error === 'not_enough_stock'
-          ? `Out of stock${result.name ? ` — ${result.name}` : ''}. Raise the stock first.`
+          ? `Stock nahi bacha${result.name ? ` — ${result.name}` : ''}. Pehle stock barhayein.`
           : 'That did not work. Please try again.'
       );
       return false;
@@ -147,7 +148,7 @@ export default function OrderCard({ order, onPatch, defaultOpen = false }) {
         <span className="ad-order-sum">
           <span className="ad-num ad-order-total">{formatPKR(order.total)}</span>
           <span className="ad-order-count">
-            {count} item{count === 1 ? '' : 's'}
+            {count} cheez{count === 1 ? '' : 'ein'}
           </span>
         </span>
 
@@ -162,8 +163,8 @@ export default function OrderCard({ order, onPatch, defaultOpen = false }) {
       <div className="ad-track" aria-hidden={cancelled ? 'true' : undefined}>
         {cancelled ? (
           <p className="ad-track-cancelled">
-            Cancelled {order.cancelled_at ? `— ${clockPK(order.cancelled_at)}` : ''} · stock
-            back on the shelf
+            Mansookh {order.cancelled_at ? `— ${clockPK(order.cancelled_at)}` : ''} · stock
+            wapas shelf par
           </p>
         ) : (
           <ol className="ad-steps" style={{ '--reached': reached }}>
@@ -374,11 +375,31 @@ export default function OrderCard({ order, onPatch, defaultOpen = false }) {
                 : key === 'cancelled'
                   ? 'Cancel order'
                   : isBack
-                    ? `Back to ${step.label.toLowerCase()}`
-                    : `Mark ${step.label.toLowerCase()}`}
+                    ? `${step.label} par wapas`
+                    : `${step.label} kar dein`}
             </button>
           );
         })}
+
+        {/* ── Mitane ka button ──
+            Sirf cancelled order par. Ye button chhupa dena hifazat
+            NAHI hai — jo shakhs seedha API par request bhej de, us
+            ke liye button maujood hi nahi tha. Asli jaanch server
+            par hoti hai: wahan order ka status dobara parha jata
+            hai aur `cancelled` na ho to kuch nahi mitta. Ye sirf
+            aap ki nazar se chalta hua order hatana hai. */}
+        {cancelled && typeof onDelete === 'function' && (
+          <button
+            type="button"
+            className="ad-btn ad-btn-danger"
+            disabled={busy !== null}
+            onClick={() => onDelete(order)}
+            title="Delete this cancelled order for good"
+          >
+            <TrashIcon width={14} height={14} />
+            Delete
+          </button>
+        )}
 
         <span className="ad-spacer" />
 
