@@ -79,6 +79,78 @@ export default function ScrollTop() {
     };
   }, []);
 
+  /* ══════════════════════════════════════════════════════════
+     LINK DABATE HI UPAR — YEHI ASLI ILAJ THA
+     ──────────────────────────────────────────────────────────
+     Maine pehle samjha tha ke naya safha paint hone se pehle
+     upar le jana kaafi hai. Live site par naap kar dekha to
+     baat is se bhi buri nikli.
+
+     Asal mein hota ye tha (asli numbers, shop ke safhe se):
+
+         click se pehle scroll:  6361
+          40ms →  6361   footer screen par
+          90ms →  6361   footer screen par
+         150ms →  6361   footer screen par
+         250ms →  6361   footer screen par
+         400ms →  6361   footer screen par
+         600ms →     0   ab ja kar upar
+
+     Wajah: Next safha badalte waqt pehle naye safhe ka saman
+     internet se mangwata hai. Us aadhe second mein PURANA safha
+     apni purani jagah par khara rehta hai — aur agar aap neeche
+     thay, to us poore arse mein PURANE safhe ka footer screen
+     par hota hai. Naye safhe ka koi bhi code us waqt tak chala
+     hi nahi hota, kyunke naya safha abhi aaya hi nahi.
+
+     Is liye ab intezaar hi nahi kiya jata. Jis lamhe aap link
+     dabate hain, usi lamhe safha upar. Link dabana ye keh dena
+     hai ke "main ja raha hoon" — aur jo safha chhoot raha hai wo
+     apne shuru se ruksat hota hai.
+
+     `capture` phase: React ke apne handler se pehle chalta hai,
+     is liye Next ke navigation shuru karne se bhi pehle.
+
+     Jo chhora gaya hai, jaan boojh kar:
+       · nayi tab (Ctrl/Cmd/Shift click, target="_blank")
+       · download wale link
+       · doosri website
+       · usi safhe ka andaruni nishana (#delivery waghera)
+       · wohi safha dobara
+     ══════════════════════════════════════════════════════════ */
+  useEffect(() => {
+    const onClick = (e) => {
+      if (e.defaultPrevented || e.button !== 0) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+      const a = e.target?.closest?.('a');
+      if (!a) return;
+
+      const href = a.getAttribute('href');
+      if (!href || href[0] === '#') return;
+      if (a.target && a.target !== '_self') return;
+      if (a.hasAttribute('download')) return;
+
+      let url;
+      try {
+        url = new URL(a.href, window.location.href);
+      } catch {
+        return;
+      }
+
+      if (url.origin !== window.location.origin) return;
+      if (url.hash) return;
+      if (url.pathname === window.location.pathname && url.search === window.location.search) {
+        return;
+      }
+
+      window.scrollTo(0, 0);
+    };
+
+    document.addEventListener('click', onClick, true);
+    return () => document.removeEventListener('click', onClick, true);
+  }, []);
+
   /* ── Back / forward ka nishan ── */
   useEffect(() => {
     const onPop = () => {
