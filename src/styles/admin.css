@@ -1377,3 +1377,48 @@ select.ad-input { cursor: pointer; }
   .ad-stat:hover,
   .ad-product:hover .ad-product-shot img { transform: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   COLOUR — product form ki do kami
+   ───────────────────────────────────────────────────────────────
+   Gol nishan aur × ka roop compat.css mein pehle se likha hai.
+   Do cheezein wahan bhi nahi thin, aur yahi do aankh ko chubhti
+   thin:
+
+   1. Jora hua rang roshan nahi hota tha. `.ad-chip` sirf
+      aria-pressed par sunehra hota hai — magar jora hua rang ek
+      <span> hai, button nahi, aur <span> par aria-pressed nahi
+      lagta. Is liye chuna hua rang bhi un-chuna dikhta tha.
+
+   2. Naya rang jorne wali qatar `.ad-row-fields` par thi — wo
+      grid har bachay ko kam az kam 180px deta hai, to 34px ka
+      gol nishan ek poore 180px khane mein akela tairta tha aur
+      qatar bikhri hui lagti thi. Ab is qatar ka apna rule hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+.ad-chip.is-on {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgb(var(--fg-rgb) / 0.04);
+}
+
+/* Chip ke andar 10px par ungli se nishana lagana mushkil hai */
+.ad-chip-color .ad-dot-pick { width: 14px; height: 14px; }
+
+/* Keyboard se aane walon ko bhi pata chale ke nishan chuna gaya */
+.ad-dot-pick:focus-within { outline: 1px solid var(--gold); outline-offset: 2px; }
+
+/* Naya rang: nishan · naam · Add — ek hi qatar mein, saath saath */
+.ad-color-new {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+.ad-color-new .ad-input { flex: 1 1 auto; min-width: 0; }
+.ad-color-new .ad-btn { flex: none; }
+
+@media (max-width: 520px) {
+  .ad-color-new { flex-wrap: wrap; }
+  .ad-color-new .ad-input { flex: 1 1 60%; }
+}
