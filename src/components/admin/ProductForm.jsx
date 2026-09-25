@@ -29,8 +29,8 @@ import { CloseIcon, PlusIcon, TrashIcon } from '@/components/ui/Icons';
  *    mein kahin istemal nahi ho rahi thi.
  *  · Colour ke naam aap khud likhte hain. Sirf wohi nazar aate
  *    hain jo aap ne is product ke liye likhe — aur koi nahi
- *    hai. Apna naam bhi likh sakte hain — magar phir wo grey
- *    dikhega, aur form ye saaf bata deta hai.
+ *    hai — naam ke sath ka nishan bhi aap hi chunte hain, is
+ *    liye site par rang hamesha theek dikhta hai.
  *
  *  Tasveerein seedha yahan se Supabase Storage par jati hain.
  *  Pehli tasveer cover hai, doosri hover par nazar aati hai —
@@ -579,7 +579,7 @@ export default function ProductForm({ product, onSave, onCancel }) {
           )}
         </section>
 
-        {/* ── Rang ──
+        {/* ── Colour ──
             Pehle yahan pentees rang pehle se lage rehte thay — un
             mein se aksar kisi product par kabhi istemal hi nahi
             hote thay, aur chunte waqt asli rang unhi ke beech kho
@@ -591,15 +591,13 @@ export default function ProductForm({ product, onSave, onCancel }) {
             site par dikhne wala daira hamesha theek rehta hai aur
             constants.js kholne ki zaroorat kabhi nahi parti.
 
-            Grahak ko order karte waqt inhi mein se ek chunna parta
-            hai; ek se zyada rang hon to bina chune bag mein nahi
-            ja sakta. */}
+            Baqi poora form jaisa tha waisa hi hai — sirf ye ek
+            khana badla tha, aur ab is ki zabaan bhi baqi form ki
+            tarah English hai. */}
         <section className="ad-form-section">
           <p className="ad-block-title">
             Colour
-            <span className="ad-label-dim">
-              {' '}— sirf wohi jo aap likhein
-            </span>
+            <span className="ad-label-dim"> — only the ones you add</span>
           </p>
 
           {/* Jo aap ne joray — har ek ke sath uska apna nishan */}
@@ -610,13 +608,13 @@ export default function ProductForm({ product, onSave, onCancel }) {
                   <label
                     className="ad-dot ad-dot-pick"
                     style={{ background: colorHex(value) }}
-                    title={`${colorName(value)} — nishan ka rang badlein`}
+                    title={`${colorName(value)} — change the swatch`}
                   >
                     <input
                       type="color"
                       value={colorHex(value)}
                       onChange={(e) => recolor(value, e.target.value)}
-                      aria-label={`${colorName(value)} ka nishan`}
+                      aria-label={`${colorName(value)} swatch`}
                     />
                   </label>
 
@@ -626,8 +624,8 @@ export default function ProductForm({ product, onSave, onCancel }) {
                     type="button"
                     className="ad-chip-x"
                     onClick={() => removeColor(value)}
-                    aria-label={`${colorName(value)} hatayein`}
-                    title="Hatayein"
+                    aria-label={`Remove ${colorName(value)}`}
+                    title="Remove"
                   >
                     <CloseIcon width={11} height={11} />
                   </button>
@@ -636,31 +634,30 @@ export default function ProductForm({ product, onSave, onCancel }) {
             </div>
           ) : (
             <p className="ad-hint">
-              Abhi koi rang nahi. Neeche naam likh kar{' '}
-              <strong>Add</strong> dabayein — jo aap likhenge, bas wohi
-              grahak ko nazar aayega.
+              No colours yet. Type a name below and press <strong>Add</strong> —
+              only what you add here is ever shown to the customer.
             </p>
           )}
 
-          {/* Naya rang — naam, nishan, Add */}
-          <div className="ad-row-fields ad-row-tight">
+          {/* Naya rang — nishan, naam, Add */}
+          <div className="ad-color-new">
             <label
               className="ad-dot ad-dot-pick ad-dot-lg"
               style={{ background: customHex }}
-              title="Is rang ka nishan chunein"
+              title="Pick the swatch for this colour"
             >
               <input
                 type="color"
                 value={customHex}
                 onChange={(e) => setCustomHex(e.target.value)}
-                aria-label="Naye rang ka nishan"
+                aria-label="Swatch for the new colour"
               />
             </label>
 
             <input
               className="ad-input"
               value={customColor}
-              placeholder="Rang ka naam — jaise Peach"
+              placeholder="Colour name — say Peach"
               onChange={(e) => setCustomColor(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key !== 'Enter') return;
@@ -675,9 +672,9 @@ export default function ProductForm({ product, onSave, onCancel }) {
           </div>
 
           <p className="ad-hint">
-            Naam likhein, us ke baayein wala gol nishan dabakar asli rang
-            chunein, phir <strong>Add</strong>. Ek se zyada rang hon to
-            grahak ko order se pehle ek chunna hi parta hai.
+            Type the name, tap the round swatch beside it to pick the real
+            colour, then <strong>Add</strong>. Where a piece has more than one
+            colour the customer must choose one before it goes in the bag.
           </p>
         </section>
 
