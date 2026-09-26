@@ -358,3 +358,86 @@ export async function getCategoryCounts() {
     return acc;
   }, {});
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   TOP SALES
+   ───────────────────────────────────────────────────────────────
+   Home page ka sale wala khana yahin se bharta hai. Do raaste,
+   isi tarteeb mein:
+
+     1. Jo product aap ne khud "Top Sales" ke khane mein daale.
+        Ye aap ka apna intikhab hai, is liye sab se pehle.
+
+     2. Agar wo khana khali ho — to wo product jin par WAQAI
+        qeemat kam hai (`compare_at_price` asal daam se zyada).
+        Aur un mein se bhi pehle wo jin par chhoot sab se bari
+        hai.
+
+   Yani section kabhi khali nahi baithta, aur jhoot bhi nahi
+   bolta: jo dikhta hai us par sach mein sale hai.
+
+   Postgres do columns ka aapas mein muqabla seedha nahi karne
+   deta, is liye doosra raasta thora sa maal mangwa kar chhantai
+   yahan karta hai. Sirf published, sirf 120 tak — ye kaam ek
+   hi dafa build par hota hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+const saleCut = (p) => {
+  const was = Number(p?.compare_at_price);
+  const now = Number(p?.price);
+  if (!(was > now) || !(now > 0)) return 0;
+  return Math.round(((was - now) / was) * 100);
+};
+
+/**
+ * @param {number} limit
+ * @returns {Promise<Array>}
+ */
+export async function getTopSaleProducts(limit = 8) {
+  const db = client();
+
+  if (!db) {
+    const all = await getProducts();
+    const flagged = all.filter((p) => p.category === 'top-sales');
+    if (flagged.length) return flagged.slice(0, limit);
+    return all
+      .filter((p) => saleCut(p) > 0)
+      .sort((a, b) => saleCut(b) - saleCut(a))
+      .slice(0, limit);
+  }
+
+  /* 1 — aap ka apna intikhab */
+  const picked = await ordered(
+    (withSort, columns) => {
+      let q = db
+        .from('products')
+        .select(columns)
+        .eq('published', true)
+        .eq('category', 'top-sales');
+      if (withSort) q = q.order('sort_order', { ascending: true });
+      return q.order('created_at', { ascending: false }).limit(limit);
+    },
+    'getTopSaleProducts'
+  );
+
+  if (picked && picked.length) return picked;
+
+  /* 2 — jin par waqai chhoot hai */
+  const { data, error } = await db
+    .from('products')
+    .select(cols())
+    .eq('published', true)
+    .not('compare_at_price', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(120);
+
+  if (error) {
+    warn('getTopSaleProducts(discounted)', error);
+    return [];
+  }
+
+  return (data || [])
+    .filter((p) => saleCut(p) > 0)
+    .sort((a, b) => saleCut(b) - saleCut(a))
+    .slice(0, limit);
+}
