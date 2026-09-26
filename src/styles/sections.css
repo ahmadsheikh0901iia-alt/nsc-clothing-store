@@ -2902,3 +2902,445 @@
   z-index: 1;
 }
 .cat-cell[data-kind="edit"] .idx { color: var(--gold); }
+
+/* ═══════════════════════════════════════════════════════════════
+   FILTER RAIL — CATEGORY KE NAAM ADHE KATE HUE
+   ───────────────────────────────────────────────────────────────
+   Rail ek flex qatar hai jis par `overflow-x: auto` laga hai —
+   matlab ye tha ke jagah kam pare to rail KHISKE.
+
+   Magar flex ke bachon ki apni fitrat `flex-shrink: 1` hai. Is
+   liye jagah kam parte hi rail khiskne ke bajaye chips khud DAB
+   jati thin. 320px par naapa gaya:
+
+       "Women's Unstitched"   asli 183px  →  rail mein  61px
+       "Women's Stitched"     asli 165px  →  rail mein  58px
+       "All (84)"             asli  93px  →  rail mein  45px
+
+   Aur `.chip` par `overflow: hidden` hai — is liye bachi hui
+   jagah mein naam ka sirf pehla hissa nazar aata tha. Yehi wo
+   "adha likha hua naam" hai.
+
+   Ek qatar isay theek kar deti hai: bachon ko sukarne se mana
+   kar dein. Ab rail apna asli kaam karti hai — ungli se daayein
+   baayein khisakti hai, aur har naam poora likha hua.
+   ═══════════════════════════════════════════════════════════════ */
+
+.filter-rail > * {
+  flex: 0 0 auto;      /* na sukro, na phailo — apni asli chaurai */
+  scroll-snap-align: start;
+}
+
+.filter-rail {
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  /* Kinare par ruk kar chip aadhi na kate */
+  scroll-padding-inline: var(--gutter, 1rem);
+}
+
+/* Kinare par halka sa dhundla — batata hai ke aur bhi hain.
+   `mask` har purane browser par nahi chalta, is liye @supports ke
+   andar: na chale to sirf ye halki si khoobsurti jati hai. */
+@supports (mask-image: linear-gradient(90deg, #000, transparent)) {
+  @media (max-width: 860px) {
+    .filter-rail {
+      mask-image: linear-gradient(
+        90deg,
+        transparent 0,
+        #000 14px,
+        #000 calc(100% - 22px),
+        transparent 100%
+      );
+      -webkit-mask-image: linear-gradient(
+        90deg,
+        transparent 0,
+        #000 14px,
+        #000 calc(100% - 22px),
+        transparent 100%
+      );
+    }
+  }
+}
+
+/* Phone par chip thori si kam khuli hui — zyada naam ek nazar
+   mein aa jate hain, aur ungli ke liye 40px oonchai bhi rehti. */
+@media (max-width: 480px) {
+  .filter-rail .chip {
+    padding: 0.5rem 0.85rem;
+    letter-spacing: 0.1em;
+    min-height: 38px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TOP SALES — GHOOMTA HUA 3D DAIRA
+   ───────────────────────────────────────────────────────────────
+   Cards ek khayali silinder ke gird lagaye gaye hain:
+
+       har card :  rotateY(k × step) translateZ(r)
+       poora daira: rotateY(-i × step)
+
+   Bas itni si hisaab-kitaab se browser khud gehrai bana deta hai.
+   `perspective` aankh ka faasla hai, `transform-style: preserve-3d`
+   bachon ko us gehrai mein rehne deta hai.
+
+   Sirf `transform` aur `opacity` chalti hain — dono GPU ka kaam
+   hain, is liye phone par bhi narm.
+
+   860px se neeche daira band: chhoti screen par ghoomta silinder
+   bekar hai. Wahan yehi cards ek khiskne wali qatar ban jate hain
+   jo khud aage barhti hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+.tsale {
+  position: relative;
+  overflow: hidden;
+  padding-block: clamp(3rem, 7vw, 6rem);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  isolation: isolate;
+}
+
+/* Peeche se guzarti hui sunehri roshni */
+.tsale-glow {
+  position: absolute;
+  inset: -30% -10%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 42% at 18% 30%, rgb(194 165 107 / 0.16), transparent 70%),
+    radial-gradient(34% 38% at 82% 70%, rgb(194 165 107 / 0.10), transparent 70%);
+  animation: tsale-drift 18s var(--ease-glide, ease-in-out) infinite alternate;
+}
+@keyframes tsale-drift {
+  from { transform: translate3d(-3%, -2%, 0) scale(1); }
+  to   { transform: translate3d(3%, 2%, 0) scale(1.08); }
+}
+
+.tsale-head { text-align: center; margin-bottom: clamp(1.5rem, 3.5vw, 2.5rem); }
+
+/* "Sale is on" — dhirkta hua nishan */
+.tsale-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-pill);
+  color: var(--gold);
+  font-size: var(--t-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.tsale-flag-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--gold);
+  animation: tsale-pulse 1.7s ease-in-out infinite;
+}
+@keyframes tsale-pulse {
+  0%, 100% { opacity: 1;   transform: scale(1);   }
+  50%      { opacity: 0.35; transform: scale(0.72); }
+}
+
+.tsale-title { font-size: clamp(2rem, 5.5vw, 3.4rem); margin: 0.75rem 0 0; }
+.tsale-lede { margin: 0.75rem auto 0; max-width: 46ch; }
+
+/* ── Stage ── */
+.tsale-stage { position: relative; }
+
+.tsale-stage[data-mode="ring"] {
+  height: 430px;
+  perspective: 1150px;
+  perspective-origin: 50% 45%;
+}
+
+.tsale-ring {
+  --step: calc(360deg / var(--n, 6));
+  --r: 360px;
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 250px;
+  height: 380px;
+  transform-style: preserve-3d;
+  transform: translateZ(calc(var(--r) * -1)) rotateY(calc(var(--i, 0) * var(--step) * -1));
+  transition: transform 1s cubic-bezier(0.22, 0.9, 0.24, 1);
+}
+
+.tsale-ring .tsale-card {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(calc(var(--k) * var(--step))) translateZ(var(--r));
+  backface-visibility: hidden;
+}
+
+/* ── Qatar wali shakl — phone ── */
+.tsale-rail {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.5rem var(--gutter, 1rem) 1rem;
+  perspective: 900px;
+}
+.tsale-rail > * {
+  flex: 0 0 min(64vw, 250px);
+  scroll-snap-align: center;
+}
+.tsale-rail .tsale-card {
+  transform: rotateY(9deg) scale(0.95);
+  transform-origin: 50% 50%;
+}
+.tsale-rail .tsale-card[data-on="true"] { transform: none; }
+
+/* ── Ek card ── */
+.tsale-card {
+  opacity: 0.5;
+  transition: opacity 0.7s var(--ease-glide), transform 0.7s var(--ease-glide);
+}
+.tsale-card[data-on="true"] { opacity: 1; }
+
+.tsale-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.tsale-shot {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--ink-3);
+  border: 1px solid var(--line);
+}
+.tsale-shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.tsale-card[data-on="true"] .tsale-shot {
+  border-color: var(--gold);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 0.45);
+}
+
+/* Chhoot ka gol nishan */
+.tsale-off {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  line-height: 1;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--ink);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.35);
+}
+.tsale-off strong { display: block; font-size: 1rem; font-weight: 500; }
+.tsale-off em {
+  display: block;
+  font-style: normal;
+  font-size: 0.5rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+.tsale-out {
+  position: absolute;
+  inset: auto 0 0 0;
+  text-align: center;
+  padding: 0.35rem;
+  font-size: var(--t-micro);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  background: rgb(10 10 9 / 0.78);
+  color: var(--bone-dim);
+}
+
+.tsale-body { display: grid; gap: 0.2rem; }
+.tsale-name {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--bone);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.tsale-price { color: var(--gold); font-size: 0.9rem; }
+.tsale-price s {
+  color: var(--bone-dim);
+  opacity: 0.75;
+  margin-right: 0.45rem;
+  font-size: 0.8rem;
+}
+
+/* ── Neeche ke nishan aur button ── */
+.tsale-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  margin-top: clamp(1.25rem, 3vw, 2rem);
+}
+.tsale-dots { display: flex; gap: 0.45rem; }
+.tsale-dot {
+  appearance: none;
+  width: 30px;
+  height: 30px;            /* ungli ke naap ka — nazar chhota */
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+}
+.tsale-dot::after {
+  content: '';
+  position: absolute;
+  inset: 50% auto auto 50%;
+  translate: -50% -50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--line-strong, #4a463f);
+  transition: background var(--d-quick) var(--ease-glide), width var(--d-quick) var(--ease-glide);
+}
+.tsale-dot[aria-selected="true"]::after { background: var(--gold); width: 20px; border-radius: 999px; }
+.tsale-all { min-height: 44px; }
+
+/* Beech wala card zara sa bara — nazar khud wahin jati hai */
+.tsale-stage[data-mode="ring"] .tsale-card[data-on="true"] .tsale-shot {
+  transform: scale(1.04);
+  transition: transform 0.7s var(--ease-glide);
+}
+
+@media (max-width: 860px) {
+  .tsale-head { text-align: left; }
+  .tsale-lede { margin-inline: 0; }
+
+  /* Nishan apni qatar mein, button apni — warna button kinare se
+     bahar nikal jata hai */
+  .tsale-foot {
+    justify-content: flex-start;
+    gap: 1rem;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .tsale-dots { justify-content: center; }
+  .tsale-all { width: 100%; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tsale-glow,
+  .tsale-flag-dot { animation: none; }
+  .tsale-ring,
+  .tsale-card { transition: none; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   RIBBON — AB TEEN BUAAD MEIN
+   ───────────────────────────────────────────────────────────────
+   Do parte, ek doosre ke peeche asli faasle par (`translateZ`),
+   aur poori patti scroll ke sath apne mehwar par jhukti hui.
+   `--tilt` Ribbon.jsx rakhta hai: +1 neeche, 0 beech, -1 upar.
+   ═══════════════════════════════════════════════════════════════ */
+
+.ribbon-3d { perspective: 700px; }
+
+.ribbon-stage {
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(calc(var(--tilt, 0) * 7deg));
+  transition: transform 0.25s linear;
+}
+
+.ribbon-face { position: relative; }
+
+.ribbon-back {
+  position: absolute;
+  inset: 0;
+  transform: translateZ(-120px) scale(1.16);
+  opacity: 0.26;
+  filter: blur(1.5px);
+  pointer-events: none;
+}
+
+.ribbon-front { transform: translateZ(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ribbon-stage { transform: none; }
+  .ribbon-back { display: none; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   PRODUCT KI GALLERY — TASVEER KHUD SIDE SE AATI HAI
+   ═══════════════════════════════════════════════════════════════ */
+
+.pdp-slides { position: absolute; inset: 0; overflow: hidden; }
+.pdp-slides img { width: 100%; height: 100%; object-fit: cover; }
+
+.pdp-slide { animation: pdp-in 0.62s var(--ease-glide) both; }
+[data-dir="prev"] .pdp-slide { animation-name: pdp-in-back; }
+
+@keyframes pdp-in {
+  from { opacity: 0; transform: translate3d(7%, 0, 0) scale(1.03); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0)  scale(1);    }
+}
+@keyframes pdp-in-back {
+  from { opacity: 0; transform: translate3d(-7%, 0, 0) scale(1.03); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0)   scale(1);    }
+}
+
+/* Neeche chhoti lakeerein — kitni tasveerein, kaun si chal rahi */
+.pdp-bars {
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  display: flex;
+  gap: 0.3rem;
+  z-index: 2;
+  pointer-events: none;
+}
+.pdp-bar {
+  flex: 1 1 0;
+  height: 2px;
+  background: rgb(239 233 221 / 0.28);
+  transition: background 0.4s var(--ease-glide);
+}
+.pdp-bar[data-on="true"] { background: var(--gold); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pdp-slide { animation: none; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   CARD KI TASVEEREIN — KHUD BADALTI HUI
+   ───────────────────────────────────────────────────────────────
+   Purana qaida (`.card:hover … { opacity: 1 }`) saari mutabadil
+   tasveerein ek sath roshan kar deta tha. Ab sirf wohi roshan
+   hoti hai jis ki baari hai — hover par bhi.
+   ═══════════════════════════════════════════════════════════════ */
+
+.card-media .card-alt { transition: opacity 0.75s var(--ease-glide); }
+.card-media .card-alt[data-on="true"] { opacity: 1; }
+.card:hover .card-media .card-alt { opacity: 0; }
+.card:hover .card-media .card-alt[data-on="true"] { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .card-media .card-alt { transition: none; }
+}
