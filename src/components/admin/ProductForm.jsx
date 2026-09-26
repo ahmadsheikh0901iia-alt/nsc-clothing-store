@@ -8,6 +8,8 @@ import {
   colorHex,
   colorName,
   colorValue,
+  guessColorHex,
+  nearestColorName,
   formatPKR,
   subCollections,
   NEW_ARRIVAL_LIMIT,
@@ -80,6 +82,18 @@ export default function ProductForm({ product, onSave, onCancel }) {
   const [customColor, setCustomColor] = useState('');
   const [customHex, setCustomHex] = useState(DEFAULT_SWATCH);
 
+  /* ── NAAM AUR RANG, EK DOOSRE SE JURE HUE ──
+     Ek cheez karein, doosri khud ho jati hai:
+
+       naam likhein   →  nishan us naam ka rang le leta hai
+       nishan chunein →  naam us rang ke sab se qareeb wala
+
+     Ek usool jaan boojh kar: jo AAP ne apne haath se kiya, wo
+     kabhi khud-ba-khud nahi badalta. Ye do nishan yaad rakhte
+     hain ke kaun sa khana khud bhara tha aur kaun sa aap ne. */
+  const [autoHex, setAutoHex] = useState(true);   // nishan abhi khud chalta hai
+  const [autoName, setAutoName] = useState(true); // naam abhi khud chalta hai
+
   /* Bahar se tasveer utha kar andar chhorne ke liye */
   const [dropping, setDropping] = useState(false);
   /* Andar ki tasveerein aapas mein aage peeche karne ke liye */
@@ -133,6 +147,28 @@ export default function ProductForm({ product, onSave, onCancel }) {
      Naam aur rang dono ek hi likhai mein jate hain — "Peach|#ffd7b5" —
      magar grahak ko hamesha sirf "Peach" nazar aata hai. */
 
+  /* Naam likha gaya — nishan peeche peeche */
+  const onColorNameInput = (value) => {
+    setCustomColor(value);
+    setAutoName(false); // ye naam aap ka hai, ab is par haath nahi
+
+    if (!autoHex) return; // nishan aap khud chun chuke hain
+    const guess = guessColorHex(value);
+    if (guess) setCustomHex(guess);
+    /* Na mile to nishan jaisa hai waisa — ek ghalat rang laga
+       dene se behtar hai kuch na karna. */
+  };
+
+  /* Nishan chuna gaya — naam peeche peeche */
+  const onColorHexInput = (hex) => {
+    setCustomHex(hex);
+    setAutoHex(false); // ye nishan aap ka hai
+
+    if (!autoName) return; // naam aap khud likh chuke hain
+    const near = nearestColorName(hex);
+    if (near) setCustomColor(near);
+  };
+
   const addColor = () => {
     const name = colorName(customColor);
     if (!name) return;
@@ -148,6 +184,9 @@ export default function ProductForm({ product, onSave, onCancel }) {
     setForm((f) => ({ ...f, colors: [...f.colors, colorValue(name, customHex)] }));
     setCustomColor('');
     setCustomHex(DEFAULT_SWATCH);
+    /* Agle rang ke liye dono dobara khud chalne lagte hain */
+    setAutoHex(true);
+    setAutoName(true);
   };
 
   const removeColor = (value) =>
@@ -649,7 +688,7 @@ export default function ProductForm({ product, onSave, onCancel }) {
               <input
                 type="color"
                 value={customHex}
-                onChange={(e) => setCustomHex(e.target.value)}
+                onChange={(e) => onColorHexInput(e.target.value)}
                 aria-label="Swatch for the new colour"
               />
             </label>
@@ -658,7 +697,7 @@ export default function ProductForm({ product, onSave, onCancel }) {
               className="ad-input"
               value={customColor}
               placeholder="Colour name — say Peach"
-              onChange={(e) => setCustomColor(e.target.value)}
+              onChange={(e) => onColorNameInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key !== 'Enter') return;
                 e.preventDefault();
@@ -672,8 +711,10 @@ export default function ProductForm({ product, onSave, onCancel }) {
           </div>
 
           <p className="ad-hint">
-            Type the name, tap the round swatch beside it to pick the real
-            colour, then <strong>Add</strong>. Where a piece has more than one
+            Do one, the other follows — type <strong>Peach</strong> and the
+            swatch turns peach; tap the swatch and pick a colour and the name
+            fills itself. Change either by hand and it stays exactly as you
+            set it. Then <strong>Add</strong>. Where a piece has more than one
             colour the customer must choose one before it goes in the bag.
           </p>
         </section>

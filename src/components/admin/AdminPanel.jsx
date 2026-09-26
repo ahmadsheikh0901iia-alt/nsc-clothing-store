@@ -82,6 +82,20 @@ export default function AdminPanel() {
   const [products, setProducts] = useState([]);
   const [productQuery, setProductQuery] = useState('');
   const [editing, setEditing] = useState(null); // null | {} | product
+
+  /* Drawer khula ho to peeche wala safha na khiske — warna phone
+     par ungli drawer ke bajaye peeche ki fehrist ko ghuma deti
+     hai, aur band karne par aap kahin aur pahunch jate hain. */
+  useEffect(() => {
+    if (!editing) return undefined;
+    const body = document.body;
+    const had = body.getAttribute('data-locked');
+    body.setAttribute('data-locked', 'true');
+    return () => {
+      if (had === null) body.removeAttribute('data-locked');
+      else body.setAttribute('data-locked', had);
+    };
+  }, [editing]);
   const [loadingProducts, setLoadingProducts] = useState(false);
 
   /* Inbox */
@@ -814,24 +828,45 @@ export default function AdminPanel() {
         )}
       </main>
 
-      {/* ══ Product ka form ══ */}
-      {editing && (
-        <div className="ad-sheet" role="dialog" aria-modal="true" aria-label="Product">
-          <button
-            type="button"
-            className="ad-sheet-scrim"
-            onClick={() => setEditing(null)}
-            aria-label="Close"
-          />
-          <div className="ad-sheet-panel">
-            <ProductForm
-              product={editing.id ? editing : null}
-              onSave={saveProduct}
-              onCancel={() => setEditing(null)}
+      {/* ══ Product ka form — ek asli side drawer ══
+          ───────────────────────────────────────────────
+          Ye khana `position: fixed` hai, yani ise screen ke
+          hisaab se poori oonchai leni chahiye thi. Magar ye
+          `.lux-page` ke ANDAR tha — aur us par safha khulne
+          wali animation ka transform lagta hai.
+
+          CSS ka qaida: jis baap par transform ho, us ke neeche
+          `fixed` ka matlab badal jata hai — wo screen ke bajaye
+          USI BAAP ke hisaab se lagta hai.
+
+          Isi liye drawer peeche wale safhe ke barabar hota tha:
+          product kam thay to chhota, product barhte gaye to
+          safha lamba hota gaya aur drawer bhi lamba. Bilkul wohi
+          cheez jo ajeeb lag rahi thi.
+
+          Ab ye seedha `document.body` mein jata hai, kisi
+          transform ke neeche nahi: hamesha poori screen jitna,
+          daayein se aata hua, phone par poori chaurai. Product
+          kitne bhi hon, farq nahi parta. */}
+      {editing && portalReady &&
+        createPortal(
+          <div className="ad-sheet" role="dialog" aria-modal="true" aria-label="Product">
+            <button
+              type="button"
+              className="ad-sheet-scrim"
+              onClick={() => setEditing(null)}
+              aria-label="Close"
             />
-          </div>
-        </div>
-      )}
+            <div className="ad-sheet-panel">
+              <ProductForm
+                product={editing.id ? editing : null}
+                onSave={saveProduct}
+                onCancel={() => setEditing(null)}
+              />
+            </div>
+          </div>,
+          document.body
+        )}
 
       {/* ══ Poochne wala khana ══
           `document.body` mein, taake safhe ke animation wale khol
