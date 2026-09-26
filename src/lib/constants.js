@@ -1012,3 +1012,185 @@ export const POLICIES = [
     ],
   },
 ];
+
+/* ═══════════════════════════════════════════════════════════════
+   RANG: NAAM SE RANG, AUR RANG SE NAAM
+   ───────────────────────────────────────────────────────────────
+   Admin ke form mein pehle dono cheezein haath se karni parti
+   thin — naam bhi likho, nishan bhi chuno. Ab ek kaafi hai:
+
+     · naam likhein  →  nishan khud us naam ka rang le leta hai
+     · nishan chunein →  naam khud us rang ke sab se qareeb wala
+
+   Ek usool: jo cheez AAP ne apne haath se chun li, use kabhi
+   khud-ba-khud nahi badla jata. Sirf khaali khana, ya wo jo khud
+   bhara gaya tha, badalta hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Bazaar ke wo naam jo COLOR_HEX mein nahi thay. Yahan wohi rakhe
+   hain jo is dukaan mein waqai bolay jate hain. */
+export const COLOR_EXTRA = {
+  Peach: '#f3c4a4',
+  Coral: '#e8836e',
+  Lilac: '#c3b0d8',
+  Lavender: '#b7a7cf',
+  Mustard: '#c9a227',
+  Teal: '#2f7f7f',
+  Ferozi: '#2fa6a6',
+  Turquoise: '#3ec2c2',
+  Beige: '#ddcfb8',
+  Grey: '#8b8b88',
+  Gray: '#8b8b88',
+  Silver: '#c4c4c2',
+  Rust: '#9c4a25',
+  Plum: '#6b3352',
+  Fuchsia: '#b0407f',
+  Magenta: '#a63a76',
+  Lemon: '#e4d977',
+  Yellow: '#d8c24a',
+  Sky: '#8fb6d9',
+  'Sky Blue': '#8fb6d9',
+  'Baby Pink': '#f0c8cf',
+  'Tea Pink': '#e6c3c0',
+  'Off White': '#f2eee6',
+  Pink: '#dda3b4',
+  Purple: '#6f4a86',
+  Red: '#a32431',
+  Green: '#3f6b4a',
+  'Bottle Green': '#17201f',
+  Brown: '#6b4a32',
+  Copper: '#a9653f',
+  Bronze: '#8c6b3f',
+  Emerald: '#2f7a5a',
+  Orange: '#cf7434',
+  Apricot: '#e8b183',
+  Mauve: '#9b7f8c',
+  Blush: '#e3bfbf',
+  Slate: '#5d646b',
+  Denim: '#4a6584',
+  Aqua: '#7fc4c4',
+  Jade: '#4f8f78',
+  Cocoa: '#5a4034',
+  Taupe: '#9b8f80',
+  Pearl: '#eee9e0',
+  Ecru: '#e0d7c4',
+  Fawn: '#c4a684',
+  Burgundy: '#5e2233',
+  Crimson: '#9e2b3a',
+  Scarlet: '#b3302f',
+  Violet: '#7a5aa0',
+  Indigo: '#44507e',
+};
+
+/** COLOR_HEX aur COLOR_EXTRA, ek hi fehrist. */
+export const COLOR_ALL = { ...COLOR_HEX, ...COLOR_EXTRA };
+
+const NORM_KEY = (s) => String(s == null ? '' : s).toLowerCase().replace(/\s+/g, ' ').trim();
+
+const COLOR_LOOKUP = new Map(
+  Object.entries(COLOR_ALL).map(([name, hex]) => [NORM_KEY(name), hex])
+);
+
+/* "Light", "Dark" waghera — inhein hata kar asal rang dhoondte hain */
+const SHADE_WORDS = new Set([
+  'light', 'dark', 'deep', 'soft', 'pale', 'bright', 'dull', 'hot', 'baby',
+  'neon', 'shocking', 'metallic', 'antique', 'dusty', 'burnt', 'rich',
+]);
+
+/* CSS apne 148 rangon ke naam khud jaanta hai — "salmon",
+   "khaki", "orchid". Browser se poochna sab se sahi hai, magar ye
+   sirf browser mein mumkin hai; server par khamoshi. */
+function cssColorToHex(name) {
+  if (typeof document === 'undefined') return null;
+  if (!/^[a-z]+$/i.test(name)) return null;
+
+  const el = document.createElement('span');
+  el.style.color = '';
+  el.style.color = name;
+  if (!el.style.color) return null; // browser ne is naam ko nahi maana
+
+  el.style.display = 'none';
+  document.body.appendChild(el);
+  const value = getComputedStyle(el).color;
+  el.remove();
+
+  const parts = value.match(/\d+(\.\d+)?/g);
+  if (!parts || parts.length < 3) return null;
+
+  return (
+    '#' +
+    parts
+      .slice(0, 3)
+      .map((n) => Math.round(Number(n)).toString(16).padStart(2, '0'))
+      .join('')
+  );
+}
+
+/**
+ * Naam se rang. Na mile to `null` — aur us soorat mein form
+ * nishan ko HAATH NAHI LAGATA. Ek ghalat rang khud se laga dena
+ * us se bura hai ke kuch na kiya jaye.
+ */
+export function guessColorHex(name) {
+  const key = NORM_KEY(name);
+  if (!key) return null;
+
+  if (COLOR_LOOKUP.has(key)) return COLOR_LOOKUP.get(key);
+
+  const words = key.split(' ');
+
+  /* "light peach" → "peach" — aage se ek ek lafz girate jayein */
+  for (let i = 1; i < words.length; i += 1) {
+    if (!SHADE_WORDS.has(words[i - 1])) break;
+    const rest = words.slice(i).join(' ');
+    if (COLOR_LOOKUP.has(rest)) return COLOR_LOOKUP.get(rest);
+  }
+
+  /* Aakhri lafz akela — "mehndi green" → "green" */
+  const last = words[words.length - 1];
+  if (words.length > 1 && COLOR_LOOKUP.has(last)) return COLOR_LOOKUP.get(last);
+
+  return cssColorToHex(key.replace(/ /g, '')) || cssColorToHex(last) || null;
+}
+
+function hexToRgb(hex) {
+  let h = String(hex || '').trim().replace('#', '');
+  if (h.length === 3) h = h.split('').map((c) => c + c).join('');
+  if (!/^[0-9a-f]{6}$/i.test(h)) return null;
+  return {
+    r: parseInt(h.slice(0, 2), 16),
+    g: parseInt(h.slice(2, 4), 16),
+    b: parseInt(h.slice(4, 6), 16),
+  };
+}
+
+/**
+ * Rang se naam — fehrist mein se sab se qareeb wala.
+ *
+ * Seedhi doori nahi li jati: aankh sabz ko sab se zyada mehsoos
+ * karti hai, laal ko us se kam, neele ko sab se kam. Is liye har
+ * ek ka apna wazan hai — warna neela aur sabz aapas mein badal
+ * jate hain.
+ */
+export function nearestColorName(hex) {
+  const c = hexToRgb(hex);
+  if (!c) return '';
+
+  let best = '';
+  let bestDistance = Infinity;
+
+  for (const [name, value] of Object.entries(COLOR_ALL)) {
+    const o = hexToRgb(value);
+    if (!o) continue;
+    const d =
+      2 * (c.r - o.r) ** 2 +
+      4 * (c.g - o.g) ** 2 +
+      3 * (c.b - o.b) ** 2;
+    if (d < bestDistance) {
+      bestDistance = d;
+      best = name;
+    }
+  }
+
+  return best;
+}
