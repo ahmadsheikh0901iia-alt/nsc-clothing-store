@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useStore } from '@/context/StoreContext';
@@ -7,8 +8,8 @@ import ShareButton from '@/components/shop/ShareButton';
 import { colorHex, colorName, formatPKR, getCategory } from '@/lib/constants';
 import {
   discountPct,
+  imageList,
   primaryImage,
-  secondaryImage,
   toArray,
 } from '@/lib/utils';
 
@@ -37,10 +38,60 @@ import {
 export default function ProductCard({ product, priority = false, sizes }) {
   const { addItem } = useStore();
 
+  /* ── CARD KI TASVEEREIN KHUD BADALTI HAIN ──
+     Pehle doosri tasveer sirf hover par aati thi — yani phone par
+     kabhi nahi, aur wahi se aadhe se zyada grahak aate hain. Ab
+     har card apni tasveerein khud badalta rehta hai.
+
+     Teen ehtiyat, warna ye cheez safhe ko bhaari kar deti:
+
+       · Sirf pehli TEEN tasveerein. Ek grid mein bees card hon to
+         bees ka bees tasveerein nahi, saath.
+       · Sirf wo card jo SCREEN PAR hai. Neeche paray card sotay
+         rehte hain — IntersectionObserver unhein jagata hai.
+       · Har card apni baari se thora hat kar badalta hai (index se
+         milta hua waqfa), warna poora grid ek sath jhapakta aur
+         wo bad-numa lagta.
+
+     Aur badalti sirf opacity hai — GPU ka kaam, layout ka nahi. */
+  const shots = imageList(product).slice(0, 3);
+  const many = shots.length > 1;
+
+  const [shot, setShot] = useState(0);
+  const mediaRef = useRef(null);
+
+  useEffect(() => {
+    if (!many) return undefined;
+    if (typeof window === 'undefined') return undefined;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return undefined;
+
+    const el = mediaRef.current;
+    let onScreen = true;
+    let io;
+
+    if (el && typeof IntersectionObserver !== 'undefined') {
+      onScreen = false;
+      io = new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; }, { threshold: 0.35 });
+      io.observe(el);
+    }
+
+    /* Har card thora sa alag waqt par — ek hi lamhe mein poora
+       grid nahi palatta. */
+    const jitter = 400 + (shots.length * 260) % 1200;
+    const t = window.setInterval(() => {
+      if (!onScreen || document.hidden) return;
+      setShot((v) => (v + 1) % shots.length);
+    }, 3000 + jitter);
+
+    return () => {
+      window.clearInterval(t);
+      io?.disconnect();
+    };
+  }, [many, shots.length]);
+
   if (!product) return null;
 
   const cover = primaryImage(product);
-  const alt = secondaryImage(product);
   const productSizes = toArray(product.sizes);
   const colors = toArray(product.colors);
   const off = discountPct(product.price, product.compare_at_price);
@@ -73,8 +124,18 @@ export default function ProductCard({ product, priority = false, sizes }) {
 
   return (
     <article className="card group">
-      <div className="card-media">
+      <div
+        className="card-media"
+        ref={mediaRef}
+        data-many={many ? 'true' : 'false'}
+        data-shot={shot}
+        /* Laptop par hover ab bhi foran doosri tasveer dikhata hai —
+           wo purana tajurba jaan boojh kar rakha hai. */
+        onMouseEnter={() => { if (many && shot === 0) setShot(1); }}
+      >
         <Link href={`/shop/${product.slug}`} className="card-shot" aria-label={product.name}>
+          {/* Pehli tasveer hamesha maujood — yehi card ki bunyad
+              hai aur Google isi ko parhta hai. */}
           <Image
             quality={92}
             src={cover}
@@ -86,18 +147,23 @@ export default function ProductCard({ product, priority = false, sizes }) {
             style={{ opacity: soldOut ? 0.55 : 1 }}
           />
 
-          {alt && (
-            <Image
-              quality={92}
-              className="card-alt"
-              src={alt}
-              alt=""
-              width={900}
-              height={1200}
-              sizes={imageSizes}
-              aria-hidden="true"
-            />
-          )}
+          {/* Baqi tasveerein us ke uper — jis ki baari ho wohi
+              nazar aati hai. */}
+          {many &&
+            shots.slice(1).map((src, k) => (
+              <Image
+                key={src}
+                quality={92}
+                className="card-alt"
+                data-on={shot === k + 1 ? 'true' : 'false'}
+                src={src}
+                alt=""
+                width={900}
+                height={1200}
+                sizes={imageSizes}
+                aria-hidden="true"
+              />
+            ))}
         </Link>
 
         {/* Flags */}

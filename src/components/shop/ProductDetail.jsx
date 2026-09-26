@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Reveal from '@/components/motion/Reveal';
@@ -44,11 +44,68 @@ export default function ProductDetail({ product }) {
   const colors = toArray(product.colors);
 
   const [active, setActive] = useState(0);
+  /* Tasveer kis taraf se aaye — aage jaye to daayein se, peeche
+     jaye to baayein se. Aankh ko simt se pata chalta hai ke wo
+     aage barh rahi hai ya wapas. */
+  const [dir, setDir] = useState('next');
+  const [holdShots, setHoldShots] = useState(false);
+  const galleryRef = useRef(null);
   const [size, setSize] = useState(sizes.length === 1 ? sizes[0] : null);
   const [color, setColor] = useState(colors.length === 1 ? colorName(colors[0]) : null);
   const [qty, setQty] = useState(1);
   const [open, setOpen] = useState('details');
   const [orderOpen, setOrderOpen] = useState(false);
+
+  /* ── TASVEEREIN KHUD BADALTI HAIN ──
+     Pehle grahak ko har tasveer khud dabani parti thi, aur aksar
+     wo pehli hi dekh kar chala jata tha. Ab saari tasveerein baari
+     baari khud aati hain — side se sarak kar, taake harkat nazar
+     aaye aur pata chale ke aur bhi hain.
+
+     Ruk jati hain jab: ungli ya cursor gallery par ho, grahak ne
+     khud koi tasveer chun li ho (das second ke liye), gallery
+     screen par na ho, safha peeche chala jaye, ya phone mein
+     harkat kam karne ka kaha gaya ho. */
+  const show = useCallback((next, how = 'next') => {
+    setDir(how);
+    setActive(next);
+  }, []);
+
+  useEffect(() => {
+    const count = images.length;
+    if (count < 2 || holdShots) return undefined;
+    if (typeof window === 'undefined') return undefined;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return undefined;
+
+    const el = galleryRef.current;
+    let onScreen = true;
+    let io;
+
+    if (el && typeof IntersectionObserver !== 'undefined') {
+      onScreen = false;
+      io = new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; }, { threshold: 0.3 });
+      io.observe(el);
+    }
+
+    const t = window.setInterval(() => {
+      if (!onScreen || document.hidden) return;
+      setDir('next');
+      setActive((v) => (v + 1) % count);
+    }, 3600);
+
+    return () => {
+      window.clearInterval(t);
+      io?.disconnect();
+    };
+  }, [images.length, holdShots]);
+
+  /* Grahak ne khud koi tasveer chuni — das second khamoshi, phir
+     dobara khud chalna shuru. */
+  useEffect(() => {
+    if (!holdShots) return undefined;
+    const t = window.setTimeout(() => setHoldShots(false), 10000);
+    return () => window.clearTimeout(t);
+  }, [holdShots, active]);
 
   const category = getCategory(product.category);
   const off = discountPct(product.price, product.compare_at_price);
@@ -103,17 +160,38 @@ export default function ProductDetail({ product }) {
   return (
     <div className="pdp">
       {/* ── Gallery ── */}
-      <div className="pdp-gallery">
+      <div
+        className="pdp-gallery"
+        ref={galleryRef}
+        onMouseEnter={() => setHoldShots(true)}
+        onMouseLeave={() => setHoldShots(false)}
+      >
         <Reveal mask className="pdp-main">
-          <Image
-            quality={92}
-            src={images[active] || '/products/placeholder.jpg'}
-            alt={`${product.name} — view ${active + 1}`}
-            width={900}
-            height={1200}
-            priority
-            sizes="(max-width: 900px) 100vw, 55vw"
-          />
+          {/* `key` har tasveer ke sath badalta hai, is liye CSS ki
+              sarakne wali harkat har dafa naye sire se chalti hai.
+              Do tasveerein ek sath nahi rakhi jatin — ek hi rehti
+              hai, is liye phone par bojh utna hi hai jitna pehle. */}
+          <div className="pdp-slides" data-dir={dir}>
+            <Image
+              key={images[active] || active}
+              className="pdp-slide"
+              quality={92}
+              src={images[active] || '/products/placeholder.jpg'}
+              alt={`${product.name} — view ${active + 1}`}
+              width={900}
+              height={1200}
+              priority
+              sizes="(max-width: 900px) 100vw, 55vw"
+            />
+          </div>
+
+          {images.length > 1 && (
+            <div className="pdp-bars" aria-hidden="true">
+              {images.map((src, i) => (
+                <span key={src} className="pdp-bar" data-on={i === active ? 'true' : 'false'} />
+              ))}
+            </div>
+          )}
         </Reveal>
 
         {images.length > 1 && (
@@ -125,7 +203,10 @@ export default function ProductDetail({ product }) {
                 className="pdp-thumb"
                 aria-pressed={active === i}
                 aria-label={`Show image ${i + 1} of ${images.length}`}
-                onClick={() => setActive(i)}
+                onClick={() => {
+                  setHoldShots(true);
+                  show(i, i >= active ? 'next' : 'prev');
+                }}
               >
                 <Image
                 quality={92} src={src} alt="" width={150} height={200} sizes="74px" />
