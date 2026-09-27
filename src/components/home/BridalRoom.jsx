@@ -132,8 +132,30 @@ export default function BridalRoom() {
           </div>
         </div>
 
-        {/* ── Neeche: chaurai bhar ki tasveer ── */}
-        <Reveal className="bridal-plate" mask delay={0.1}>
+        {/* ── Neeche: chaurai bhar ki tasveer ──
+            ── IS TASVEER MEIN "KOI ANIMATION NAZAR NAHI AATI THI" ──
+            Animation maujood thi — poore do second ka mask uncover
+            aur 2.4 second ka zoom. Masla ye tha ke wo CHAL CHUKI
+            HOTI THI jab tak grahak yahan pohanchta.
+
+            `useInView` ka pehra element ko "nazar mein" samajh leta
+            tha jaise hi us ka SIRA screen ke sab se neeche wale
+            kinare (92% bulandi) ko chhoo leta. Ek 16:9 ki plate us
+            waqt sirf ek patli si jhalak hoti hai — aur do second
+            baad, jab wo asal mein screen par aati hai, uncover
+            khatam ho chuka hota hai. Tasveer bas "wahan hoti thi".
+
+            Do cheezein badli hain:
+
+              enter={0.62}  tasveer ka sira do-tihai screen tak aaye,
+                            PHIR animation shuru ho. Yehi asal fix hai.
+              delay={0.42}   us ke baad bhi ek lamha thehar kar —
+                            grahak ne "thora wait le kar" kaha tha.
+
+            Aur `bridal-plate` ki apni harkat sections.css mein ab
+            zyada khuli hai: neeche se uncover, halka sa oopar aana,
+            aur guzarti hui sunehri lakeer. */}
+        <Reveal className="bridal-plate" mask delay={0.42} enter={0.62} threshold={0.26}>
           <Image
             quality={92}
             src={still}
@@ -143,6 +165,7 @@ export default function BridalRoom() {
             sizes="(max-width: 1100px) 100vw, 1100px"
           />
           <span className="bridal-plate-wash" aria-hidden="true" />
+          <span className="bridal-plate-sweep" aria-hidden="true" />
         </Reveal>
       </div>
     </ScrollScene>

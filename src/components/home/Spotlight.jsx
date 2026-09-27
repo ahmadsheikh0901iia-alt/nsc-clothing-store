@@ -1,24 +1,55 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Reveal from '@/components/motion/Reveal';
 import WordReveal from '@/components/motion/WordReveal';
 import { useStore } from '@/context/StoreContext';
 import { colorHex, colorName, DELIVERY, formatPKR, getCategory } from '@/lib/constants';
-import { imageList, toArray } from '@/lib/utils';
+import { imageList, primaryImage, toArray } from '@/lib/utils';
 import { ArrowRight, TruckIcon, RefreshIcon, ShieldIcon } from '@/components/ui/Icons';
 
 /**
  * ═══════════════════════════════════════════════════════════════
- *  PRODUCT SPOTLIGHT
+ *  PRODUCT SPOTLIGHT — "In Focus"
  *  Split layout: the photograph is sticky and holds still while the
  *  copy scrolls past it. The size and colour selectors are real —
  *  they drive state and the add-to-bag button uses whatever is
  *  chosen, so this is a working buy box, not a picture of one.
+ *
+ *  ── TASVEEREIN AB KHUD BADALTI HAIN ──
+ *  Pehle chaar tasveerein thin aur wo sirf neeche wale chhote
+ *  murabbon ko DABANE par badalti thin. Jo grahak wo murabbe
+ *  dekhta hi nahi (aur phone par wo tasveer ke kone mein 46px ke
+ *  hote hain) us ke liye ye khana ek jami hui tasveer tha.
+ *
+ *  Ab chaaron tasveerein ek doosre ke oopar rakhi hui hain aur har
+ *  4.4 second baad agli narmi se ubhar aati hai — sath hi bohat
+ *  dheema zoom, jo tasveer ko zinda rakhta hai.
+ *
+ *  ── DO BAATEIN JAAN BOOJH KAR AISE HAIN ──
+ *
+ *  1. Chaaron tasveerein ek sath DOM mein hain, ek hi `src` badal
+ *     kar nahi. `src` badalne se har dafa nayi tasveer download
+ *     hoti aur us ke aane tak khana safed jhalakta — phone ke
+ *     dheeme internet par ye jhalak saaf nazar aati hai. Ek dafa
+ *     chaar tasveerein aa jayen to us ke baad badalna sirf
+ *     `opacity` ka kaam hai, jo GPU karta hai.
+ *
+ *  2. Murabba dabane par khud chalna DAS second ke liye ruk jata
+ *     hai. Grahak ne jo tasveer khud chuni hai wo usay dekhne ka
+ *     waqt milna chahiye — warna do second baad site us ki pasand
+ *     ko khud badal deti, jo bilkul bura lagta hai.
  * ═══════════════════════════════════════════════════════════════
  */
+
+/** Ek tasveer kitni der samne rehti hai. */
+const STEP_MS = 4400;
+
+/** Murabba dabane ke baad kitni der khud na chalna. */
+const PAUSE_MS = 10000;
+
 export default function Spotlight({ product }) {
   const { addItem } = useStore();
 
@@ -26,7 +57,17 @@ export default function Spotlight({ product }) {
   const sizes = toArray(product?.sizes);
   const colors = toArray(product?.colors);
 
+  const shots = images.slice(0, 4);
+  const shotCount = shots.length;
+  /* Jis product par ek bhi tasveer na ho — us par bhi khana khali
+     na dikhe. `primaryImage` apna placeholder de deta hai. */
+  const slides = shotCount ? shots : [primaryImage(product)];
+
   const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [awake, setAwake] = useState(true);
+  const pauseRef = useRef(0);
+
   /* Ek se zyada shakl ho to grahak khud chunta hai — pehle yahan
      pehli qeemat khud ba khud lag jati thi, aur order us rang ka
      chala jata tha jo kisi ne maanga hi nahi tha. */
@@ -35,9 +76,42 @@ export default function Spotlight({ product }) {
     colors.length === 1 ? colorName(colors[0]) : null
   );
 
+  /* Tab peeche chala jaye to timer chalane ka koi faida nahi. */
+  useEffect(() => {
+    const sync = () => setAwake(!document.hidden);
+    sync();
+    document.addEventListener('visibilitychange', sync);
+    return () => document.removeEventListener('visibilitychange', sync);
+  }, []);
+
+  /* Khud chalna — zanjeer, interval nahi: har tasveer ko poora
+     waqt milta hai, chahe wo khud aayi ho ya grahak ne chuni ho. */
+  useEffect(() => {
+    if (shotCount < 2 || paused || !awake) return undefined;
+    if (typeof window === 'undefined') return undefined;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      return undefined;
+    }
+
+    const t = window.setTimeout(
+      () => setActive((v) => (v + 1) % shotCount),
+      STEP_MS
+    );
+    return () => window.clearTimeout(t);
+  }, [active, shotCount, paused, awake]);
+
+  useEffect(() => () => window.clearTimeout(pauseRef.current), []);
+
   if (!product) return null;
 
   const category = getCategory(product.category);
+
+  const pick = (k) => {
+    setActive(k);
+    setPaused(true);
+    window.clearTimeout(pauseRef.current);
+    pauseRef.current = window.setTimeout(() => setPaused(false), PAUSE_MS);
+  };
 
   /* Jab tak chunna baaqi hai, button khud bata deta hai kya chahiye. */
   const needsSize = sizes.length > 1 && !size;
@@ -63,31 +137,46 @@ export default function Spotlight({ product }) {
       <div className="spotlight">
         {/* ── Sticky image ── */}
         <Reveal className="spotlight-media" mask>
-          <Image
-            quality={92}
-            src={images[active] || images[0]}
-            alt={product.name}
-            width={900}
-            height={1200}
-            sizes="(max-width: 900px) 100vw, 50vw"
-          />
+          <span className="spot-slides">
+            {slides.map((src, k) => (
+              <Image
+                key={src || k}
+                className="spot-slide"
+                data-on={k === active ? 'true' : 'false'}
+                quality={92}
+                src={src}
+                alt={k === 0 ? product.name : ''}
+                width={900}
+                height={1200}
+                sizes="(max-width: 900px) 100vw, 50vw"
+              />
+            ))}
+          </span>
 
-          {images.length > 1 && (
+          {shotCount > 1 && (
             <div className="spotlight-thumbs">
-              {images.slice(0, 4).map((src, i) => (
+              {shots.map((src, k) => (
                 <button
                   key={src}
                   type="button"
                   className="spotlight-thumb"
-                  aria-pressed={active === i}
-                  aria-label={`View image ${i + 1}`}
-                  onClick={() => setActive(i)}
+                  aria-pressed={active === k}
+                  aria-label={`View image ${k + 1}`}
+                  onClick={() => pick(k)}
                 >
-                  <Image
-                quality={92} src={src} alt="" width={120} height={160} sizes="46px" />
+                  <Image quality={92} src={src} alt="" width={120} height={160} sizes="46px" />
                 </button>
               ))}
             </div>
+          )}
+
+          {/* Kitni tasveer guzar chuki — chhoti sunehri patti */}
+          {shotCount > 1 && (
+            <span className="spot-bars" aria-hidden="true">
+              {shots.map((src, k) => (
+                <span key={src} className="spot-bar" data-on={k === active ? 'true' : 'false'} />
+              ))}
+            </span>
           )}
         </Reveal>
 

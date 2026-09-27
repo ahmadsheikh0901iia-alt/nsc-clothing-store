@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Reveal from '@/components/motion/Reveal';
@@ -63,10 +64,62 @@ import { ArrowRight } from '@/components/ui/Icons';
  *  each photograph is clickable throughout the animation, not only
  *  after it. Tiles are `pointer-events: none`.
  *
+ *  ── AB YE WAQAI 3D HAI, AUR SCROLL KE SATH CHALTA HAI ──
+ *  Pehle ye khana "saada aur sadah" tha — teen tasveerein jo ek
+ *  dafa apne tukron se jur jati thin aur us ke baad bilkul jam
+ *  jati thin. Ab teen cheezein chalti hain:
+ *
+ *    1. TUKRE GEHRAI SE AATE HAIN. Har tile ka safar sirf
+ *       daayen-baayen nahi — wo tasveer ke TAL se, 150–330px
+ *       peeche se, apne apne zaawiye par muri hui aati hai
+ *       (`--tz`, `--rx`, `--ry`). Har tile ke transform ka pehla
+ *       hissa khud `perspective(760px)` hai, kisi walid ka nahi.
+ *
+ *       Ye ek soch samajh kar liya gaya faisla hai: `.lux-frame`
+ *       par `overflow: hidden` aur `isolation: isolate` dono lage
+ *       hain, aur CSS ka qanoon kehta hai ke aise element ka
+ *       `transform-style` zabardasti `flat` ho jata hai — yani
+ *       walid se milne wali `perspective` bachon tak nahi
+ *       pohanchti. Chunanche har tile apni perspective khud le
+ *       kar chalti hai. Clipping bhi qaim, 3D bhi asli.
+ *
+ *    2. POORI TASVEER SCROLL KE SATH MUURTI HAI. Har frame ko ek
+ *       number milta hai — `--p`, −1 se +1 — jo batata hai ke wo
+ *       screen ke beech se kitni door hai. Us se frame ka
+ *       `rotateY`, `rotateX` aur `scale` banta hai. Neeche se
+ *       aate waqt tasveer thori muri hui hoti hai, beech mein aa
+ *       kar poori seedhi, aur oopar jate waqt doosri taraf muri.
+ *       Teen frames ke `--dir` mukhtalif hain, is liye teenon ek
+ *       sath ek hi taraf nahi jhukte — beech wala seedha rehta
+ *       hai aur kinare wale ek doosre ke mukhalif.
+ *
+ *    3. EK CHAMAK GUZARTI HAI. Tukre jam jane ke baad shishe par
+ *       se ek tirchi sunehri lakeer guzarti hai — wohi jo Top
+ *       Sales ke card par hai, taake dono khane ek zubaan bolein.
+ *
+ *  ── YE SCROLL-JACKING NAHI HAI ──
+ *  Ahem farq: `--p` sirf PARHTA hai ke safha kahan hai. Wo safhe
+ *  ko rokta nahi, us ki raftar badalta nahi, `scroll-behavior` ko
+ *  chhoota nahi. Ungli ke neeche safha bilkul waisa hi chalta hai
+ *  jaisa kisi aur safhe par — bas tasveerein guzarte waqt muurti
+ *  hain. Pehla version 320vh ka sticky runway tha jo safhe ko
+ *  teen screen ke liye rok deta tha; wo wapas nahi aaya.
+ *
+ *  ── SAB TEEN FRAMES KE LIYE EK TICKER ──
+ *  Teen alag scroll listener nahin — ek. Aur wo bhi `requestAni-
+ *  mationFrame` par band, is liye scroll ka event chahe sau dafa
+ *  fi second aaye, naap ek frame mein ek dafa hoti hai. Jab
+ *  khana unmount ho jata hai, listener khud utar jata hai.
+ *
+ *  Reduced motion ya `data-lux="off"` par ticker CHALTA HI NAHI —
+ *  na listener lagta hai, na `--p` likha jata hai. CSS mein
+ *  `var(--p, 0)` ka default 0 hai, yani tasveer bilkul seedhi.
+ *
  *  ── NO LIBRARY ──
  *  GSAP/ScrollTrigger, Framer Motion and Lottie were all considered
  *  and none is used. Everything above is CSS plus one observer the
- *  project already had. Reasoning is in CHANGELOG.md.
+ *  project already had and one rAF listener. Reasoning is in
+ *  CHANGELOG.md.
  * ═══════════════════════════════════════════════════════════════
  */
 
@@ -102,6 +155,68 @@ const HREF = '/collections/womens-stitched';
 const GRID = 3;                 // 3 x 3 = nine tiles
 const TILES = GRID * GRID;
 
+/* ═══════════════════════════════════════════════════════════════
+   SCROLL KA EK HI TICKER
+   ───────────────────────────────────────────────────────────────
+   Teen frames, ek listener. Har frame ko `--p` milta hai: −1 jab
+   wo screen ke neeche se aa raha ho, 0 jab beech mein ho, +1 jab
+   oopar nikal raha ho. CSS us number se rotate aur scale banati
+   hai — JavaScript koi transform nahi likhta, sirf ek number.
+   ═══════════════════════════════════════════════════════════════ */
+
+const tracked = new Set();
+let rafId = 0;
+let bound = false;
+
+function paint() {
+  rafId = 0;
+  const vh = window.innerHeight || document.documentElement.clientHeight || 1;
+
+  tracked.forEach((el) => {
+    const r = el.getBoundingClientRect();
+    const mid = r.top + r.height / 2;
+    const span = vh / 2 + r.height / 2;
+    let p = span > 0 ? (mid - vh / 2) / span : 0;
+    if (p < -1) p = -1;
+    else if (p > 1) p = 1;
+    el.style.setProperty('--p', p.toFixed(4));
+  });
+}
+
+function tick() {
+  if (rafId) return;
+  rafId = window.requestAnimationFrame(paint);
+}
+
+function join(el) {
+  tracked.add(el);
+  if (!bound) {
+    bound = true;
+    window.addEventListener('scroll', tick, { passive: true });
+    window.addEventListener('resize', tick, { passive: true });
+    window.addEventListener('orientationchange', tick, { passive: true });
+  }
+  tick();
+}
+
+function leave(el) {
+  tracked.delete(el);
+  el.style.removeProperty('--p');
+  if (tracked.size === 0 && bound) {
+    bound = false;
+    window.removeEventListener('scroll', tick);
+    window.removeEventListener('resize', tick);
+    window.removeEventListener('orientationchange', tick);
+    if (rafId) {
+      window.cancelAnimationFrame(rafId);
+      rafId = 0;
+    }
+  }
+}
+
+/** Kinare wale frames mukhalif taraf jhukte hain, beech wala seedha. */
+const LEAN = ['-1', '0', '1'];
+
 /**
  * Where each tile starts before it flies home.
  *
@@ -125,6 +240,11 @@ function scatter(i, pieceIndex) {
   return {
     '--tx': `${(dx * 46 + wob * 16).toFixed(1)}%`,
     '--ty': `${(dy * 40 + wob * 14).toFixed(1)}%`,
+    /* Gehrai: tukra tasveer ke TAL se aata hai, na ke us ke barabar
+       se. Yehi cheez is khane ko chapta hone se bachati hai. */
+    '--tz': `${(-150 - Math.abs(wob) * 360).toFixed(0)}px`,
+    '--rx': `${(dy * -16).toFixed(1)}deg`,
+    '--ry': `${(dx * 18).toFixed(1)}deg`,
     '--rot': `${(wob * 9).toFixed(2)}deg`,
     '--sc': (0.82 + Math.abs(wob) * 0.1).toFixed(3),
     // middle tiles land first, corners last — the picture knits
@@ -136,9 +256,29 @@ function scatter(i, pieceIndex) {
 function Frame({ piece, index }) {
   const [ref] = useInView({ threshold: 0.2, once: true });
 
+  /* Scroll ka number. Reduced motion ya lux=off par ye chalta hi
+     nahi — CSS ka `var(--p, 0)` tasveer ko seedha rakh leta hai. */
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof window === 'undefined') return undefined;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      return undefined;
+    }
+    if (document.documentElement.dataset.lux === 'off') return undefined;
+
+    join(el);
+    return () => leave(el);
+  }, [ref]);
+
   return (
-    <figure className="lux-figure" ref={ref}>
+    <figure
+      className="lux-figure"
+      ref={ref}
+      style={{ '--dir': LEAN[index % LEAN.length], '--ph': `${(index * 2.9).toFixed(1)}s` }}
+    >
       <Link href={HREF} className="lux-frame" aria-label={`${piece.t} — see the range`}>
+        {/* Tukre jam jane ke baad guzarti hui sunehri chamak */}
+        <span className="lux-sheen" aria-hidden="true" />
         {Array.from({ length: TILES }, (_, i) => {
           const col = i % GRID;
           const row = (i / GRID) | 0;
