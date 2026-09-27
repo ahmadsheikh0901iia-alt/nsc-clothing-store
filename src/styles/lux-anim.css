@@ -79,6 +79,39 @@
      photograph is clickable while the animation is still running. */
   z-index: 0;
   isolation: isolate;
+
+  /* ── SCROLL KE SATH 3D ──
+     `--p` Anatomy.jsx ka ek hi rAF ticker likhta hai: −1 jab
+     tasveer screen ke neeche se aa rahi ho, 0 beech mein, +1 oopar
+     nikalte waqt. `--dir` teen frames ko mukhtalif taraf jhukata
+     hai, `--lift` hover ka kaam karta hai.
+
+     Perspective TRANSFORM KE ANDAR hai, alag `perspective`
+     property se nahi. Wajah: is element par `overflow: hidden`
+     aur `isolation: isolate` dono lage hain, aur aise element ka
+     `transform-style` CSS zabardasti `flat` kar deti hai — yani
+     walid se koi 3D nahi milta. Apni perspective khud le kar
+     chalna is qanoon se bach jata hai.
+
+     Scale ka hisaab `--p` ke murabba par hai (p × p), is liye
+     tasveer donon kinaron par barabar peeche hoti hai aur beech
+     mein poori — ek taraf ko jhukav nahi banta.
+
+     Transition jaan boojh kar bohat chhota (0.14s) hai: ye scroll
+     ke sath chalne wali cheez hai, is liye lamba transition use
+     peechay ghaseet deta. Ye chhoti si der sirf rAF ki jhijhak
+     chhupane ke liye hai — aur hover ke lift par bhi lag jati
+     hai, jahan wo bilkul theek lagti hai. */
+  transform:
+    perspective(1250px)
+    translate3d(0, var(--lift, 0px), 0)
+    rotateY(calc(var(--p, 0) * var(--dir, 0) * 7.5deg))
+    rotateX(calc(var(--p, 0) * -3.2deg))
+    scale(calc(1 - (var(--p, 0) * var(--p, 0)) * 0.05));
+  transition:
+    transform 0.14s linear,
+    border-color var(--d-fast) var(--lux-ease),
+    box-shadow var(--d-fast) var(--lux-ease);
 }
 
 /* ── One ninth of the picture ──
@@ -93,8 +126,33 @@
   pointer-events: none;      /* the anchor above takes every click */
 
   opacity: 0;
+
+  /* ── TUKRA GEHRAI SE AATA HAI ──
+     `perspective()` transform ka pehla function hai, walid ki
+     property nahi — aur yehi is poore effect ki kunji hai.
+
+     `.lux-frame` par `overflow: hidden` aur `isolation: isolate`
+     lage hain. CSS ka qanoon: aisa element `transform-style:
+     flat` par majboor hai, chahe stylesheet mein `preserve-3d`
+     likha ho. Yani frame par `perspective` likhne se tiles ko
+     kuch nahi milta — `translateZ` bilkul zaya ho jata.
+
+     Har tile apni perspective khud le kar chalti hai, is liye wo
+     apne hi 3D space mein hai aur walid ke flat hone se farq
+     nahi parta. `--tz` waqai kaam karta hai: tukra tasveer ke
+     150–330px PEECHE se chal kar apni jagah par aata hai, aur
+     raaste mein `--rx` / `--ry` ke zaawiye se seedha hota hai.
+
+     Function ki fehrist dono haalaton mein bilkul EK JAISI hai —
+     wohi tarteeb, wohi tadaad. Browser transform ko sirf usi
+     soorat function-ba-function narmi se badalta hai; fehrist
+     mukhtalif ho to wo matrix mein badal kar seedhi lakeer par
+     kheench deta hai, jo 3D mein bhadda lagta hai. */
   transform:
-    translate3d(var(--tx, 0), var(--ty, 0), 0)
+    perspective(760px)
+    translate3d(var(--tx, 0), var(--ty, 0), var(--tz, 0px))
+    rotateX(var(--rx, 0deg))
+    rotateY(var(--ry, 0deg))
     rotate(var(--rot, 0deg))
     scale(var(--sc, 0.85));
 
@@ -116,7 +174,13 @@
 /* Landed. */
 .lux-figure.is-in .lux-tile {
   opacity: 1;
-  transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  transform:
+    perspective(760px)
+    translate3d(0, 0, 0px)
+    rotateX(0deg)
+    rotateY(0deg)
+    rotate(0deg)
+    scale(1);
 }
 
 /* Animation over — hand the GPU memory back. */
@@ -157,16 +221,82 @@
 }
 .lux-figure.is-in .lux-rule { transform: scaleX(1); }
 
+
+/* ── THE SHEEN ──
+   Tukre jam jane ke baad shishe par se ek tirchi sunehri lakeer
+   guzarti hai. Yehi chamak Top Sales ke samne wale card par bhi
+   hai, taake dono khane ek zubaan bolein.
+
+   Sirf `transform` chalta hai, `background-position` nahi: gradient
+   ki jagah badalna har frame par naya paint hai, ek painted texture
+   ko sarkana GPU ka kaam hai.
+
+   `animation-fill-mode: forwards` hai, `both` nahi — warna lakeer
+   animation shuru hone se pehle bayen kinare par khari nazar aati. */
+.lux-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    104deg,
+    transparent 36%,
+    rgb(255 255 255 / 0.10) 46%,
+    rgb(233 220 190 / 0.30) 50%,
+    rgb(255 255 255 / 0.10) 54%,
+    transparent 64%
+  );
+  transform: translate3d(-130%, 0, 0);
+}
+.lux-figure.is-in .lux-sheen {
+  animation: lux-sheen 1.9s var(--lux-ease) 1.05s forwards;
+}
+@keyframes lux-sheen {
+  0%   { opacity: 0;   transform: translate3d(-130%, 0, 0); }
+  12%  { opacity: 1;   }
+  88%  { opacity: 1;   }
+  100% { opacity: 0;   transform: translate3d(130%, 0, 0); }
+}
+
+
+/* ── THE FLOAT ──
+   Tukre jam jane ke BAAD (yani `is-done` ke baad, 3.5 second par)
+   poora frame bohat halke se tairta rehta hai — teen frames
+   mukhtalif waqt par (`--ph`), is liye teenon ek sath oopar neeche
+   nahi hote.
+
+   Ye `.lux-figure` par hai, `.lux-frame` par nahi. Frame ka
+   transform scroll ka hai; wahan animation likhne se dono ek
+   doosre ko mita dete. Do alag element, do alag kaam, koi takkar
+   nahi.
+
+   Teen pixel. Jaan boojh kar itna kam ke ginne par hi pata chale —
+   maqsad ye hai ke khana jama hua na lage, na ke hilta nazar aaye. */
+.lux-figure.is-done {
+  animation: lux-float 9.5s ease-in-out var(--ph, 0s) infinite;
+}
+@keyframes lux-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(0, -3px, 0); }
+}
+
 /* Hover lifts the picture very slightly — enough to say "this is a
    link", not enough to be a bounce. */
+/* Hover lifts the picture very slightly — enough to say "this is a
+   link", not enough to be a bounce.
+
+   Ahem: hover `transform` ko DOBARA NAHI likhta. Pehle likhta tha,
+   aur us se scroll wala poora 3D hover par ghayab ho jata tha —
+   tasveer chalte chalte achanak seedhi ho jati. Ab hover sirf
+   `--lift` badalta hai, jo oopar wale ek hi transform ke andar
+   baitha hai. Custom property badalne se computed transform badal
+   jata hai aur `transition: transform` us ko narmi se le jata hai. */
 @media (hover: hover) {
-  .lux-frame {
-    transition: transform var(--d-fast) var(--lux-ease),
-      border-color var(--d-fast) var(--lux-ease);
-  }
   .lux-frame:hover {
-    transform: translate3d(0, -4px, 0);
+    --lift: -6px;
     border-color: rgb(194 165 107 / 0.45);
+    box-shadow: var(--shadow-pop);
   }
 }
 .lux-frame:focus-visible {
@@ -237,6 +367,22 @@
   .lux-figure { width: 72vw; }
 }
 
+/* ── PHONE PAR TAIRNA BAND ──
+   `lux-float` hamesha chalne wali animation hai, aur hamesha
+   chalne wali animation ka matlab hai hamesha ki ek compositor
+   teh. Is file ka apna qanoon (sab se oopar likha hai) yehi hai:
+   teh sirf jab tak harkat ho. Laptop par teen tehein kuch nahi,
+   phone par ye wohi kharch hai jis se baad ka har scroll atakne
+   lagta hai — aur us phone par tasveerein ek khiskne wali qatar
+   mein hain, jahan tairna nazar bhi nahi aata.
+
+   Scroll wala 3D (`--p`) phone par bhi chalta hai — wo sirf scroll
+   ke dauran kaam karta hai, khare safhe par nahi. */
+@media (max-width: 860px) {
+  .lux-figure,
+  .lux-figure.is-done { animation: none; transform: none; }
+}
+
 
 /* ═══════════════════════════════════════════════════════════════
    2 — PAGE AND CATEGORY TRANSITION
@@ -303,7 +449,15 @@
   }
   .lux-frame::after { opacity: 0 !important; transition: none !important; }
   .lux-rule { transform: scaleX(1) !important; transition: none !important; }
-  .lux-frame:hover { transform: none !important; }
+  .lux-frame,
+  .lux-frame:hover {
+    transform: none !important;
+    transition: border-color var(--d-fast) var(--lux-ease) !important;
+  }
+  .lux-figure,
+  .lux-figure.is-done { animation: none !important; transform: none !important; }
+  .lux-sheen,
+  .lux-figure.is-in .lux-sheen { animation: none !important; opacity: 0 !important; }
   .lux-page { animation: none !important; }
 }
 
@@ -315,6 +469,13 @@ html[data-lux="off"] .lux-tile {
 }
 html[data-lux="off"] .lux-frame::after { opacity: 0 !important; }
 html[data-lux="off"] .lux-rule { transform: scaleX(1) !important; }
+html[data-lux="off"] .lux-frame { transform: none !important; }
+html[data-lux="off"] .lux-figure,
+html[data-lux="off"] .lux-figure.is-done {
+  animation: none !important;
+  transform: none !important;
+}
+html[data-lux="off"] .lux-sheen { animation: none !important; opacity: 0 !important; }
 html[data-lux="off"] .lux-page { animation: none !important; }
 
 /* If JavaScript never ran, the observer never fires and `is-in` is
@@ -328,4 +489,6 @@ html:not([data-js="on"]) .lux-tile {
 }
 html:not([data-js="on"]) .lux-frame::after { opacity: 0 !important; }
 html:not([data-js="on"]) .lux-rule { transform: scaleX(1) !important; }
+html:not([data-js="on"]) .lux-frame { transform: none !important; }
+html:not([data-js="on"]) .lux-sheen { opacity: 0 !important; }
 html:not([data-js="on"]) .lux-page { animation: none !important; }

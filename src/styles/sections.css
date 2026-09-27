@@ -3344,3 +3344,296 @@
 @media (prefers-reduced-motion: reduce) {
   .card-media .card-alt { transition: none; }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   IN FOCUS — TASVEEREIN KHUD BADALTI HAIN
+   ───────────────────────────────────────────────────────────────
+   Chaar tasveerein ek doosre ke oopar. Jis ki baari hai wo roshan,
+   baqi 0 par — aur roshan hone ke sath hi bohat dheema zoom.
+
+   ── EK DHANCHE KI BAAT ──
+   Pehle tasveer seedhi `.spotlight-media` ki aulaad thi, aur
+   `.reveal-mask > img` ka qaida us par lagta tha (1.1 se 1 ka
+   zoom). Ab beech mein `.spot-slides` aa gayi hai, is liye wo
+   qaida is tasveer par nahi lagta — aur us ki jagah ye hai.
+   Mask ka clip-path ab `.spot-slides` par lagta hai, jo `> *` hai:
+   uncover waisa hi chalta hai jaisa pehle.
+
+   `aspect-ratio` dobara likhne ki zaroorat nahi — `.spot-slides`
+   `inset: 0` par hai, aur qad `.spotlight-media` ka apna 3/4 deta
+   hai. Layout shift sifar.
+
+   ── SRC KYUN NAHI BADALTE ──
+   Ek hi `<Image>` ka `src` badalne se har dafa nayi tasveer
+   download hoti aur us ke aane tak khana khali jhalakta. Chaar
+   tasveerein ek dafa aa jayen to badalna sirf opacity ka kaam hai,
+   jo GPU par hota hai — aur pehli tasveer ke baad baqi teen
+   `loading="lazy"` par aati hain, is liye safha pehle jitna hi
+   tez khulta hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+.spotlight-media .spot-slides {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.spotlight-media .spot-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  /* Bohat dheema zoom: roshan hote waqt 1.055 se shuru, poore
+     waqt mein 1 tak. Ye alag alag transition duration jaan boojh
+     kar hai — opacity tezi se (1.15s) aur scale bohat aaram se
+     (6s), is liye badalna narm lagta hai magar tasveer zinda
+     rehti hai. */
+  transform: scale(1.055);
+  transition:
+    opacity 1.15s var(--ease-settle),
+    transform 6s linear;
+  will-change: opacity;
+}
+
+.spotlight-media .spot-slide[data-on="true"] {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Kitni tasveer guzar chuki — wohi patti jo product ke safhe par
+   hai, taake dono jagah ek hi zubaan ho. */
+.spot-bars {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  top: 1rem;
+  z-index: 2;
+  display: flex;
+  gap: 0.3rem;
+  pointer-events: none;
+}
+.spot-bar {
+  flex: 1 1 0;
+  height: 2px;
+  background: rgb(239 233 221 / 0.26);
+  transition: background 0.5s var(--ease-glide);
+}
+.spot-bar[data-on="true"] { background: var(--gold); }
+
+@media (prefers-reduced-motion: reduce) {
+  .spotlight-media .spot-slide {
+    transition: opacity 0.2s linear;
+    transform: none;
+  }
+  .spotlight-media .spot-slide[data-on="true"] { transform: none; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   BRIDAL PLATE — AB HARKAT NAZAR AATI HAI
+   ───────────────────────────────────────────────────────────────
+   Harkat pehle bhi thi. Masla ye tha ke wo CHAL CHUKI HOTI THI.
+
+   `useInView` ka pehra tasveer ko "nazar mein" samajh leta tha
+   jaise hi us ka sira screen ke sab se neeche wale kinare ko
+   chhoo leta — 16:9 ki plate us waqt ek patli si jhalak hoti hai.
+   Do second ka uncover wahin, neeche, khatam ho jata tha; jab
+   grahak scroll kar ke wahan pohanchta, tasveer bas "wahan hoti
+   thi". Isi liye BridalRoom.jsx ab `enter={0.62}` maangta hai.
+
+   Ab wahan pohanchne par teen cheezein ek sath hoti hain:
+     · neeche se uncover (motion.css ka mask — wohi)
+     · tasveer 1.14 se 1 tak khulti hui, poore 2.6 second mein
+     · aur ek sunehri lakeer jo shishe par se guzar jati hai
+
+   `.bridal-plate img` par pehle jaan boojh kar koi transform nahi
+   likha gaya tha, taake motion.css ka 1.1→1 zoch na mare. Ab wohi
+   zoom yahan zyada khul kar aur zyada aaram se likha hai, aur
+   `--reveal-delay` ka wohi hisaab istemal karta hai jo mask kar
+   raha hai — is liye dono bilkul ek sath chalte hain.
+   ═══════════════════════════════════════════════════════════════ */
+
+.bridal-plate.reveal-mask > img {
+  transform: scale(1.14);
+  transition:
+    clip-path var(--d-epic) var(--ease-settle) var(--reveal-delay, 0s),
+    transform 2.6s var(--ease-settle) var(--reveal-delay, 0s);
+}
+.bridal-plate.reveal-mask.is-in > img {
+  transform: scale(1);
+}
+
+/* Shishe par se guzarti hui sunehri lakeer — mask khulne ke baad. */
+.bridal-plate-sweep {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    102deg,
+    transparent 38%,
+    rgb(255 255 255 / 0.08) 47%,
+    rgb(233 220 190 / 0.26) 50%,
+    rgb(255 255 255 / 0.08) 53%,
+    transparent 62%
+  );
+  transform: translate3d(-125%, 0, 0);
+}
+.bridal-plate.is-in .bridal-plate-sweep {
+  /* Delay = Reveal ka apna delay (0.42s) + mask ka aadha safar.
+     Lakeer tab guzarti hai jab tasveer khul chuki ho, us se pehle
+     nahi — warna wo uncover ke kinare se takra jati. */
+  animation: bridal-sweep 2.1s var(--ease-glide) 1.5s forwards;
+}
+@keyframes bridal-sweep {
+  0%   { opacity: 0; transform: translate3d(-125%, 0, 0); }
+  14%  { opacity: 1; }
+  86%  { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(125%, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bridal-plate.reveal-mask > img,
+  .bridal-plate.reveal-mask.is-in > img {
+    transform: none !important;
+    transition: none !important;
+  }
+  .bridal-plate-sweep,
+  .bridal-plate.is-in .bridal-plate-sweep {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   TOP SALES — GEHRAI KI SEERHI AUR EK ZINDA DAIRA
+   ───────────────────────────────────────────────────────────────
+   Teen cheezein theek hui hain, aur teenon nazar aane wali hain.
+
+   1. SAB CARD EK HI 0.5 PAR THAY. Daira gol hai magar dikhta
+      chapta tha: samne wala poora roshan, aur baqi saat bilkul
+      barabar dhundle — chahe wo bilkul pehlu mein hon ya theek
+      peeche. Ab `data-gap` (samne wale se doori) ki seerhi hai:
+      pehlu wala 0.74, us se agla 0.5, aur door wale 0.3. Gehrai
+      aankh ko yehi farq batata hai.
+
+   2. SAMNE WALA CARD AAGE AATA HAI. `--pop` us ke `translateZ`
+      mein jama hota hai — yani wo waqai dekhne wale ki taraf 34px
+      chalta hai, bara nazar aane ke liye `scale` ka dhoka nahi.
+
+   3. DAIRA AB BILKUL JAMTA NAHI. `perspective-origin` bohat
+      dheere dheere sarakta rehta hai (12 second mein ek taraf).
+      Ye scroll se nahi, waqt se chalta hai, is liye khana khara
+      hone par bhi zinda lagta hai — aur `perspective-origin`
+      badalna sirf compositor ka kaam hai, layout ka nahi.
+
+   Qatar (phone) mein: card apni TARAF ke hisab se muurta hai —
+   bayen wale bayen, dayen wale dayen — pehle sab ek hi taraf 9deg
+   par muray hue thay, jo qatar ko tirchha dikhata tha. Aur samne
+   wala kaun hai ye ab qatar ka scroll khud batata hai (TopSales.jsx),
+   is liye hath se khiskaya hua card "shade mein" nahi rehta.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Daira zinda rehta hai ── */
+.tsale-stage[data-mode="ring"] {
+  animation: tsale-breathe 12s var(--ease-inout) infinite alternate;
+}
+@keyframes tsale-breathe {
+  from { perspective-origin: 46.5% 43%; }
+  to   { perspective-origin: 53.5% 47.5%; }
+}
+/* Ungli/cursor card par ho to saans bhi rok dein — jo cheez ruki
+   hui dikhni chahiye wo poori ruki honi chahiye. */
+.tsale-stage[data-held="true"] { animation-play-state: paused; }
+
+.tsale-ring {
+  --r: 400px;
+  transition: transform 1.25s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.tsale-ring .tsale-card {
+  transform:
+    rotateY(calc(var(--k) * var(--step)))
+    translateZ(calc(var(--r) + var(--pop, 0px)));
+  transition:
+    opacity 0.85s var(--ease-glide),
+    transform 1.25s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.tsale-ring .tsale-card[data-on="true"] { --pop: 34px; }
+
+/* ── Gehrai ki seerhi — dono shakalon mein ── */
+.tsale-card[data-gap="1"] { opacity: 0.74; }
+.tsale-card[data-gap="2"] { opacity: 0.5; }
+.tsale-card[data-gap="3"] { opacity: 0.3; }
+.tsale-card[data-on="true"] { opacity: 1; }
+
+/* ── Qatar: card apni taraf muurta hai ── */
+.tsale-rail .tsale-card[data-side="-1"] {
+  transform: rotateY(-13deg) scale(0.93);
+  transform-origin: 100% 50%;
+}
+.tsale-rail .tsale-card[data-side="1"] {
+  transform: rotateY(13deg) scale(0.93);
+  transform-origin: 0% 50%;
+}
+.tsale-rail .tsale-card[data-side="0"],
+.tsale-rail .tsale-card[data-on="true"] {
+  transform: rotateY(0deg) scale(1);
+  transform-origin: 50% 50%;
+}
+
+/* ── Samne aate waqt guzarti hui chamak ──
+   `data-on` har qadam par naye card par lagta hai, aur CSS
+   animation us waqt naye sire se chalti hai — is liye har baari
+   ek chamak, bina kisi JavaScript ke. */
+.tsale-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    104deg,
+    transparent 36%,
+    rgb(255 255 255 / 0.10) 46%,
+    rgb(233 220 190 / 0.32) 50%,
+    rgb(255 255 255 / 0.10) 54%,
+    transparent 64%
+  );
+  transform: translate3d(-130%, 0, 0);
+}
+.tsale-card[data-on="true"] .tsale-sheen {
+  animation: tsale-sheen 2.2s var(--ease-glide) 0.35s forwards;
+}
+@keyframes tsale-sheen {
+  0%   { opacity: 0; transform: translate3d(-130%, 0, 0); }
+  14%  { opacity: 1; }
+  86%  { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(130%, 0, 0); }
+}
+
+/* Samne wale card ka kinara aur saaya thora aur gehra. */
+.tsale-card[data-on="true"] .tsale-shot {
+  border-color: var(--gold);
+  box-shadow:
+    0 26px 70px -18px rgb(0 0 0 / 0.55),
+    0 0 0 1px rgb(194 165 107 / 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tsale-stage[data-mode="ring"] { animation: none !important; }
+  .tsale-ring,
+  .tsale-ring .tsale-card,
+  .tsale-rail .tsale-card { transition: none !important; }
+  .tsale-sheen,
+  .tsale-card[data-on="true"] .tsale-sheen {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+  .tsale-card { opacity: 1 !important; }
+}
