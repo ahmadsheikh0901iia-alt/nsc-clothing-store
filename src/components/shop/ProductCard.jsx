@@ -35,6 +35,36 @@ import {
  * apni jagah par. Dekhne mein bilkul wohi, magar ab durust — aur
  * share ka button bhi isi wajah se laga saka.
  */
+
+/** Ek tasveer kitni der samne rehti hai. Poori site par ek hi naap. */
+const STEP_MS = 2000;
+
+/**
+ * Har card ko apna chhota sa waqfa.
+ *
+ * Pehle ye waqfa `shots.length` se banta tha — yani sirf do ya teen
+ * mukhtalif qeematein, aur ek grid mein bees card unhi do teen
+ * waqfon mein bant jate thay. Nateeja: aadha grid ek sath jhapakta
+ * tha, jo bees alag alag jhapakon se zyada bura lagta hai.
+ *
+ * Ab waqfa product ke slug se banta hai, is liye har card ka apna
+ * hai. Hisaab jaan boojh kar arithmetic hai, `Math.random()` nahi:
+ * random server aur browser par mukhtalif aata hai, aur React us
+ * ko hydration mismatch keh kar shikayat karta hai.
+ *
+ * Daira sirf 0–319ms hai. Pehle 1200ms tak tha, magar jab qadam hi
+ * 2 second ka hai to 1.2 second ka farq "do second" ko sava teen
+ * second bana deta hai — ab ye farq grid ko ek sath jhapakne se
+ * rokne ke liye kaafi hai, aur waqt badalne ke liye nahi.
+ */
+function spread(key = '') {
+  let h = 0;
+  for (let i = 0; i < key.length; i += 1) {
+    h = (h * 31 + key.charCodeAt(i)) % 100003;
+  }
+  return h % 320;
+}
+
 export default function ProductCard({ product, priority = false, sizes }) {
   const { addItem } = useStore();
 
@@ -76,18 +106,17 @@ export default function ProductCard({ product, priority = false, sizes }) {
     }
 
     /* Har card thora sa alag waqt par — ek hi lamhe mein poora
-       grid nahi palatta. */
-    const jitter = 400 + (shots.length * 260) % 1200;
+       grid nahi palatta. Dekhein `spread()` oopar. */
     const t = window.setInterval(() => {
       if (!onScreen || document.hidden) return;
       setShot((v) => (v + 1) % shots.length);
-    }, 3000 + jitter);
+    }, STEP_MS + spread(product?.slug));
 
     return () => {
       window.clearInterval(t);
       io?.disconnect();
     };
-  }, [many, shots.length]);
+  }, [many, shots.length, product?.slug]);
 
   if (!product) return null;
 
