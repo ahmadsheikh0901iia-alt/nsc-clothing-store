@@ -3637,3 +3637,142 @@
   }
   .tsale-card { opacity: 1 !important; }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   DO SECOND — POORI SITE KI EK RAFTAR
+   ───────────────────────────────────────────────────────────────
+   Grahak ne qadam 2 second maanga: card ki tasveerein, Top Sales
+   ke suit, In Focus ki tasveerein, aur product ke safhe ki gallery
+   — sab.
+
+   Qadam chhota karna akela kaafi NAHI hota. Har khane ki apni
+   harkat ka bhi ek waqt hai, aur agar wo qadam se lamba reh jaye
+   to harkat beech mein se kat jati hai: tasveer poori roshan hone
+   se pehle agli aa jati hai, daira ghoom kar rukne se pehle phir
+   ghoom parta hai, chamak aadhi guzri hoti hai aur dobara shuru ho
+   jati hai. Adhoori kati harkat jhatke ki tarah dikhti hai — aur
+   bure tajurbe ki wajah "bohat tez" nahi hoti, "adhoora" hoti hai.
+
+   Is liye neeche har wo waqt chhota kiya gaya hai jo 2 second ke
+   qadam mein poora nahi baithta tha. Qaida: harkat qadam ke aadhe
+   se zyada na le, taake har tasveer ko thehrne ka bhi waqt mile.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Card ki doosri/teesri tasveer — 0.75s se 0.5s. */
+.card-media .card-alt { transition: opacity 0.5s var(--ease-glide); }
+
+/* In Focus: ubharna 1.15s → 0.7s, aur dheema zoom 6s → 2.4s.
+   6 second ka zoom 2 second ke qadam mein kabhi poora nahi hota
+   tha — tasveer har dafa 1.055 se 1.037 tak pohanch kar badal
+   jati thi, yani zoom nazar hi nahi aata tha. 2.4s par wo
+   tasveer ke poore waqt mein saaf chalta hai. */
+.spotlight-media .spot-slide {
+  transition:
+    opacity 0.7s var(--ease-settle),
+    transform 2.4s linear;
+}
+
+/* Top Sales ka daira — 1.25s se 0.85s. */
+.tsale-ring { transition: transform 0.85s cubic-bezier(0.2, 0.9, 0.2, 1); }
+
+.tsale-ring .tsale-card {
+  transition:
+    opacity 0.55s var(--ease-glide),
+    transform 0.85s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+/* Qatar (phone) ke card — 0.7s se 0.5s. */
+.tsale-rail .tsale-card {
+  transition:
+    opacity 0.5s var(--ease-glide),
+    transform 0.5s var(--ease-glide);
+}
+
+/* Chamak: 2.2s + 0.35s intezar = 2.55s, yani qadam se lamba — har
+   dafa adhoori kat kar dobara shuru hoti thi. Ab 1.37s total. */
+.tsale-card[data-on="true"] .tsale-sheen {
+  animation: tsale-sheen 1.25s var(--ease-glide) 0.12s forwards;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   PRODUCT GALLERY — UNGLI SE SARAKNA
+   ───────────────────────────────────────────────────────────────
+   Pehle tasveer badalne ka ek hi raasta tha: neeche ke 74px ke
+   murabbe. Tasveer khud poori chaurai ki hoti hai, aur har koi
+   ungli usi par pherta hai — jahan kuch nahi hota tha.
+
+   ── `touch-action: pan-y` SAB SE AHEM QATAR HAI ──
+   Is ke baghair do mein se ek cheez tootti hai: ya browser poore
+   ishare ko scroll samajh kar kha jata hai (aur `pointermove`
+   aata hi nahi), ya hum scroll rok dete hain aur grahak safha
+   oopar neeche nahi kar sakta — tasveer poore screen ki hai, yani
+   wo phans jata hai. `pan-y` kehta hai: oopar neeche browser ka,
+   daayein baayein hamara.
+
+   ── TEEN HAALAT ──
+   data-hand="off"     khud chal raha hai — slide-in harkat chalti hai
+   data-hand="drag"    ungli lagi hui — harkat band, tasveer ungli ke sath
+   data-hand="settle"  ungli uth gayi magar tasveer nahi badli — narmi se wapas
+
+   'settle' ka hona zaroori hai. Us ke baghair, jab ungli thori si
+   chal kar uth jaye, `animation: none` hatate hi purani slide-in
+   harkat DOBARA chal parti hai (animation-name `none` se `pdp-in`
+   hota hai, aur browser us ko nayi animation samajh kar shuru kar
+   deta hai) — tasveer ghalat taraf se sarak kar aati aur jhatka
+   lagta. 'settle' harkat band rakhta hai aur sirf transition se
+   tasveer ko apni jagah le aata hai.
+   ═══════════════════════════════════════════════════════════════ */
+
+.pdp-slides {
+  /* Oopar neeche browser ka kaam, daayein baayein hamara. */
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: grab;
+}
+.pdp-slides:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+.pdp-slides[data-hand="drag"] { cursor: grabbing; }
+
+/* Tasveer ko khud se drag hone se rokein — warna browser ka apna
+   "image drag" chal parta hai aur hamara ishara beech mein mar
+   jata hai. */
+.pdp-slides img {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+.pdp-slides[data-hand="drag"] .pdp-slide {
+  animation: none;
+  transform: translate3d(var(--drag, 0px), 0, 0);
+}
+
+.pdp-slides[data-hand="settle"] .pdp-slide {
+  animation: none;
+  transform: translate3d(var(--drag, 0px), 0, 0);
+  transition: transform 0.3s var(--ease-settle);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pdp-slides[data-hand="drag"] .pdp-slide,
+  .pdp-slides[data-hand="settle"] .pdp-slide {
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Agli tasveer — maujood magar nazar se bahar. `display: none`
+   NAHI, kyunke us soorat mein browser tasveer utarta hi nahi aur
+   poora maqsad khatam ho jata hai. Jagah bhi nahi leti (`inset: 0`
+   aur sab se peeche), aur click bhi nahi rokti. */
+.pdp-preload {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  pointer-events: none;
+}
