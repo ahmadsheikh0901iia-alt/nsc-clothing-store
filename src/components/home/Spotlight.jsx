@@ -44,10 +44,19 @@ import { ArrowRight, TruckIcon, RefreshIcon, ShieldIcon } from '@/components/ui/
  * ═══════════════════════════════════════════════════════════════
  */
 
-/** Ek tasveer kitni der samne rehti hai. */
-const STEP_MS = 4400;
+/** Ek tasveer kitni der samne rehti hai.
+ *
+ *  4400ms se 2000ms — poori site par ek hi raftar. Sath hi
+ *  sections.css mein tasveer ka ubharna 1.15s se 0.7s aur dheema
+ *  zoom 6s se 2.4s kar diya gaya hai: do second ke qadam mein
+ *  1.15 second ka ubharna matlab aadha waqt tasveer adhoori nazar
+ *  aati, aur 6 second ka zoom kabhi poora hi na hota. */
+const STEP_MS = 2000;
 
-/** Murabba dabane ke baad kitni der khud na chalna. */
+/** Murabba dabane ke baad kitni der khud na chalna. Ye jaan boojh
+ *  kar bara rakha gaya hai: jo tasveer grahak ne KHUD chuni hai
+ *  usay dekhne ka waqt milna chahiye — do second baad us ki pasand
+ *  badal dena bura lagta hai. */
 const PAUSE_MS = 10000;
 
 export default function Spotlight({ product }) {

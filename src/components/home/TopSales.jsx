@@ -85,15 +85,30 @@ import { discountPct, primaryImage } from '@/lib/utils';
  * ═══════════════════════════════════════════════════════════════
  */
 
-/** Ek card kitni der samne rehta hai. Grahak ne 4–5 second maanga. */
-const STEP_MS = 4400;
+/** Ek card kitni der samne rehta hai.
+ *
+ *  Pehle 4400ms tha. Grahak ne poori site par do second maanga, is
+ *  liye ab 2000ms hai — aur yehi ek number poore khane ki raftar
+ *  chalata hai.
+ *
+ *  Is ke sath sections.css mein teen waqt bhi chhote kiye gaye
+ *  hain, warna harkat apne hi qadam se lambi reh jati: daire ka
+ *  ghoomna 1.25s se 0.85s, card ka dhundla se roshan hona 0.85s se
+ *  0.55s, aur chamak 2.55s se 1.37s. Jo harkat qadam se lambi ho
+ *  wo adhoori kat jati hai — aur adhoori kati harkat jhatke ki
+ *  tarah dikhti hai. */
+const STEP_MS = 2000;
 
-/** Ungli uthne ke baad kitni der ruk kar phir chalna hai. */
-const RELEASE_MS = 2500;
+/** Ungli uthne ke baad kitni der ruk kar phir chalna hai. Qadam ke
+ *  hisab se chhota kiya gaya: 2.5 second ka intezar ab poore ek
+ *  qadam se lamba tha. */
+const RELEASE_MS = 1600;
 
 /** Khud scroll karne ke baad itni der qatar ka scroll na sunein —
- *  warna hamara apna smooth scroll `i` ko peeche kheench leta hai. */
-const LOCK_MS = 900;
+ *  warna hamara apna smooth scroll `i` ko peeche kheench leta hai.
+ *  Smooth scroll khud ~400ms leta hai, is liye 650 kaafi hai; 900
+ *  ab qadam ka aadha se zyada hissa kha jata tha. */
+const LOCK_MS = 650;
 
 export default function TopSales({ products = [] }) {
   const items = products.slice(0, 8);
