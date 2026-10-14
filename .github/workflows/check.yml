@@ -17,7 +17,11 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm audit --omit=dev --audit-level=high
-      - run: npm run build
+      - name: Build without requiring a reachable production database
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://build-check.invalid
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: build-only-placeholder
       - run: npx playwright install --with-deps chromium
       - name: Browser checks with synthetic data only
         run: |

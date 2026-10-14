@@ -26,3 +26,10 @@ export function categoryCounts(products) {
   counts['top-sales'] = collectionProducts(products, 'top-sales').length;
   return counts;
 }
+
+/** Only schema errors qualify for legacy-column retries, not network errors
+ * whose message happens to contain the query URL and its column names. */
+export function missingColumn(error, name) {
+  return ['42703', 'PGRST204'].includes(error?.code)
+    && new RegExp(`\\b${name}\\b`, 'i').test(`${error.message || ''} ${error.details || ''}`);
+}

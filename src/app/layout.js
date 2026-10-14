@@ -1,5 +1,9 @@
 import { serializeJsonLd } from '@/lib/utils';
 import './globals.css';
+
+// The shared catalogue is live database data, not a build-time dependency.
+// Explicitly opt out of prerendering: Supabase catches Next's fetch bailout.
+export const dynamic = 'force-dynamic';
 import { StoreProvider } from '@/context/StoreContext';
 import { ThemeProvider, THEME_KEY } from '@/context/ThemeContext';
 import Header from '@/components/layout/Header';

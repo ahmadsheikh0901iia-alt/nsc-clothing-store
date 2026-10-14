@@ -1,7 +1,7 @@
 import { cache } from 'react';
 import { supabasePublic, supabaseConfigured } from '@/lib/supabase';
 import { MOCK_PRODUCTS } from '@/lib/mock-products';
-import { categoryCounts, collectionProducts } from '@/lib/catalogue';
+import { categoryCounts, collectionProducts, missingColumn } from '@/lib/catalogue';
 
 const COLUMNS = ['id', 'slug', 'name', 'category', 'price', 'compare_at_price',
   'description', 'fabric', 'images', 'sizes', 'colors', 'in_stock', 'stock_count',
@@ -15,13 +15,12 @@ async function read(build, label, { sorted = false } = {}) {
   for (let attempt = 0; attempt < 3; attempt += 1) {
     const { data, error } = await build(columns, sort);
     if (!error) return data;
-    const text = `${error.message || ''} ${error.details || ''}`;
-    if (columns.includes('collection') && /\bcollection\b/i.test(text)) {
+    if (columns.includes('collection') && missingColumn(error, 'collection')) {
       columns = columns.split(',').filter((c) => c !== 'collection').join(',');
       console.warn('[NSC] Legacy products schema: collection column missing.');
       continue;
     }
-    if (sort && /sort_order/i.test(text)) {
+    if (sort && missingColumn(error, 'sort_order')) {
       sort = false;
       console.warn('[NSC] Legacy products schema: sort_order column missing.');
       continue;

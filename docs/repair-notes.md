@@ -26,3 +26,7 @@
 ## Rollback
 
 Revert the repair commit through the usual pull request flow and redeploy. No commerce data migration is required for the frontend changes. The rate-limit migration only adds isolated counters/functions; leaving it installed does not alter prices, stock or orders.
+
+## Deployment regression check
+
+A follow-up build with configured but unreachable Supabase reproduced a prerender failure that the no-credentials build missed. The shared layout is now explicitly dynamic, so catalogue requests run at request time, not during Vercel builds. CI builds with a deliberately unreachable database URL to catch this regression. Schema fallback retries now require a known missing-column error code, not merely a column name in a failed fetch URL.

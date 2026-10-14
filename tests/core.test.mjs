@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { serializeJsonLd, imageList } from '../src/lib/utils.js';
 import { safeImageSource, MAX_UPLOAD_BYTES } from '../src/lib/images.js';
-import { collectionProducts, categoryCounts } from '../src/lib/catalogue.js';
+import { collectionProducts, categoryCounts, missingColumn } from '../src/lib/catalogue.js';
 import { createMemoryLimiter } from '../src/lib/rate-limit-core.js';
 import { sameOrigin } from '../src/lib/origin.js';
 import { createToken, verifyToken } from '../src/lib/admin-token.js';
@@ -70,4 +70,11 @@ test('admin sessions require valid signatures and are revoked by password rotati
   process.env.ADMIN_PASSWORD = 'different-test-password';
   assert.equal(await verifyToken(token), false);
   delete process.env.ADMIN_PASSWORD;
+});
+
+test('legacy schema fallback does not swallow network or prerender errors', () => {
+  assert.equal(missingColumn({ code: '42703', message: 'column products.collection does not exist' }, 'collection'), true);
+  assert.equal(missingColumn({ code: 'PGRST204', message: "Could not find the 'sort_order' column" }, 'sort_order'), true);
+  assert.equal(missingColumn({ message: 'fetch failed: https://example.test/products?order=sort_order' }, 'sort_order'), false);
+  assert.equal(missingColumn({ code: '42501', message: 'permission denied on collection' }, 'collection'), false);
 });
