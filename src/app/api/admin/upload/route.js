@@ -1,3 +1,5 @@
+import sharp from 'sharp';
+import { MAX_UPLOAD_BYTES } from '@/lib/images';
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin-auth';
 import { supabaseAdmin } from '@/lib/supabase';
@@ -13,30 +15,7 @@ const json = (body, status = 200) =>
   NextResponse.json(body, { status, headers: NO_STORE });
 
 const BUCKET = 'product-images';
-const MAX_BYTES = 6 * 1024 * 1024; // 6 MB
-
-/** Sirf ye chaar. Har ek ka pehchan-nishan (magic bytes) bhi. */
-const TYPES = {
-  'image/jpeg': { ext: 'jpg', magic: [[0xff, 0xd8, 0xff]] },
-  'image/png': { ext: 'png', magic: [[0x89, 0x50, 0x4e, 0x47]] },
-  'image/webp': { ext: 'webp', magic: [[0x52, 0x49, 0x46, 0x46]] },
-  'image/avif': { ext: 'avif', magic: [] },
-};
-
-/**
- * File ke pehle chand bytes dekh kar tasdeeq karta hai ke ye
- * waqai tasveer hai.
- *
- * Sirf naam ya content-type par bharosa nahi kiya ja sakta —
- * dono browser se aate hain aur dono badle ja sakte hain. Asal
- * bytes jhoot nahi bolte.
- */
-function looksLikeImage(bytes, mime) {
-  const spec = TYPES[mime];
-  if (!spec) return false;
-  if (spec.magic.length === 0) return true; // avif ka header lamba hai
-  return spec.magic.some((sig) => sig.every((byte, i) => bytes[i] === byte));
-}
+const MAX_BYTES = MAX_UPLOAD_BYTES;
 
 /* ═══════════════════════════════════════════════════════════════
    POST /api/admin/upload
@@ -74,26 +53,23 @@ export async function POST(request) {
       {
         ok: false,
         error: 'too_large',
-        message: `That image is ${(file.size / 1048576).toFixed(1)} MB — it needs to be under 6 MB.`,
+        message: `That image is ${(file.size / 1048576).toFixed(1)} MB — it needs to be under 4 MB.`,
       },
       413
     );
   }
 
-  const mime = String(file.type || '').toLowerCase();
-  if (!TYPES[mime]) {
-    return json(
-      { ok: false, error: 'bad_type', message: 'JPG, PNG, WebP or AVIF only.' },
-      415
-    );
-  }
-
-  const buffer = new Uint8Array(await file.arrayBuffer());
-  if (!looksLikeImage(buffer, mime)) {
-    return json(
-      { ok: false, error: 'bad_type', message: 'That file does not look like an image.' },
-      415
-    );
+  let buffer;
+  try {
+    const input = Buffer.from(await file.arrayBuffer());
+    const image = sharp(input, { limitInputPixels: 40000000, animated: false });
+    const metadata = await image.metadata();
+    if (!['jpeg', 'png', 'webp', 'avif', 'heif'].includes(metadata.format)) {
+      return json({ ok: false, error: 'bad_type', message: 'JPG, PNG, WebP or AVIF only.' }, 415);
+    }
+    buffer = await image.rotate().resize({ width: 1920, height: 1920, fit: 'inside', withoutEnlargement: true }).webp({ quality: 85 }).toBuffer();
+  } catch {
+    return json({ ok: false, error: 'bad_type', message: 'That file could not be decoded as a safe image.' }, 415);
   }
 
   // Naam khud banate hain — browser ka bheja hua naam kabhi
@@ -101,10 +77,10 @@ export async function POST(request) {
   const hint = slugify(String(form.get('name') || file.name || 'product'), 50) || 'product';
   const stamp = Date.now().toString(36);
   const random = Math.random().toString(36).slice(2, 8);
-  const path = `${hint}/${stamp}-${random}.${TYPES[mime].ext}`;
+  const path = `${hint}/${stamp}-${random}.webp`;
 
   const { error } = await db.storage.from(BUCKET).upload(path, buffer, {
-    contentType: mime,
+    contentType: 'image/webp',
     cacheControl: '31536000',
     upsert: false,
   });

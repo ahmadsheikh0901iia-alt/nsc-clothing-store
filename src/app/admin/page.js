@@ -1,3 +1,4 @@
+import SystemHealth from '@/components/admin/SystemHealth';
 import { isAdmin } from '@/lib/admin-auth';
 import { adminConfigured } from '@/lib/admin-token';
 import { supabaseAdminConfigured } from '@/lib/supabase';
@@ -29,5 +30,5 @@ export default async function AdminPage() {
     );
   }
 
-  return <AdminPanel />;
+  return <><AdminPanel /><SystemHealth /></>;
 }

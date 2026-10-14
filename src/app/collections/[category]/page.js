@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/ui/StoreImage';
 import { notFound } from 'next/navigation';
 import Reveal from '@/components/motion/Reveal';
 import WordReveal from '@/components/motion/WordReveal';
@@ -30,6 +30,7 @@ export async function generateMetadata({ params, searchParams }) {
   const sub = getSubCollection(category, typeof q?.c === 'string' ? q.c : '');
 
   return {
+    alternates: { canonical: `/collections/${cat.slug}${sub ? `?c=${sub.slug}` : ''}` },
     title: sub ? `${sub.name} — ${cat.name}` : cat.name,
     description: sub
       ? `${sub.name} at NSC Clothing Store — ${sub.blurb}`
@@ -134,7 +135,7 @@ export default async function CollectionPage({ params, searchParams }) {
 
           <Reveal mask className="media ratio-wide" delay={0.1}>
             <Image
-              quality={92}
+              quality={85}
               src={active ? active.image : cat.image}
               alt={active ? active.name : cat.name}
               width={900}
@@ -165,7 +166,7 @@ export default async function CollectionPage({ params, searchParams }) {
               >
                 <span className="subcol-shot" aria-hidden="true">
                   <Image
-                    quality={92}
+                    quality={85}
                     src={s.image}
                     alt=""
                     width={900}

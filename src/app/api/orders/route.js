@@ -57,11 +57,11 @@ export async function POST(request) {
      hadd tak nahi pohanchta; bot pehle minute mein pohanch jata
      hai. */
   const ip = clientIp(request);
-  const limit = rateLimit(`orders:${ip}`, 8, 10 * 60 * 1000);
+  const limit = await rateLimit(`orders:${ip}`, 8, 10 * 60 * 1000);
   if (!limit.ok) {
     return NextResponse.json(
-      { ok: false, error: 'rate_limited' },
-      { status: 429, headers: { ...NO_STORE, 'Retry-After': String(limit.retryAfter) } }
+      { ok: false, error: limit.unavailable ? 'temporarily_unavailable' : 'rate_limited' },
+      { status: limit.unavailable ? 503 : 429, headers: { ...NO_STORE, 'Retry-After': String(limit.retryAfter) } }
     );
   }
 
@@ -132,7 +132,7 @@ export async function POST(request) {
   const args = {
     p_customer_name: customerName,
     p_phone: phone,
-    p_phone_digits: phone,
+    p_phone_digits: phone.replace(/\D/g, ''),
     p_email: email,
     p_address: address,
     p_city: city,

@@ -6,6 +6,7 @@ import { SOCIALS, STORE, WHATSAPP_CHAT } from '@/lib/constants';
 import { MailIcon, PhoneIcon, PinIcon, WhatsAppIcon } from '@/components/ui/Icons';
 
 export const metadata = {
+  alternates: { canonical: '/contact' },
   title: 'Contact',
   description: `Get in touch with NSC Clothing Store — ${STORE.phone} · ${STORE.email}`,
 };

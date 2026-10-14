@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 /**
  * ═══════════════════════════════════════════════════════════════
@@ -48,6 +49,7 @@ import { useEffect, useState } from 'react';
 const SPLASH_MS = 3600;
 
 export default function Intro() {
+  const pathname = usePathname();
   const [gone, setGone] = useState(false);
 
   useEffect(() => {
@@ -58,7 +60,7 @@ export default function Intro() {
     return () => window.clearTimeout(t);
   }, []);
 
-  if (gone) return null;
+  if (gone || pathname !== '/') return null;
 
   return (
     <div className="intro" aria-hidden="true">

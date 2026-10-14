@@ -1,16 +1,9 @@
+export const dynamic = 'force-dynamic';
+
 import { CATEGORIES, STORE } from '@/lib/constants';
 import { getProducts } from '@/lib/data/products';
 
-/**
- * Sitemap, generated at build time.
- *
- * Next serves this at /sitemap.xml. It walks the same data layer the
- * pages do, so every product you add in Supabase appears here on the
- * next build without anyone remembering to update a list.
- *
- * Set NEXT_PUBLIC_SITE_URL to your real domain before going live, or
- * every URL in here will point at localhost.
- */
+/** Fresh sitemap: product changes do not require a redeploy. */
 export default async function sitemap() {
   const base = STORE.url.replace(/\/$/, '');
   const now = new Date();
@@ -29,18 +22,13 @@ export default async function sitemap() {
     priority: 0.8,
   }));
 
-  let productPages = [];
-  try {
-    const products = await getProducts();
-    productPages = products.map((p) => ({
-      url: `${base}/shop/${p.slug}`,
-      lastModified: p.created_at ? new Date(p.created_at) : now,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    }));
-  } catch {
-    // A database hiccup must not fail the build — ship the rest.
-  }
+  const products = await getProducts();
+  const productPages = products.map((p) => ({
+    url: `${base}/shop/${p.slug}`,
+    lastModified: p.updated_at ? new Date(p.updated_at) : p.created_at ? new Date(p.created_at) : now,
+    changeFrequency: 'weekly',
+    priority: 0.9,
+  }));
 
   return [...staticPages, ...categoryPages, ...productPages];
 }

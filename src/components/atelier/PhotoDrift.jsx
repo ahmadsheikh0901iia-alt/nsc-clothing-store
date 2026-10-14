@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import Image from '@/components/ui/StoreImage';
 import useOnScreen from '@/hooks/useOnScreen';
 
 /**
@@ -38,7 +38,7 @@ export default function PhotoDrift({ items = [], duration = 64, reverse = false 
       {items.map((it, i) => (
         <figure className="drift-shot" key={`${prefix}-${i}`} data-size={i % 3}>
           <Image
-            quality={92}
+            quality={85}
             src={it.src}
             alt={hidden ? '' : it.alt || ''}
             width={900}

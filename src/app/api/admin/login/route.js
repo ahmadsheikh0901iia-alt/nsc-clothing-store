@@ -36,15 +36,15 @@ export async function POST(request) {
   const ip = clientIp(request);
 
   // Paanch koshishein fi pandrah minute.
-  const limit = rateLimit(`admin-login:${ip}`, 5, 15 * 60 * 1000);
+  const limit = await rateLimit(`admin-login:${ip}`, 5, 15 * 60 * 1000);
   if (!limit.ok) {
     return NextResponse.json(
       {
         ok: false,
-        error: 'rate_limited',
+        error: limit.unavailable ? 'temporarily_unavailable' : 'rate_limited',
         message: `Too many attempts. Try again in ${Math.ceil(limit.retryAfter / 60)} minutes.`,
       },
-      { status: 429, headers: { ...NO_STORE, 'Retry-After': String(limit.retryAfter) } }
+      { status: limit.unavailable ? 503 : 429, headers: { ...NO_STORE, 'Retry-After': String(limit.retryAfter) } }
     );
   }
 
@@ -92,7 +92,7 @@ export async function POST(request) {
   }
 
   // Kamiyab — ginti saaf, taake agli dafa poori koshishein milein.
-  resetLimit(`admin-login:${ip}`);
+  await resetLimit(`admin-login:${ip}`);
   await audit(request, 'login.ok');
 
   const response = NextResponse.json({ ok: true }, { headers: NO_STORE });

@@ -1,4 +1,9 @@
+import { serializeJsonLd } from '@/lib/utils';
 import './globals.css';
+
+// The shared catalogue is live database data, not a build-time dependency.
+// Explicitly opt out of prerendering: Supabase catches Next's fetch bailout.
+export const dynamic = 'force-dynamic';
 import { StoreProvider } from '@/context/StoreContext';
 import { ThemeProvider, THEME_KEY } from '@/context/ThemeContext';
 import Header from '@/components/layout/Header';
@@ -284,7 +289,7 @@ function storeJsonLd() {
 export default async function RootLayout({ children }) {
   // Loaded once here so the search overlay can filter instantly,
   // with no loading spinner and no extra request.
-  const products = await getProducts();
+  const products = await getProducts().catch(() => []);
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -305,7 +310,7 @@ export default async function RootLayout({ children }) {
         {/* Dukaan ka taaruf, Google ke liye */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(storeJsonLd()) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(storeJsonLd()) }}
         />
       </head>
 

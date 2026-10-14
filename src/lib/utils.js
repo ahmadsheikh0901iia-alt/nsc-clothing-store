@@ -66,7 +66,7 @@ export function toArray(value) {
 
 /** All image URLs for a product. */
 export function imageList(product) {
-  return toArray(product?.images);
+  return [...new Set(toArray(product?.images).filter((src) => typeof src === 'string' && src.trim()).map((src) => src.trim()))];
 }
 
 /** Cover image, with a local fallback so a grid never shows a hole. */
@@ -201,4 +201,9 @@ export function buildShareMessage(product = {}) {
  */
 export function getWhatsAppShareUrl(product = {}) {
   return 'https://wa.me/?text=' + encodeURIComponent(buildShareMessage(product));
+}
+
+/** JSON embedded in a script must not be able to terminate its HTML element. */
+export function serializeJsonLd(value) {
+  return JSON.stringify(value).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
 }

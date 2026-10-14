@@ -8,22 +8,11 @@ export const dynamic = 'force-dynamic';
 
 const NO_STORE = { 'Cache-Control': 'no-store, max-age=0' };
 
-/* ═══════════════════════════════════════════════════════════════
-   POST /api/newsletter
-   ───────────────────────────────────────────────────────────────
-   Footer ka form. Pehle ye "Joined ✓" dikha kar email phenk deta
-   tha — ab wo asal mein `subscribers` table mein jati hai.
-
-   Har email ke sath ek `unsubscribe_id` bhi banta hai, kyunke
-   privacy policy wada karti hai ke nikalna ek click ka kaam hai.
-   Ab wo wada sach hai: /unsubscribe?id=...
-   ═══════════════════════════════════════════════════════════════ */
-
 export async function POST(request) {
   const ip = clientIp(request);
-  const limit = rateLimit(`news:${ip}`, 6, 10 * 60 * 1000);
+  const limit = await rateLimit(`news:${ip}`, 6, 10 * 60 * 1000);
   if (!limit.ok) {
-    return NextResponse.json({ ok: false, error: 'rate_limited' }, { status: 429, headers: NO_STORE });
+    return NextResponse.json({ ok: false, error: limit.unavailable ? 'temporarily_unavailable' : 'rate_limited' }, { status: limit.unavailable ? 503 : 429, headers: NO_STORE });
   }
 
   let body;

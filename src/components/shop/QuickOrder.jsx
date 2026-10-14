@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
+import Image from '@/components/ui/StoreImage';
 import Link from 'next/link';
 import useBodyLock from '@/hooks/useBodyLock';
 import { createOrder } from '@/lib/data/orders';
@@ -271,7 +271,7 @@ export default function QuickOrder({ open, onClose, lines = [], title = 'Order n
                 <div className="order-line" key={l.id || n}>
                   <div className="order-line-img">
                     <Image
-                quality={92} src={l.image} alt="" width={112} height={150} sizes="56px" />
+                quality={85} src={l.image} alt="" width={112} height={150} sizes="56px" />
                   </div>
                   <div className="grow" style={{ minWidth: 0 }}>
                     <p className="order-line-name">{l.name}</p>

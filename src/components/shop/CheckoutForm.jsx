@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/ui/StoreImage';
 import { useStore } from '@/context/StoreContext';
 import Reveal from '@/components/motion/Reveal';
 import { createOrder } from '@/lib/data/orders';
@@ -376,7 +376,7 @@ export default function CheckoutForm() {
           {items.map((line) => (
             <div className="row" key={line.id} style={{ gap: '0.85rem' }}>
               <div style={{ width: 54, flex: 'none', overflow: 'hidden' }}>
-                <Image quality={92} src={line.image} alt="" width={108} height={144} sizes="54px" />
+                <Image quality={85} src={line.image} alt="" width={108} height={144} sizes="54px" />
               </div>
               <div className="grow" style={{ minWidth: 0 }}>
                 <p style={{ fontSize: '0.9rem', lineHeight: 1.3 }}>{line.name}</p>

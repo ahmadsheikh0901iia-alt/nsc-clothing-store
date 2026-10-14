@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/ui/StoreImage';
 import ScrollScene from '@/components/motion/ScrollScene';
 import Reveal from '@/components/motion/Reveal';
 import { subscribeToNewsletter } from '@/lib/data/orders';
@@ -101,7 +101,7 @@ export default function Footer() {
             </h2>
             <p className="muted" style={{ marginTop: '0.9rem', fontSize: '0.95rem' }}>
               New arrivals and restocks, the day they land. Nothing else, ever —
-              and one click to leave.
+              contact us any time to leave.
             </p>
 
             <form onSubmit={onSubscribe}>
@@ -233,7 +233,7 @@ export default function Footer() {
         <div className="footer-bottom">
           <div className="row" style={{ gap: '1.25rem' }}>
             <Image
-              quality={92}
+              quality={85}
               src="/logo-gold.png"
               alt=""
               width={709}

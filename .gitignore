@@ -66,3 +66,9 @@ Claude outputs/
 
 # purana preview safha
 public/preview.html
+
+.env*
+!.env.example
+!.env.local.example
+/playwright-report/
+/test-results/

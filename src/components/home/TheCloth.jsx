@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/ui/StoreImage';
 import Reveal from '@/components/motion/Reveal';
 import Stagger from '@/components/motion/Stagger';
 import WordReveal from '@/components/motion/WordReveal';
@@ -60,7 +60,7 @@ export default function TheCloth() {
       <div className="cloth-frames">
         <Reveal className="media cloth-wide" mask>
           <Image
-            quality={92}
+            quality={85}
             src={image}
             alt="Folded suiting lengths on the shelf"
             width={900}
@@ -72,7 +72,7 @@ export default function TheCloth() {
         <div className="cloth-side">
           <Reveal className="media cloth-detail" mask delay={0.12}>
             <Image
-              quality={92}
+              quality={85}
               src={detail}
               alt="The woven selvedge on a suiting length"
               width={900}
