@@ -29,9 +29,9 @@ const SUBJECTS = [
 
 export async function POST(request) {
   const ip = clientIp(request);
-  const limit = rateLimit(`contact:${ip}`, 6, 10 * 60 * 1000);
+  const limit = await rateLimit(`contact:${ip}`, 6, 10 * 60 * 1000);
   if (!limit.ok) {
-    return NextResponse.json({ ok: false, error: 'rate_limited' }, { status: 429, headers: NO_STORE });
+    return NextResponse.json({ ok: false, error: limit.unavailable ? 'temporarily_unavailable' : 'rate_limited' }, { status: limit.unavailable ? 503 : 429, headers: NO_STORE });
   }
 
   let body;

@@ -1,68 +1,41 @@
-/* ═══════════════════════════════════════════════════════════════
-   RATE LIMIT
-   ───────────────────────────────────────────────────────────────
-   Ek hi IP se bar bar aane wali requests ko rokta hai — bots,
-   spam orders, aur admin ka password toorne ki koshish.
+import { supabaseAdmin } from '@/lib/supabase';
+import { createMemoryLimiter } from '@/lib/rate-limit-core';
 
-   Ye server ki apni yaad-dasht mein rehta hai, is liye server
-   restart hone par khali ho jata hai aur Vercel ke har instance
-   ki apni ginti hoti hai. Poora hal nahi, magar 99% shor ye yahin
-   rok deta hai aur is ke liye koi extra service ya paisa nahi
-   lagta. Agar kabhi zaroorat pare to isi file ko Upstash Redis
-   par badal dena kaafi hoga — baqi code chhune ki zaroorat nahi.
-   ═══════════════════════════════════════════════════════════════ */
+const memory = createMemoryLimiter();
+let warnedAt = 0;
 
-const buckets = new Map();
-const MAX_KEYS = 5000;
-
-/** Purani entries hata deta hai taake yaad-dasht barhti na rahe. */
-function sweep(now) {
-  if (buckets.size < MAX_KEYS) return;
-  for (const [key, entry] of buckets) {
-    if (entry.reset <= now) buckets.delete(key);
+/** A shared atomic counter across all Vercel instances. The migration is additive
+ * and never modifies orders/products. Legacy installations keep their existing
+ * protection and emit a setup warning until it is applied. */
+export async function rateLimit(key, limit, windowMs) {
+  const db = supabaseAdmin();
+  if (db) {
+    try {
+      const { data, error } = await db.rpc('nsc_take_rate_limit', {
+        p_key: await hashIp(key), p_limit: limit, p_window_ms: windowMs,
+      });
+      if (!error && data && typeof data.ok === 'boolean') return data;
+      if (Date.now() - warnedAt > 60000) {
+        console.warn('[NSC] Shared rate limit unavailable. Apply the rate-limit migration; local protection is active.');
+        warnedAt = Date.now();
+      }
+    } catch {
+      console.warn('[NSC] Shared rate-limit connection unavailable.');
+    }
   }
-  // Phir bhi bhari ho to sab se purani nikal dein.
-  if (buckets.size >= MAX_KEYS) {
-    const oldest = [...buckets.entries()]
-      .sort((a, b) => a[1].reset - b[1].reset)
-      .slice(0, Math.floor(MAX_KEYS / 4));
-    for (const [key] of oldest) buckets.delete(key);
+  if (process.env.NSC_REQUIRE_SHARED_RATE_LIMIT === 'true') {
+    return { ok: false, remaining: 0, retryAfter: 60, unavailable: true };
   }
+  return memory.take(key, limit, windowMs);
 }
 
-/**
- * @param {string} key     e.g. `orders:${ip}`
- * @param {number} limit   is arse mein kitni baar
- * @param {number} windowMs arsa, milliseconds mein
- * @returns {{ok: boolean, remaining: number, retryAfter: number}}
- */
-export function rateLimit(key, limit, windowMs) {
-  const now = Date.now();
-  sweep(now);
-
-  const entry = buckets.get(key);
-
-  if (!entry || entry.reset <= now) {
-    buckets.set(key, { count: 1, reset: now + windowMs });
-    return { ok: true, remaining: limit - 1, retryAfter: 0 };
+export async function resetLimit(key) {
+  memory.reset(key);
+  const db = supabaseAdmin();
+  if (db) {
+    try { await db.rpc('nsc_reset_rate_limit', { p_key: await hashIp(key) }); }
+    catch { /* Expiry still releases the counter. */ }
   }
-
-  entry.count += 1;
-
-  if (entry.count > limit) {
-    return {
-      ok: false,
-      remaining: 0,
-      retryAfter: Math.max(1, Math.ceil((entry.reset - now) / 1000)),
-    };
-  }
-
-  return { ok: true, remaining: limit - entry.count, retryAfter: 0 };
-}
-
-/** Kamiyab login ke baad ginti saaf kar deta hai. */
-export function resetLimit(key) {
-  buckets.delete(key);
 }
 
 /**

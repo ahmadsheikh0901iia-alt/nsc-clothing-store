@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/ui/StoreImage';
 import Reveal from '@/components/motion/Reveal';
 import WordReveal from '@/components/motion/WordReveal';
 import useInView from '@/hooks/useInView';
@@ -293,7 +293,7 @@ function Frame({ piece, index }) {
               }}
             >
               <Image
-                quality={90}
+                quality={85}
                 src={piece.src}
                 alt={i === 0 ? piece.alt : ''}
                 width={900}

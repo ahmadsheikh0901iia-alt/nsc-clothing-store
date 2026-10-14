@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/ui/StoreImage';
 import { usePathname } from 'next/navigation';
 import { useStore } from '@/context/StoreContext';
 import { subscribe } from '@/lib/scroll';
@@ -79,7 +79,7 @@ export default function Header() {
               saaf, aur screen ki apni roshnai mein. */}
           <Link href="/" className="header-logo" aria-label={`${STORE.name} — home`}>
             <Image
-              quality={92}
+              quality={85}
               className="header-mark"
               src="/logo-mark.png"
               alt=""

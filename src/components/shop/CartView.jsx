@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/ui/StoreImage';
 import { useStore } from '@/context/StoreContext';
 import Reveal from '@/components/motion/Reveal';
 import { formatPKR, SHIPPING } from '@/lib/constants';
@@ -63,7 +63,7 @@ export default function CartView() {
             <Reveal key={line.id} className="line" y={16} style={{ gridTemplateColumns: '110px 1fr' }}>
               <Link href={`/shop/${line.slug}`} className="line-media">
                 <Image
-                quality={92} src={line.image} alt={line.name} width={220} height={294} sizes="110px" />
+                quality={85} src={line.image} alt={line.name} width={220} height={294} sizes="110px" />
               </Link>
 
               <div className="line-info">

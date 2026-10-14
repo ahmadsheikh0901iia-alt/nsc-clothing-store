@@ -7,6 +7,7 @@ import { getProducts } from '@/lib/data/products';
 import { CATEGORIES } from '@/lib/constants';
 
 export const metadata = {
+  alternates: { canonical: '/shop' },
   title: 'Shop All',
   description:
     'Every piece in the NSC Clothing Store catalogue — stitched and unstitched clothing, men’s suiting lengths, shawls and bedsheets.',

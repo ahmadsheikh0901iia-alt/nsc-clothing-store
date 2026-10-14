@@ -5,6 +5,7 @@ import { DELIVERY, POLICIES, STORE, whatsappLink } from '@/lib/constants';
 import { ArrowRight, WhatsAppMark } from '@/components/ui/Icons';
 
 export const metadata = {
+  alternates: { canonical: '/policies' },
   title: 'Delivery, Returns & Privacy',
   description: `How ordering from ${STORE.name} works — ${DELIVERY.window} delivery, cash on delivery, seven-day exchange, and what we do with your details.`,
 };

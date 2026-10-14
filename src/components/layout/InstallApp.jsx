@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import Image from 'next/image';
+import Image from '@/components/ui/StoreImage';
 import Reveal from '@/components/motion/Reveal';
 import WordReveal from '@/components/motion/WordReveal';
 import { CheckIcon, PlusIcon } from '@/components/ui/Icons';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
+import Image from '@/components/ui/StoreImage';
 import ScrollScene from '@/components/motion/ScrollScene';
 import { WORKFLOW } from '@/lib/constants';
 
@@ -103,7 +103,7 @@ export default function AtelierFlow({ steps = WORKFLOW }) {
                 aria-hidden={i === active ? undefined : 'true'}
               >
                 <Image
-                  quality={92}
+                  quality={85}
                   src={s.image}
                   alt={i === active ? s.alt : ''}
                   width={900}
@@ -150,7 +150,7 @@ export default function AtelierFlow({ steps = WORKFLOW }) {
                   kyunke wahan chipkane ki jagah nahi hoti. */}
               <span className="atflow-inline" aria-hidden="true">
                 <Image
-                  quality={92}
+                  quality={85}
                   src={s.image}
                   alt=""
                   width={900}

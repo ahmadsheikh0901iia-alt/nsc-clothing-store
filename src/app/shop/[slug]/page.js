@@ -5,18 +5,13 @@ import Stagger from '@/components/motion/Stagger';
 import ProductDetail from '@/components/shop/ProductDetail';
 import ProductCard from '@/components/shop/ProductCard';
 import {
-  getAllProductSlugs,
   getProductBySlug,
   getRelatedProducts,
 } from '@/lib/data/products';
 import { formatPKR, getCategory, STORE } from '@/lib/constants';
-import { cleanText, primaryImage } from '@/lib/utils';
+import { cleanText, primaryImage, serializeJsonLd } from '@/lib/utils';
 
-/** Pre-renders a static page for every product at build time. */
-export async function generateStaticParams() {
-  const slugs = await getAllProductSlugs();
-  return slugs.map((slug) => ({ slug }));
-}
+export const dynamic = 'force-dynamic';
 
 /* ═══════════════════════════════════════════════════════════════
    JAB KOI IS PRODUCT KA LINK BHEJTA HAI
@@ -148,7 +143,7 @@ export default async function ProductPage({ params }) {
       price: product.price,
       priceCurrency: 'PKR',
       availability:
-        product.in_stock === false
+        product.in_stock === false || product.stock_count === 0
           ? 'https://schema.org/OutOfStock'
           : 'https://schema.org/InStock',
     },
@@ -158,7 +153,7 @@ export default async function ProductPage({ params }) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
 
       <div className="page-head container" style={{ paddingBottom: 0 }}>
@@ -176,7 +171,7 @@ export default async function ProductPage({ params }) {
       </div>
 
       <section className="container" style={{ paddingBlock: 'clamp(2rem,4vw,3rem)' }}>
-        <ProductDetail product={product} />
+        <ProductDetail key={product.id} product={product} />
       </section>
 
       {related.length > 0 && (

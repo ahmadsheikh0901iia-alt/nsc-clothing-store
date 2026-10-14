@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/ui/StoreImage';
 import Reveal from '@/components/motion/Reveal';
 import WordReveal from '@/components/motion/WordReveal';
 import Stagger from '@/components/motion/Stagger';
@@ -92,7 +92,7 @@ export default function Categories({ counts = {} }) {
           >
             <div className="cat-cell-img" aria-hidden="true">
               <Image
-                quality={92}
+                quality={85}
                 src={cat.image}
                 alt=""
                 width={900}

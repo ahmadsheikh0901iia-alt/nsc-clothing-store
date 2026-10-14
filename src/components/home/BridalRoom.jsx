@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/ui/StoreImage';
 import ScrollScene from '@/components/motion/ScrollScene';
 import AutoVideo from '@/components/motion/AutoVideo';
 import WordReveal from '@/components/motion/WordReveal';
@@ -157,7 +157,7 @@ export default function BridalRoom() {
             aur guzarti hui sunehri lakeer. */}
         <Reveal className="bridal-plate" mask delay={0.42} enter={0.62} threshold={0.26}>
           <Image
-            quality={92}
+            quality={85}
             src={still}
             alt={stillAlt}
             width={1536}

@@ -36,8 +36,10 @@ async function postJson(url, body, headers = {}) {
       signal: controller.signal,
       cache: 'no-store',
     });
+    if (!res.ok) console.warn('[NSC] Notification provider rejected delivery:', res.status);
     return res.ok;
   } catch {
+    console.warn('[NSC] Notification delivery timed out or could not connect.');
     return false;
   } finally {
     clearTimeout(timer);
@@ -153,6 +155,10 @@ export async function notifyNewOrder(order) {
     sendEmail(`Naya order ${order.order_number} — ${formatPKR(order.total)}`, html),
   ]);
 
+  const configured = Boolean(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) || Boolean(process.env.RESEND_API_KEY);
+  if (!telegram && !email) console.warn(configured
+    ? '[NSC] Order saved, but all notification deliveries failed. Check the admin Orders tab.'
+    : '[NSC] Order saved. No notification channel is configured; check the admin Orders tab.');
   return { telegram, email };
 }
 
@@ -166,5 +172,7 @@ export async function notifyNewMessage(message) {
     `${esc(message.name)}${message.phone ? ` — ${esc(message.phone)}` : ''}\n` +
     `Subject: ${esc(message.subject)}\n\n${esc(message.body)}`;
 
-  await sendTelegram(text);
+  const delivered = await sendTelegram(text);
+  if (!delivered) console.warn('[NSC] Message saved without Telegram delivery. Check the admin Inbox.');
+  return delivered;
 }

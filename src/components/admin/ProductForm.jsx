@@ -1,7 +1,9 @@
 'use client';
 
+import { prepareUpload } from '@/lib/prepare-upload';
+
 import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
+import Image from '@/components/ui/StoreImage';
 import {
   CATEGORIES,
   SIZE_PRESETS,
@@ -216,23 +218,24 @@ export default function ProductForm({ product, onSave, onCancel }) {
     setMessage('');
 
     for (const file of list) {
-      const body = new FormData();
-      body.append('file', file);
-      body.append('name', form.name || 'product');
-
       try {
+        const prepared = await prepareUpload(file);
+        const body = new FormData();
+        body.append('file', prepared);
+        body.append('name', form.name || 'product');
         // eslint-disable-next-line no-await-in-loop
         const res = await fetch('/api/admin/upload', { method: 'POST', body });
         // eslint-disable-next-line no-await-in-loop
         const data = await res.json().catch(() => ({}));
+        if (res.status === 413) throw new Error('Image is too large. Please use an image under 4 MB.');
 
         if (data.ok) {
           setForm((f) => ({ ...f, images: [...f.images, data.url].slice(0, 12) }));
         } else {
           setMessage(data.message || 'That image could not be uploaded.');
         }
-      } catch {
-        setMessage('The connection dropped during upload.');
+      } catch (error) {
+        setMessage(error.message || 'The connection dropped during upload.');
       }
     }
 
@@ -444,7 +447,7 @@ export default function ProductForm({ product, onSave, onCancel }) {
             <kbd>Ctrl</kbd> + <kbd>V</kbd> to paste. The first photo is the cover, the
             second shows on hover; to change the order, pick a photo up and put it
             where you want it. Portrait 3:4 (900 × 1200) works best. JPG, PNG,
-            WebP or AVIF — up to 6 MB.
+            WebP or AVIF — automatically resized for a fast, reliable upload (under 4 MB).
           </p>
         </section>
 

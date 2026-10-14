@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/ui/StoreImage';
 import { formatPKR } from '@/lib/constants';
 import { discountPct, primaryImage } from '@/lib/utils';
 
@@ -377,7 +377,7 @@ function Card({ product, k, active, gap = 0, side, inRing = false, hold }) {
       <Link href={`/shop/${product.slug}`} className="tsale-link">
         <span className="tsale-shot">
           <Image
-            quality={90}
+            quality={85}
             src={primaryImage(product)}
             alt={product.name}
             width={900}

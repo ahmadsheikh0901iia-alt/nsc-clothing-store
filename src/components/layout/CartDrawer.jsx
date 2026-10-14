@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/ui/StoreImage';
 import { useStore } from '@/context/StoreContext';
 import useBodyLock from '@/hooks/useBodyLock';
 import { formatPKR, SHIPPING } from '@/lib/constants';
@@ -121,7 +121,7 @@ export default function CartDrawer() {
                   tabIndex={cartOpen ? 0 : -1}
                 >
                   <Image
-                    quality={92}
+                    quality={85}
                     src={line.image}
                     alt={line.name}
                     width={168}

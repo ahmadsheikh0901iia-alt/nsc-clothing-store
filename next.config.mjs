@@ -73,7 +73,7 @@ const csp = [
   "form-action 'self'",
 
   /* Ye site kisi iframe mein nahi khul sakti — clickjacking khatam. */
-  "frame-ancestors 'none'",
+  isProd ? "frame-ancestors 'none'" : "frame-ancestors *",
 
   /* http ki har request khud https ban jati hai — sirf live par. */
   isProd ? 'upgrade-insecure-requests' : '',
@@ -89,7 +89,7 @@ const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
 
   /* Purane browsers ke liye frame-ancestors ka jorridar. */
-  { key: 'X-Frame-Options', value: 'DENY' },
+  ...(isProd ? [{ key: 'X-Frame-Options', value: 'DENY' }] : []),
 
   /* Doosri site ko sirf domain pata chalega, poora rasta nahi. */
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
@@ -134,6 +134,7 @@ const securityHeaders = [
 
 const nextConfig = {
   reactStrictMode: true,
+  allowedDevOrigins: ['*.e2b.app'],
 
   /* Jawab ke headers mein Next apna naam nahi likhega. Chhoti
      baat hai, magar hamla karne wale ko kam maloomat milti hai. */
@@ -164,7 +165,8 @@ const nextConfig = {
         pathname: '/storage/v1/object/public/**',
       },
     ],
-    formats: ['image/avif', 'image/webp'],
+    formats: ['image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1600, 1920],
     minimumCacheTTL: 60 * 60 * 24 * 30,
 
     /**
@@ -187,7 +189,7 @@ const nextConfig = {
      * ko taqreeban bila-nuqsan bana deta hai aur hero ki tasveer
      * teen guna bhaari ho jati hai.
      * ───────────────────────────────────────────────────────── */
-    qualities: [75, 92],
+    qualities: [75, 85, 92],
   },
 
   async headers() {

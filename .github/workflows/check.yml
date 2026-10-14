@@ -1,0 +1,36 @@
+name: Store checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm audit --omit=dev --audit-level=high
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Browser checks with synthetic data only
+        run: |
+          npm run test:server > /tmp/nsc-test-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://localhost:3100/shop/fixture-suit > /dev/null; then break; fi
+            sleep 1
+          done
+          npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-failures
+          path: test-results/

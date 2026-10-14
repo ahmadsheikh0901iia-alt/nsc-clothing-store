@@ -3776,3 +3776,8 @@
   opacity: 0;
   pointer-events: none;
 }
+
+/* The whole garment must be visible, including portrait/landscape supplier photos. */
+.pdp-main .pdp-slide { object-fit: contain; }
+.pdp-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
+.pdp-controls span { font-size: .85rem; }

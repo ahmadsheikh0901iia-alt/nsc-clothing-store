@@ -1,443 +1,88 @@
+import { cache } from 'react';
 import { supabasePublic, supabaseConfigured } from '@/lib/supabase';
 import { MOCK_PRODUCTS } from '@/lib/mock-products';
+import { categoryCounts, collectionProducts } from '@/lib/catalogue';
 
-/* ═══════════════════════════════════════════════════════════════
-   ★★★  PRODUCT DATA LAYER  ★★★
-   ───────────────────────────────────────────────────────────────
-   Poori website apne products SIRF is file se leti hai. Har page
-   aur har component yahin se import karta hai, kahin aur se nahi.
+const COLUMNS = ['id', 'slug', 'name', 'category', 'price', 'compare_at_price',
+  'description', 'fabric', 'images', 'sizes', 'colors', 'in_stock', 'stock_count',
+  'featured', 'published', 'created_at', 'collection'].join(',');
 
-   Ab ye Supabase par laga hua hai. Agar .env.local mein keys na
-   hon to ye khud ba khud mock-products.js par wapas chala jata
-   hai — yani site keys ke baghair bhi chalti rehti hai, sirf
-   catalogue khali dikhta hai. Koi crash nahi, koi safed safha
-   nahi.
-
-   Har function apni ghalti khud sambhalta hai: database gir bhi
-   jaye to khali list wapas aati hai, safha nahi girta.
-   ═══════════════════════════════════════════════════════════════ */
-
-/** Wohi column jo site istemal karti hai — `select *` se behtar. */
-const COLUMNS = [
-  'id', 'slug', 'name', 'category', 'price', 'compare_at_price',
-  'description', 'fabric', 'images', 'sizes', 'colors',
-  'in_stock', 'stock_count', 'featured', 'published', 'created_at',
-  'collection',
-].join(',');
-
-/** Ek hi jagah se error console par jata hai. */
-function warn(where, error) {
-  if (!error) return;
-  // eslint-disable-next-line no-console
-  console.error(`[NSC] products.${where}:`, error.message || error);
-}
-
-/** Keys na hon to mock, warna live client. */
-function client() {
-  return supabaseConfigured ? supabasePublic() : null;
-}
-
-/* ───────────────────────────────────────────────────────────────
-   SORT_ORDER KI EHTIYAT
-   ───────────────────────────────────────────────────────────────
-   `sort_order` column `supabase-setup.sql` ke naye version mein
-   aaya hai. Agar kisi database par abhi purana schema chal raha
-   ho to us column par order karte hi Postgres poori query rad
-   kar deta hai — aur poora catalogue gayab ho jata hai.
-
-   Is liye har query do baar tak chalti hai: pehle sort_order ke
-   sath, aur agar wohi column na mile to us ke baghair. Site kabhi
-   khali nahi hoti; console par saaf likh diya jata hai ke SQL
-   dobara chalane ki zaroorat hai.
-   ─────────────────────────────────────────────────────────────── */
-
-/** Error sirf is liye aaya ke sort_order column maujood nahi? */
-function missingSortOrder(error) {
-  const text = `${error?.message || ''} ${error?.details || ''} ${error?.hint || ''}`;
-  return /sort_order/i.test(text);
-}
-
-/* `collection` ka khana bhi baad mein aaya hai. Jis database par wo
-   abhi nahi hai, wahan bhi catalogue khali nahi hona chahiye — is
-   liye woh column select se nikal kar dobara koshish ki jati hai. */
-function missingCollection(error) {
-  const text = `${error?.message || ''} ${error?.details || ''} ${error?.hint || ''}`;
-  return /\bcollection\b/i.test(text);
-}
-
-const COLUMNS_NO_COLLECTION = COLUMNS.split(',')
-  .filter((c) => c !== 'collection')
-  .join(',');
-
-/* Ek dafa pata chal jaye ke khana nahi hai, to poori zindagi us ke
-   baghair chalte hain — har query par dobara girne ki zaroorat nahi. */
-let collectionOk = true;
-
-const cols = () => (collectionOk ? COLUMNS : COLUMNS_NO_COLLECTION);
-
-/**
- * `build(withSort)` do dafa bulaya ja sakta hai.
- * @param {(withSort: boolean) => PromiseLike<{data: any, error: any}>} build
- * @param {string} where
- */
-async function ordered(build, where) {
-  let { data, error } = await build(true, cols());
-
-  if (error && missingCollection(error)) {
-    collectionOk = false;
-    warn(
-      `${where} — the 'collection' column is missing from the database. Run this one line of SQL: alter table public.products add column if not exists collection text not null default '';`,
-      error
-    );
-    ({ data, error } = await build(true, cols()));
+/** Retry only known legacy-schema differences. Never disguise a failed database
+ * as an empty shelf or cache schema guesses for an entire server lifetime. */
+async function read(build, label, { sorted = false } = {}) {
+  let columns = COLUMNS;
+  let sort = sorted;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const { data, error } = await build(columns, sort);
+    if (!error) return data;
+    const text = `${error.message || ''} ${error.details || ''}`;
+    if (columns.includes('collection') && /\bcollection\b/i.test(text)) {
+      columns = columns.split(',').filter((c) => c !== 'collection').join(',');
+      console.warn('[NSC] Legacy products schema: collection column missing.');
+      continue;
+    }
+    if (sort && /sort_order/i.test(text)) {
+      sort = false;
+      console.warn('[NSC] Legacy products schema: sort_order column missing.');
+      continue;
+    }
+    console.error(`[NSC] products.${label}:`, error.code || 'database_error');
+    throw new Error('The catalogue is temporarily unavailable. Please try again.');
   }
-
-  if (error && missingSortOrder(error)) {
-    warn(
-      `${where} — the 'sort_order' column is missing from the database; run supabase-setup.sql again. Carrying on without it for now`,
-      error
-    );
-    ({ data, error } = await build(false, cols()));
-  }
-
-  if (error) {
-    warn(where, error);
-    return null;
-  }
-  return data || [];
+  throw new Error('The catalogue is temporarily unavailable. Please try again.');
 }
 
-/* ───────────────────────────────────────────────────────────────
-   HAR PRODUCT KI SHAKAL
+/** Request-scoped deduplication: layout, homepage and metadata share one read.
+ * Pagination avoids silently losing products at Supabase's default row cap. */
+export const getProducts = cache(async () => {
+  if (!supabaseConfigured) return MOCK_PRODUCTS.filter((p) => p.published !== false);
+  const db = supabasePublic();
+  const rows = [];
+  const pageSize = 500;
+  for (let offset = 0; ; offset += pageSize) {
+    const page = await read((columns, sort) => {
+      let query = db.from('products').select(columns).eq('published', true);
+      if (sort) query = query.order('sort_order', { ascending: true });
+      return query.order('created_at', { ascending: false }).order('id').range(offset, offset + pageSize - 1);
+    }, 'list', { sorted: true });
+    rows.push(...(page || []));
+    if (!page || page.length < pageSize) break;
+  }
+  return rows;
+});
 
-     id                uuid
-     slug              text     url mein isi ka istemal hota hai
-     name              text
-     category          text     constants.js ke paanch slugs mein se
-     price             numeric  PKR
-     compare_at_price  numeric | null
-     description       text
-     fabric            text
-     images            jsonb    pehli cover, doosri hover
-     sizes             jsonb    ["S","M","L"]
-     colors            jsonb    ["Sage","Ivory"]
-     in_stock          boolean
-     stock_count       int | null   (null = bay-shumar)
-     featured          boolean
-     published         boolean  false = site par nazar nahi aata
-     created_at        timestamptz
-   ─────────────────────────────────────────────────────────────── */
-
-/**
- * Har published product, naya pehle.
- * @returns {Promise<Array>}
- */
-export async function getProducts() {
-  const db = client();
-  if (!db) return MOCK_PRODUCTS.filter((p) => p.published !== false);
-
-  const rows = await ordered(
-    (withSort, columns) => {
-      let q = db.from('products').select(columns).eq('published', true);
-      if (withSort) q = q.order('sort_order', { ascending: true });
-      return q.order('created_at', { ascending: false });
-    },
-    'getProducts'
-  );
-  return rows || [];
-}
-
-/**
- * Ek product, uske slug se. Na mile to `null` — safha khud 404
- * dikha deta hai.
- * @param {string} slug
- * @returns {Promise<Object|null>}
- */
-export async function getProductBySlug(slug) {
+export const getProductBySlug = cache(async (slug) => {
   if (!slug) return null;
+  if (!supabaseConfigured) return MOCK_PRODUCTS.find((p) => p.slug === slug && p.published !== false) || null;
+  return read((columns) => supabasePublic().from('products').select(columns)
+    .eq('slug', slug).eq('published', true).maybeSingle(), 'product');
+});
 
-  const db = client();
-  if (!db) return MOCK_PRODUCTS.find((p) => p.slug === slug) ?? null;
-
-  const { data, error } = await db
-    .from('products')
-    .select(cols())
-    .eq('slug', slug)
-    .eq('published', true)
-    .maybeSingle();
-
-  if (error) {
-    warn('getProductBySlug', error);
-    return null;
-  }
-  return data ?? null;
+export async function getProductsByCategory(category, collection = '', limit = 0) {
+  return collectionProducts(await getProducts(), category, collection, limit);
 }
 
-/**
- * Ek category ke sare products.
- * @param {string} categorySlug
- * @returns {Promise<Array>}
- */
-export async function getProductsByCategory(categorySlug, collection = '', limit = 0) {
-  if (!categorySlug) return [];
-
-  const sub = String(collection || '').trim();
-  const cap = Number(limit) > 0 ? Number(limit) : 0;
-
-  const db = client();
-  if (!db) {
-    const all = await getProducts();
-    const rows = all.filter(
-      (p) => p.category === categorySlug && (!sub || p.collection === sub)
-    );
-    return cap ? rows.slice(0, cap) : rows;
-  }
-
-  const rows = await ordered(
-    (withSort, columns) => {
-      let q = db
-        .from('products')
-        .select(columns)
-        .eq('category', categorySlug)
-        .eq('published', true);
-      if (sub && collectionOk) q = q.eq('collection', sub);
-      if (withSort) q = q.order('sort_order', { ascending: true });
-      q = q.order('created_at', { ascending: false });
-      /* New Arrivals par tees ki had lagti hai. Ye DIKHANE ki had
-         hai: teeswein ke baad wala suit safhe par aana band ho
-         jata hai, magar apni jagah aur apne orders ke sath
-         database mein salamat rehta hai. */
-      if (cap) q = q.limit(cap);
-      return q;
-    },
-    'getProductsByCategory'
-  );
-  return rows || [];
-}
-
-/**
- * Home page ka grid. Agar koi product `featured` nahi hai to
- * naye products dikha deta hai — taake grid kabhi khali na ho.
- * @param {number} limit
- * @returns {Promise<Array>}
- */
 export async function getFeaturedProducts(limit = 6) {
-  const db = client();
-  if (!db) {
-    const all = await getProducts();
-    const picked = all.filter((p) => p.featured);
-    return (picked.length ? picked : all).slice(0, limit);
-  }
-
-  const data = await ordered(
-    (withSort, columns) => {
-      let q = db
-        .from('products')
-        .select(columns)
-        .eq('published', true)
-        .eq('featured', true);
-      if (withSort) q = q.order('sort_order', { ascending: true });
-      return q.order('created_at', { ascending: false }).limit(limit);
-    },
-    'getFeaturedProducts'
-  );
-  if (data === null) return [];
-  if (data.length) return data;
-
-  // Koi featured nahi — naya maal dikha dein.
-  const { data: latest, error: e2 } = await db
-    .from('products')
-    .select(cols())
-    .eq('published', true)
-    .order('created_at', { ascending: false })
-    .limit(limit);
-
-  if (e2) {
-    warn('getFeaturedProducts(latest)', e2);
-    return [];
-  }
-  return latest || [];
+  const products = await getProducts();
+  const featured = products.filter((p) => p.featured);
+  return (featured.length ? featured : products).slice(0, limit);
 }
 
-/**
- * "You may also like" — pehle usi category se, phir baqi se.
- * @param {Object} product
- * @param {number} limit
- * @returns {Promise<Array>}
- */
 export async function getRelatedProducts(product, limit = 4) {
   if (!product) return [];
-
-  const db = client();
-  if (!db) {
-    const all = await getProducts();
-    const same = all.filter((p) => p.category === product.category && p.id !== product.id);
-    const rest = all.filter((p) => p.category !== product.category && p.id !== product.id);
-    return [...same, ...rest].slice(0, limit);
-  }
-
-  const { data, error } = await db
-    .from('products')
-    .select(cols())
-    .eq('published', true)
-    .eq('category', product.category)
-    .neq('id', product.id)
-    .order('created_at', { ascending: false })
-    .limit(limit);
-
-  if (error) {
-    warn('getRelatedProducts', error);
-    return [];
-  }
-
-  const same = data || [];
-  if (same.length >= limit) return same;
-
-  // Kam par gaye to baqi departments se poora karein.
-  const { data: others } = await db
-    .from('products')
-    .select(cols())
-    .eq('published', true)
-    .neq('category', product.category)
-    .neq('id', product.id)
-    .order('created_at', { ascending: false })
-    .limit(limit - same.length);
-
-  return [...same, ...(others || [])];
+  // Related products are optional: their failure must not hide a valid product.
+  try {
+    const all = (await getProducts()).filter((p) => p.id !== product.id);
+    return [...all.filter((p) => p.category === product.category),
+      ...all.filter((p) => p.category !== product.category)].slice(0, limit);
+  } catch { return []; }
 }
 
-/**
- * Har slug — Next.js in se product pages pehle se bana leta hai.
- * Jo product baad mein add hota hai wo bhi chalta hai, bas pehli
- * dafa thora dair se khulta hai.
- * @returns {Promise<string[]>}
- */
 export async function getAllProductSlugs() {
-  const db = client();
-  if (!db) return MOCK_PRODUCTS.filter((p) => p.published !== false).map((p) => p.slug);
-
-  const { data, error } = await db
-    .from('products')
-    .select('slug')
-    .eq('published', true);
-
-  if (error) {
-    warn('getAllProductSlugs', error);
-    return [];
-  }
-  return (data || []).map((row) => row.slug).filter(Boolean);
+  return (await getProducts()).map((p) => p.slug).filter(Boolean);
 }
 
-/**
- * Har category mein kitne products — home page ke tiles ke liye.
- * @returns {Promise<Record<string, number>>}
- */
-export async function getCategoryCounts() {
-  const db = client();
-  if (!db) {
-    const all = await getProducts();
-    return all.reduce((acc, p) => {
-      acc[p.category] = (acc[p.category] || 0) + 1;
-      return acc;
-    }, {});
-  }
-
-  const { data, error } = await db
-    .from('products')
-    .select('category')
-    .eq('published', true);
-
-  if (error) {
-    warn('getCategoryCounts', error);
-    return {};
-  }
-
-  return (data || []).reduce((acc, row) => {
-    if (!row.category) return acc;
-    acc[row.category] = (acc[row.category] || 0) + 1;
-    return acc;
-  }, {});
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   TOP SALES
-   ───────────────────────────────────────────────────────────────
-   Home page ka sale wala khana yahin se bharta hai. Do raaste,
-   isi tarteeb mein:
-
-     1. Jo product aap ne khud "Top Sales" ke khane mein daale.
-        Ye aap ka apna intikhab hai, is liye sab se pehle.
-
-     2. Agar wo khana khali ho — to wo product jin par WAQAI
-        qeemat kam hai (`compare_at_price` asal daam se zyada).
-        Aur un mein se bhi pehle wo jin par chhoot sab se bari
-        hai.
-
-   Yani section kabhi khali nahi baithta, aur jhoot bhi nahi
-   bolta: jo dikhta hai us par sach mein sale hai.
-
-   Postgres do columns ka aapas mein muqabla seedha nahi karne
-   deta, is liye doosra raasta thora sa maal mangwa kar chhantai
-   yahan karta hai. Sirf published, sirf 120 tak — ye kaam ek
-   hi dafa build par hota hai.
-   ═══════════════════════════════════════════════════════════════ */
-
-const saleCut = (p) => {
-  const was = Number(p?.compare_at_price);
-  const now = Number(p?.price);
-  if (!(was > now) || !(now > 0)) return 0;
-  return Math.round(((was - now) / was) * 100);
-};
-
-/**
- * @param {number} limit
- * @returns {Promise<Array>}
- */
+export async function getCategoryCounts() { return categoryCounts(await getProducts()); }
 export async function getTopSaleProducts(limit = 8) {
-  const db = client();
-
-  if (!db) {
-    const all = await getProducts();
-    const flagged = all.filter((p) => p.category === 'top-sales');
-    if (flagged.length) return flagged.slice(0, limit);
-    return all
-      .filter((p) => saleCut(p) > 0)
-      .sort((a, b) => saleCut(b) - saleCut(a))
-      .slice(0, limit);
-  }
-
-  /* 1 — aap ka apna intikhab */
-  const picked = await ordered(
-    (withSort, columns) => {
-      let q = db
-        .from('products')
-        .select(columns)
-        .eq('published', true)
-        .eq('category', 'top-sales');
-      if (withSort) q = q.order('sort_order', { ascending: true });
-      return q.order('created_at', { ascending: false }).limit(limit);
-    },
-    'getTopSaleProducts'
-  );
-
-  if (picked && picked.length) return picked;
-
-  /* 2 — jin par waqai chhoot hai */
-  const { data, error } = await db
-    .from('products')
-    .select(cols())
-    .eq('published', true)
-    .not('compare_at_price', 'is', null)
-    .order('created_at', { ascending: false })
-    .limit(120);
-
-  if (error) {
-    warn('getTopSaleProducts(discounted)', error);
-    return [];
-  }
-
-  return (data || [])
-    .filter((p) => saleCut(p) > 0)
-    .sort((a, b) => saleCut(b) - saleCut(a))
-    .slice(0, limit);
+  return collectionProducts(await getProducts(), 'top-sales', '', limit);
 }

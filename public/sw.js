@@ -23,7 +23,7 @@
    jagah likha hai.
    ═══════════════════════════════════════════════════════════════ */
 
-const VERSION = 'nsc-v1';
+const VERSION = 'nsc-v2';
 const SHELL = 'nsc-shell-' + VERSION;
 
 /* Sirf wo cheezein jo kabhi nahi badaltin */
@@ -49,7 +49,7 @@ self.addEventListener('activate', (event) => {
     caches
       .keys()
       .then((keys) =>
-        Promise.all(keys.filter((k) => k !== SHELL).map((k) => caches.delete(k)))
+        Promise.all(keys.filter((k) => k.startsWith('nsc-shell-') && k !== SHELL).map((k) => caches.delete(k)))
       )
       .then(() => self.clients.claim())
   );

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/ui/StoreImage';
 import ScrollScene from '@/components/motion/ScrollScene';
 import Reveal from '@/components/motion/Reveal';
 import WordReveal from '@/components/motion/WordReveal';
@@ -12,6 +12,7 @@ import CtaBand from '@/components/home/CtaBand';
 import { ATELIER, STATS } from '@/lib/constants';
 
 export const metadata = {
+  alternates: { canonical: '/about' },
   title: 'The Atelier',
   description:
     'How NSC Clothing Store makes and finishes its clothing — fabric sourcing, pattern cutting, hand embroidery, and nationwide delivery from Faisalabad and Gujranwala.',

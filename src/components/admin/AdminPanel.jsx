@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/ui/StoreImage';
 import { useRouter } from 'next/navigation';
 import { formatPKR, STORE } from '@/lib/constants';
 import { ORDER_STATUSES, getStatus } from '@/lib/order-status';

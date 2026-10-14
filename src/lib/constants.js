@@ -65,11 +65,11 @@ function siteUrl() {
   if (given && !LOCAL.test(given)) return given;
 
   /* Vercel par: apna asal pata, khud ba khud. */
-  const onVercel = tidy(process.env.NEXT_PUBLIC_VERCEL_URL);
+  const onVercel = tidy(process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL || process.env.NEXT_PUBLIC_VERCEL_URL);
   if (onVercel && !LOCAL.test(onVercel)) return onVercel;
 
   /* Apne computer par. */
-  return given || 'http://localhost:3000';
+  return process.env.NODE_ENV === 'production' ? 'https://www.nscclothingstore.com' : given || 'http://localhost:3000';
 }
 
 export const SITE_URL = siteUrl();
@@ -1007,7 +1007,7 @@ export const POLICIES = [
     points: [
       'An order needs your name, phone number and delivery address. That is all we store, and we use it only to deliver the order and to contact you about it.',
       'Your details are never sold, rented or passed to anyone except the courier carrying your parcel.',
-      'The newsletter is opt-in and one email a week. Every one of them has an unsubscribe link, and leaving takes one click.',
+      'The newsletter is opt-in. To stop receiving updates, contact us and we will remove your email from the list.',
       `To have your details removed from our records, message ${STORE.phone} and we will delete them.`,
     ],
   },
