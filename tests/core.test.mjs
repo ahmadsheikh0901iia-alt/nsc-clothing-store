@@ -1,8 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { serializeJsonLd, imageList } from '../src/lib/utils.js';
 import { safeImageSource, MAX_UPLOAD_BYTES } from '../src/lib/images.js';
 import { collectionProducts, categoryCounts, missingColumn } from '../src/lib/catalogue.js';
+import { CATEGORIES, SIZE_PRESETS, CATEGORY_SLUGS } from '../src/lib/constants.js';
 import { createMemoryLimiter } from '../src/lib/rate-limit-core.js';
 import { sameOrigin } from '../src/lib/origin.js';
 import { createToken, verifyToken } from '../src/lib/admin-token.js';
@@ -62,6 +65,18 @@ test('local limiter enforces boundary, reset, expiry and bounded memory', () => 
   time = 1001;
   assert.equal(limiter.take('a', 1, 1000).ok, true);
 });
+test('the Shoes department is complete: a category, its sizes, and a picture that exists', () => {
+  const shoes = CATEGORIES.find((c) => c.slug === 'shoes');
+  assert.ok(shoes, 'shoes must be a department');
+  assert.ok(CATEGORY_SLUGS.includes('shoes'), 'shoes must be a valid category slug');
+  assert.ok(SIZE_PRESETS.shoes?.length, 'shoes needs its own sizes');
+  assert.ok(shoes.image.startsWith('/'), 'the department needs a local picture');
+  assert.ok(
+    existsSync(join(process.cwd(), 'public', shoes.image)),
+    `the picture must exist on disk: public${shoes.image}`
+  );
+});
+
 test('cross-origin mutations fail; same-origin and safe methods work', () => {
   const request = (origin, method = 'POST') => new Request('https://store.test/api/orders', { method, headers: { host: 'store.test', origin } });
   assert.equal(sameOrigin(request('https://store.test')), true);

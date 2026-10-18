@@ -515,11 +515,18 @@
 .cat-cell { grid-column: span 2; }
 .cat-cell[data-kind="edit"] { grid-column: span 3; }
 
+/* Poori qatar wala card — naya department (Shoes).
+   Grid chhe column ka hai: mausam wale card do lete hain, chunav
+   wale teen. Aakhri department poori qatar le leta hai, taake
+   grid mein koi khali column na bache. */
+.cat-cell[data-kind="feature"] { grid-column: span 6; }
+
 /* Do column: mausam wale do fi qatar, chunav bhi do fi qatar */
 @media (max-width: 860px) {
   .cat-grid { grid-template-columns: repeat(4, 1fr); }
   .cat-cell,
   .cat-cell[data-kind="edit"] { grid-column: span 2; }
+  .cat-cell[data-kind="feature"] { grid-column: span 4; }
 }
 
 /* Ek column */
@@ -527,6 +534,7 @@
   .cat-grid { grid-template-columns: 1fr; }
   .cat-cell,
   .cat-cell[data-kind="edit"] { grid-column: span 1; }
+  .cat-cell[data-kind="feature"] { grid-column: span 1; }
 }
 
 .cat-cell {
@@ -2902,6 +2910,28 @@
   z-index: 1;
 }
 .cat-cell[data-kind="edit"] .idx { color: var(--gold); }
+
+/* ── Naya khana — Shoes ──
+   Poori qatar wala card. Wohi harkat, wohi tasveer, wohi lakeer
+   — sirf chaurai alag: wo apne aap mein ek bada, khula hua khaana
+   hai, jis mein naam aur baat baayein dein tekti hain, poori row
+   bhar kar.
+
+   Is liye teen cheezein alag rakhi gayi hain:
+     · card thora ooncha hai, taake khali hissa mehsoos na ho
+     · baat ka tukda chhota hai (warna ek line poori qatar le leti)
+     · tasveer ka nazariya neeche thora kheencha hai, taake jora
+       aur uska paaon — jo is tasveer ki asal kahani hai — band
+       mein samayen, aur upar ka saaf sofa nazar na aaye. */
+.cat-cell[data-kind="feature"] {
+  min-height: clamp(250px, 28vw, 380px);
+}
+.cat-cell[data-kind="feature"] .cat-cell-body {
+  max-width: 42ch;
+}
+.cat-cell[data-kind="feature"] .cat-cell-img img {
+  object-position: center 62%;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    FILTER RAIL — CATEGORY KE NAAM ADHE KATE HUE

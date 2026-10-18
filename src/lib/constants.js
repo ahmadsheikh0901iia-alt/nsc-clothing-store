@@ -198,6 +198,28 @@ export const CATEGORIES = [
     image: '/products/bedsheets-01.jpg',
   },
 
+  /* ── Shoes — naya khana ──────────────────────────────────────
+     Yeh aakhri department hai, aur is liye uska card poore grid
+     ki chaurai leta hai (`kind: 'feature'`). Wajah: grid chhe
+     column ka hai — mausam wale card do lete hain, chunav wale
+     teen. Aath department se ek zyada hone par aakhri row mein
+     chaar column khali reh jate. Poori chaurai wala card unhein
+     bhar deta hai, aur naye department ko apni jagah ka bada
+     khaana mil jata hai.
+
+     `kind: 'feature'` sirf nazar ke liye hai — data mein koi
+     farq nahi, jaise `kind: 'edit'` ka hai. */
+  {
+    slug: 'shoes',
+    name: 'Shoes',
+    short: 'Shoes',
+    group: 'Footwear',
+    index: '07',
+    kind: 'feature',
+    blurb: 'Hand-finished leather, made in Faisalabad. Formal to casual, sized to fit.',
+    image: '/collections/shoes.jpg',
+  },
+
   /* ── Do chunav ──
      Ye baqi chhe ki tarah poore khane hain: admin ke usi dropdown
      mein aate hain, apna safha rakhte hain, aur home ke usi grid
@@ -211,7 +233,7 @@ export const CATEGORIES = [
     name: 'New Arrivals',
     short: 'New In',
     group: 'This week',
-    index: '07',
+    index: '08',
     kind: 'edit',
     blurb: 'The newest thirty pieces on the rail. When the thirty-first arrives, the oldest steps out.',
     image: '/collections/new-arrivals.jpg',
@@ -221,7 +243,7 @@ export const CATEGORIES = [
     name: 'Top Sales',
     short: 'Top Sales',
     group: 'Most wanted',
-    index: '08',
+    index: '09',
     kind: 'edit',
     blurb: 'The pieces that leave the shelf fastest — chosen by what people actually buy.',
     image: '/collections/top-sales.jpg',
@@ -383,6 +405,9 @@ export const SIZE_PRESETS = {
   'mens-unstitched': ['Unstitched — 4.5m', 'Unstitched — 5m'],
   shawls: ['One Size'],
   bedsheets: ['Single', 'Double', 'Queen', 'King'],
+  /* Shoes par napa number hai, naap ki ilai nahi — is liye har
+     naap ke saath wo letter likha hai jis se woh pehchana jaye. */
+  shoes: ['UK 6', 'UK 7', 'UK 8', 'UK 9', 'UK 10', 'UK 11'],
 
   /* New Arrivals aur Top Sales mein kuch bhi aa sakta hai — silaa
      hua suit, be-silaa than, shawl, chadar. Is liye yahan sab se
@@ -716,6 +741,11 @@ export const NAV_LINKS = [
   { label: "Men's", href: '/collections/mens-unstitched' },
   { label: 'Shawls', href: '/collections/shawls' },
   { label: 'Bedsheets', href: '/collections/bedsheets' },
+  /* Shoes upar ki qatar mein nahi — wahan das naam pehle se
+     poori chaurai le rahe hain, aur ek aur naam aane par qatar
+     do satron mein toot jati hai. Yahan sirf khulne wale menu
+     aur footer mein. */
+  { label: 'Shoes', href: '/collections/shoes', menuOnly: true },
   { label: 'Atelier', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ];
