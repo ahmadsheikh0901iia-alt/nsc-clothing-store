@@ -92,7 +92,7 @@ export default function Categories({ counts = {} }) {
           >
             <div className="cat-cell-img" aria-hidden="true">
               <Image
-                quality={85}
+                quality={92}
                 src={cat.image}
                 alt=""
                 width={900}

@@ -157,7 +157,7 @@ export default function BridalRoom() {
             aur guzarti hui sunehri lakeer. */}
         <Reveal className="bridal-plate" mask delay={0.42} enter={0.62} threshold={0.26}>
           <Image
-            quality={85}
+            quality={92}
             src={still}
             alt={stillAlt}
             width={1536}

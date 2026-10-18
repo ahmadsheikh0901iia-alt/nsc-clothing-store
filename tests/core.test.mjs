@@ -11,16 +11,22 @@ const products = [
   { id: '1', category: 'festival', price: 50, compare_at_price: 100, created_at: '2026-01-01' },
   { id: '2', category: 'shawls', price: 80, compare_at_price: 100, created_at: '2026-10-01' },
   { id: '3', category: 'top-sales', price: 100, compare_at_price: null, created_at: '2026-02-01' },
+  { id: '4', category: 'new-arrivals', price: 90, compare_at_price: null, created_at: '2026-05-01' },
 ];
-test('new arrivals uses all departments, newest first, max 30', () => {
-  assert.deepEqual(collectionProducts(products, 'new-arrivals').map((p) => p.id), ['2', '3', '1']);
-  assert.equal(collectionProducts(Array.from({ length: 40 }, () => products[0]), 'new-arrivals').length, 30);
+test('a collection shows the products the admin put in it', () => {
+  assert.deepEqual(collectionProducts(products, 'new-arrivals').map((p) => p.id), ['4']);
+  assert.deepEqual(collectionProducts(products, 'top-sales').map((p) => p.id), ['3']);
+  assert.deepEqual(collectionProducts(products, 'shawls').map((p) => p.id), ['2']);
 });
-test('sale collections and homepage counts agree; false discounts excluded', () => {
-  assert.deepEqual(collectionProducts(products, 'top-sales').map((p) => p.id), ['1', '2']);
-  assert.equal(categoryCounts(products)['top-sales'], 2);
-  assert.equal(categoryCounts(products)['new-arrivals'], 3);
-  assert.equal(collectionProducts(products, 'shawls').length, 1);
+test('new arrivals keeps its display limit of thirty', () => {
+  const many = Array.from({ length: 40 }, (_, i) => ({ ...products[3], id: String(i) }));
+  assert.equal(collectionProducts(many, 'new-arrivals', '', 30).length, 30);
+});
+test('counts follow each product\'s own category', () => {
+  assert.equal(categoryCounts(products)['top-sales'], 1);
+  assert.equal(categoryCounts(products)['new-arrivals'], 1);
+  assert.equal(categoryCounts(products)['shawls'], 1);
+  assert.equal(categoryCounts(products)['festival'], 1);
 });
 test('structured data cannot escape its script and round-trips unchanged', () => {
   const input = { name: '</script><script>alert(1)</script>&', description: 'A > B' };
@@ -32,11 +38,13 @@ test('image arrays are trimmed, deduplicated and reject non-strings', () => {
   assert.deepEqual(imageList({ images: [' /a.jpg ', '/a.jpg', {}, null, ''] }), ['/a.jpg']);
   assert.deepEqual(imageList({ images: '["/b.jpg"]' }), ['/b.jpg']);
 });
-test('image sources are public storage or local; invalid and private URLs fall back', () => {
+test('image sources keep every address the browser can open; junk falls back', () => {
   assert.equal(safeImageSource(' /products/a.jpg '), '/products/a.jpg');
-  const good = 'https://demo.supabase.co/storage/v1/object/public/product-images/a.jpg';
-  assert.equal(safeImageSource(good), good);
-  for (const bad of ['javascript:alert(1)', '//evil.com/x', '/\\evil.com', 'https://evil.com/x', 'https://demo.supabase.co/storage/v1/object/sign/a', null, {}]) {
+  const storage = 'https://demo.supabase.co/storage/v1/object/public/product-images/a.jpg';
+  assert.equal(safeImageSource(storage), storage);
+  /* Koi bhi https host — tasveer kahin bhi ho, dikhni chahiye. */
+  assert.equal(safeImageSource('https://cdn.example.com/a.jpg'), 'https://cdn.example.com/a.jpg');
+  for (const bad of ['javascript:alert(1)', '//evil.com/x', '/\\evil.com', 'http://insecure.example/a.jpg', '', null, {}]) {
     assert.equal(safeImageSource(bad), '/products/placeholder.jpg');
   }
   assert.ok(MAX_UPLOAD_BYTES + 10000 < 4500000);

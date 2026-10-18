@@ -63,7 +63,7 @@ export default function CartView() {
             <Reveal key={line.id} className="line" y={16} style={{ gridTemplateColumns: '110px 1fr' }}>
               <Link href={`/shop/${line.slug}`} className="line-media">
                 <Image
-                quality={85} src={line.image} alt={line.name} width={220} height={294} sizes="110px" />
+                quality={92} src={line.image} alt={line.name} width={220} height={294} sizes="110px" />
               </Link>
 
               <div className="line-info">

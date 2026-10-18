@@ -377,7 +377,7 @@ function Card({ product, k, active, gap = 0, side, inRing = false, hold }) {
       <Link href={`/shop/${product.slug}`} className="tsale-link">
         <span className="tsale-shot">
           <Image
-            quality={85}
+            quality={90}
             src={primaryImage(product)}
             alt={product.name}
             width={900}

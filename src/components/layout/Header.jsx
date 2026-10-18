@@ -79,7 +79,7 @@ export default function Header() {
               saaf, aur screen ki apni roshnai mein. */}
           <Link href="/" className="header-logo" aria-label={`${STORE.name} — home`}>
             <Image
-              quality={85}
+              quality={92}
               className="header-mark"
               src="/logo-mark.png"
               alt=""

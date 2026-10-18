@@ -271,7 +271,7 @@ export default function QuickOrder({ open, onClose, lines = [], title = 'Order n
                 <div className="order-line" key={l.id || n}>
                   <div className="order-line-img">
                     <Image
-                quality={85} src={l.image} alt="" width={112} height={150} sizes="56px" />
+                quality={92} src={l.image} alt="" width={112} height={150} sizes="56px" />
                   </div>
                   <div className="grow" style={{ minWidth: 0 }}>
                     <p className="order-line-name">{l.name}</p>

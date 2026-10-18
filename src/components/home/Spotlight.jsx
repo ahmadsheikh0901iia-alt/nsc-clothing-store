@@ -152,7 +152,7 @@ export default function Spotlight({ product }) {
                 key={src || k}
                 className="spot-slide"
                 data-on={k === active ? 'true' : 'false'}
-                quality={85}
+                quality={92}
                 src={src}
                 alt={k === 0 ? product.name : ''}
                 width={900}
@@ -173,7 +173,7 @@ export default function Spotlight({ product }) {
                   aria-label={`View image ${k + 1}`}
                   onClick={() => pick(k)}
                 >
-                  <Image quality={85} src={src} alt="" width={120} height={160} sizes="46px" />
+                  <Image quality={92} src={src} alt="" width={120} height={160} sizes="46px" />
                 </button>
               ))}
             </div>

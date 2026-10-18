@@ -121,7 +121,7 @@ export default function CartDrawer() {
                   tabIndex={cartOpen ? 0 : -1}
                 >
                   <Image
-                    quality={85}
+                    quality={92}
                     src={line.image}
                     alt={line.name}
                     width={168}
