@@ -72,8 +72,8 @@ export default function Hero() {
         <div className="hero-foot">
           <Reveal className="hero-lede" delay={0.7} y={20}>
             <p className="lede">
-              Stitched and unstitched pieces, hand-finished shawls, and block-print
-              bedsheets woven to last. Made in Pakistan, delivered to your door,
+              Stitched and unstitched pieces, hand-finished shawls, and leather
+              shoes from Faisalabad. Made in Pakistan, delivered to your door,
               paid for when it arrives.
             </p>
           </Reveal>

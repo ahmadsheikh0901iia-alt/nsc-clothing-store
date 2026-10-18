@@ -233,7 +233,7 @@ export default function Footer() {
         <div className="footer-bottom">
           <div className="row" style={{ gap: '1.25rem' }}>
             <Image
-              quality={85}
+              quality={92}
               src="/logo-gold.png"
               alt=""
               width={709}

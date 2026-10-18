@@ -103,7 +103,7 @@ export default function AtelierFlow({ steps = WORKFLOW }) {
                 aria-hidden={i === active ? undefined : 'true'}
               >
                 <Image
-                  quality={85}
+                  quality={92}
                   src={s.image}
                   alt={i === active ? s.alt : ''}
                   width={900}
@@ -150,7 +150,7 @@ export default function AtelierFlow({ steps = WORKFLOW }) {
                   kyunke wahan chipkane ki jagah nahi hoti. */}
               <span className="atflow-inline" aria-hidden="true">
                 <Image
-                  quality={85}
+                  quality={92}
                   src={s.image}
                   alt=""
                   width={900}

@@ -20,12 +20,14 @@ test('product image visible, contained, stable, keyboard/manual navigation and b
   await expect.poll(() => image.evaluate((img) => img.complete && img.naturalWidth > 0)).toBe(true);
   await expect(image).toHaveCSS('object-fit', 'contain');
   await expect(image).toHaveAttribute('src', /first\.jpg/);
-  // All pages used to turn the image over after 2 seconds, loaded or not.
-  await page.waitForTimeout(2600);
+  // The gallery turns over by itself — every two seconds, on its own.
+  await expect.poll(() => image.getAttribute('src'), { timeout: 10000 }).toMatch(/second\.jpg/);
+  // The customer can also take over: thumbnails and arrow keys.
+  await page.getByRole('button', { name: 'Show image 1 of 3' }).click();
   await expect(image).toHaveAttribute('src', /first\.jpg/);
-  await page.getByRole('button', { name: 'Next photo', exact: true }).click();
-  await expect(image).toHaveAttribute('src', /second\.jpg/);
   await page.locator('.pdp-slides').focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(image).toHaveAttribute('src', /second\.jpg/);
   await page.keyboard.press('ArrowLeft');
   await expect(image).toHaveAttribute('src', /first\.jpg/);
   await page.getByRole('button', { name: 'Show image 3 of 3' }).click();
@@ -35,10 +37,14 @@ test('product image visible, contained, stable, keyboard/manual navigation and b
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
 });
 
-test('new arrivals and sale collections show products from other departments', async ({ page }) => {
-  for (const path of ['/collections/new-arrivals', '/collections/top-sales']) {
+test('a collection shows the products the admin put in it', async ({ page }) => {
+  const cases = [
+    ['/collections/new-arrivals', 'Gallery Test New Arrival'],
+    ['/collections/top-sales', 'Gallery Test Top Sale'],
+  ];
+  for (const [path, name] of cases) {
     await page.goto(path);
-    await expect(page.locator('.card-name').filter({ hasText: 'Gallery Test Suit' })).toBeVisible();
+    await expect(page.locator('.card-name').filter({ hasText: name })).toBeVisible();
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `http://localhost:3100${path}`);
   }
 });
@@ -52,6 +58,22 @@ test('checkout requires selected size and preserves the chosen item', async ({ p
   await expect.poll(() => page.evaluate(() => Object.values(localStorage).some((v) => v.includes('fixture-suit')))).toBe(true);
   await page.goto('/cart');
   await expect(page.getByText('Gallery Test Suit').first()).toBeVisible();
+});
+
+test('Shoes took the place of Bedsheets: eight cards, and the old address still lands right', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.cat-cell')).toHaveCount(8);
+  await expect(page.locator('.cat-cell', { hasText: 'Bedsheets' })).toHaveCount(0);
+  await expect(page.locator('.cat-cell', { hasText: 'Shoes' })).toHaveCount(1);
+  await expect(page.locator('h2', { hasText: 'ways to' })).toHaveText(/Eight ways to/);
+
+  await page.goto('/collections/shoes');
+  await expect(page.getByRole('heading', { name: 'Shoes', level: 1 })).toBeVisible();
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'http://localhost:3100/collections/shoes');
+
+  /* Purana rasta naye par — toota nahi. */
+  await page.goto('/collections/bedsheets');
+  await expect(page).toHaveURL(/\/collections\/shoes$/);
 });
 
 test('API protects admin and cross-origin writes; validates empty orders', async ({ request }) => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from '@/components/ui/StoreImage';
 import { useStore } from '@/context/StoreContext';
@@ -13,15 +13,110 @@ import {
   toArray,
 } from '@/lib/utils';
 
+/**
+ * The product card used by every grid on the site.
+ *
+ * Interactions:
+ *  · the second photograph cross-fades in on hover
+ *  · a quick-add bar rises from the bottom edge
+ *  · a share mark fades in at the top corner
+ *  · colour swatches and a discount flag appear when relevant
+ *
+ * Quick-add only fires directly when the product has a single size;
+ * anything with real size choices sends the customer to the product
+ * page so they pick deliberately rather than guessing.
+ *
+ * ── EK DHANCHE KI DURUSTI ──
+ * Pehle poora card ek hi <Link> ke andar tha, aur quick-add ka
+ * button us link ke ANDAR. HTML mein ye jaiz nahi — link ke andar
+ * button nahi aa sakta, aur screen reader use theek nahi parhta.
+ *
+ * Ab do alag link hain (tasveer aur naam), aur buttons un ke bahar
+ * apni jagah par. Dekhne mein bilkul wohi, magar ab durust — aur
+ * share ka button bhi isi wajah se laga saka.
+ */
+
+/** Ek tasveer kitni der samne rehti hai. Poori site par ek hi naap. */
+const STEP_MS = 2000;
+
+/**
+ * Har card ko apna chhota sa waqfa.
+ *
+ * Pehle ye waqfa `shots.length` se banta tha — yani sirf do ya teen
+ * mukhtalif qeematein, aur ek grid mein bees card unhi do teen
+ * waqfon mein bant jate thay. Nateeja: aadha grid ek sath jhapakta
+ * tha, jo bees alag alag jhapakon se zyada bura lagta hai.
+ *
+ * Ab waqfa product ke slug se banta hai, is liye har card ka apna
+ * hai. Hisaab jaan boojh kar arithmetic hai, `Math.random()` nahi:
+ * random server aur browser par mukhtalif aata hai, aur React us
+ * ko hydration mismatch keh kar shikayat karta hai.
+ *
+ * Daira sirf 0–319ms hai. Pehle 1200ms tak tha, magar jab qadam hi
+ * 2 second ka hai to 1.2 second ka farq "do second" ko sava teen
+ * second bana deta hai — ab ye farq grid ko ek sath jhapakne se
+ * rokne ke liye kaafi hai, aur waqt badalne ke liye nahi.
+ */
+function spread(key = '') {
+  let h = 0;
+  for (let i = 0; i < key.length; i += 1) {
+    h = (h * 31 + key.charCodeAt(i)) % 100003;
+  }
+  return h % 320;
+}
+
 export default function ProductCard({ product, priority = false, sizes }) {
   const { addItem } = useStore();
 
+  /* ── CARD KI TASVEEREIN KHUD BADALTI HAIN ──
+     Pehle doosri tasveer sirf hover par aati thi — yani phone par
+     kabhi nahi, aur wahi se aadhe se zyada grahak aate hain. Ab
+     har card apni tasveerein khud badalta rehta hai.
+
+     Teen ehtiyat, warna ye cheez safhe ko bhaari kar deti:
+
+       · Sirf pehli TEEN tasveerein. Ek grid mein bees card hon to
+         bees ka bees tasveerein nahi, saath.
+       · Sirf wo card jo SCREEN PAR hai. Neeche paray card sotay
+         rehte hain — IntersectionObserver unhein jagata hai.
+       · Har card apni baari se thora hat kar badalta hai (index se
+         milta hua waqfa), warna poora grid ek sath jhapakta aur
+         wo bad-numa lagta.
+
+     Aur badalti sirf opacity hai — GPU ka kaam, layout ka nahi. */
   const shots = imageList(product).slice(0, 3);
   const many = shots.length > 1;
 
   const [shot, setShot] = useState(0);
-  const [ready, setReady] = useState({});
   const mediaRef = useRef(null);
+
+  useEffect(() => {
+    if (!many) return undefined;
+    if (typeof window === 'undefined') return undefined;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return undefined;
+
+    const el = mediaRef.current;
+    let onScreen = true;
+    let io;
+
+    if (el && typeof IntersectionObserver !== 'undefined') {
+      onScreen = false;
+      io = new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; }, { threshold: 0.35 });
+      io.observe(el);
+    }
+
+    /* Har card thora sa alag waqt par — ek hi lamhe mein poora
+       grid nahi palatta. Dekhein `spread()` oopar. */
+    const t = window.setInterval(() => {
+      if (!onScreen || document.hidden) return;
+      setShot((v) => (v + 1) % shots.length);
+    }, STEP_MS + spread(product?.slug));
+
+    return () => {
+      window.clearInterval(t);
+      io?.disconnect();
+    };
+  }, [many, shots.length, product?.slug]);
 
   if (!product) return null;
 
@@ -32,6 +127,16 @@ export default function ProductCard({ product, priority = false, sizes }) {
   const category = getCategory(product.category);
   const soldOut = product.in_stock === false || product.stock_count === 0;
 
+  /* ── Bag mein seedha daalna ──
+     Pehle yahan pehla size aur pehla rang khud ba khud chun liya
+     jata tha. Grahak ne kabhi kaha hi nahi ke usay Maroon chahiye
+     — aur order Maroon ka chala jata tha.
+
+     Pehle sirf size dekha jata tha. Ab rang bhi: jahan chunne ko
+     kuch hai — do se zyada size ya do se zyada rang — wahan ye
+     jagah "Choose options" ban jati hai jo product ke safhe par le
+     jati hai. Jahan ek hi shakl hai (jaise shawl), wahan pehle ki
+     tarah ek hi dabane par bag mein chala jata hai. */
   const mustChoose = productSizes.length > 1 || colors.length > 1;
 
   const handleQuickAdd = (e) => {
@@ -53,14 +158,15 @@ export default function ProductCard({ product, priority = false, sizes }) {
         ref={mediaRef}
         data-many={many ? 'true' : 'false'}
         data-shot={shot}
-
-        onMouseEnter={() => { if (many && ready[shots[1]] && shot === 0) setShot(1); }}
-        onMouseLeave={() => setShot(0)}
+        /* Laptop par hover ab bhi foran doosri tasveer dikhata hai —
+           wo purana tajurba jaan boojh kar rakha hai. */
+        onMouseEnter={() => { if (many && shot === 0) setShot(1); }}
       >
         <Link href={`/shop/${product.slug}`} className="card-shot" aria-label={product.name}>
-
+          {/* Pehli tasveer hamesha maujood — yehi card ki bunyad
+              hai aur Google isi ko parhta hai. */}
           <Image
-            quality={85}
+            quality={92}
             src={cover}
             alt={product.name}
             width={900}
@@ -70,15 +176,16 @@ export default function ProductCard({ product, priority = false, sizes }) {
             style={{ opacity: soldOut ? 0.55 : 1 }}
           />
 
+          {/* Baqi tasveerein us ke uper — jis ki baari ho wohi
+              nazar aati hai. */}
           {many &&
-            shots.slice(1, 2).map((src, k) => (
+            shots.slice(1).map((src, k) => (
               <Image
                 key={src}
-                quality={85}
+                quality={92}
                 className="card-alt"
                 data-on={shot === k + 1 ? 'true' : 'false'}
                 src={src}
-                onLoad={() => setReady((r) => ({ ...r, [src]: true }))}
                 alt=""
                 width={900}
                 height={1200}
@@ -88,14 +195,17 @@ export default function ProductCard({ product, priority = false, sizes }) {
             ))}
         </Link>
 
+        {/* Flags */}
         <div className="card-flags">
           {soldOut && <span className="badge badge-out">Sold out</span>}
           {!soldOut && off && <span className="badge badge-gold">−{off}%</span>}
           {!soldOut && !off && product.featured && <span className="badge">New</span>}
         </div>
 
+        {/* Share — hover par khulta hai, phone par hamesha maujood */}
         <ShareButton product={product} variant="icon" className="card-share" />
 
+        {/* Quick add */}
         {!soldOut && (
           <div className="card-quick">
             {!mustChoose ? (

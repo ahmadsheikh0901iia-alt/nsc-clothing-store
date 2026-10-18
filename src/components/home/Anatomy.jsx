@@ -293,7 +293,7 @@ function Frame({ piece, index }) {
               }}
             >
               <Image
-                quality={85}
+                quality={90}
                 src={piece.src}
                 alt={i === 0 ? piece.alt : ''}
                 width={900}

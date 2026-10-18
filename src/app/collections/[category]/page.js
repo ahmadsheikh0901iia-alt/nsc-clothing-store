@@ -135,7 +135,7 @@ export default async function CollectionPage({ params, searchParams }) {
 
           <Reveal mask className="media ratio-wide" delay={0.1}>
             <Image
-              quality={85}
+              quality={92}
               src={active ? active.image : cat.image}
               alt={active ? active.name : cat.name}
               width={900}
@@ -166,7 +166,7 @@ export default async function CollectionPage({ params, searchParams }) {
               >
                 <span className="subcol-shot" aria-hidden="true">
                   <Image
-                    quality={85}
+                    quality={92}
                     src={s.image}
                     alt=""
                     width={900}

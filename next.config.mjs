@@ -165,8 +165,25 @@ const nextConfig = {
         pathname: '/storage/v1/object/public/**',
       },
     ],
-    formats: ['image/webp'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1600, 1920],
+    formats: ['image/avif', 'image/webp'],
+    /**
+     * ── CHURAI KE HARAJ ──────────────────────────────────────
+     * Ye list do jagah se mila kar banayi gayi hai:
+     *
+     *   Next ka apna default:  640, 750, 828, 1080, 1200, 1920, 2048, 3840
+     *   Site ki purani list:   640, 750, 828, 1080, 1200, 1600, 1920
+     *
+     * Dono milkar poori list banate hain. Wajah ye hai ke jab
+     * kisi ko choti list di jaye, to baaki width ki URLs mar
+     * jati hain — optimizer un par 400 de deta hai aur browser
+     * ko khali tasveer milti hai. Purana cached HTML abhi bhi
+     * unhi URLs par muskat hota hai, is liye koi width hataana
+     * "tasveerein khatam" ka wajaab ban sakta hai.
+     *
+     * Poori list rehne dein — har width par tasveer banegi.
+     */
+    deviceSizes: [640, 750, 828, 1080, 1200, 1600, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60 * 60 * 24 * 30,
 
     /**
@@ -184,12 +201,13 @@ const nextConfig = {
      * 75 list mein rehne dein — purane cached URLs usi par
      * bane hue hain, aur unhein todne ki koi wajah nahi.
      *
-     * 92 se ooper jane ka faida nazar nahi aata, file ka wazan
-     * tezi se barhta hai. 100 maslehat ke khilaf hai: wo JPEG
-     * ko taqreeban bila-nuqsan bana deta hai aur hero ki tasveer
-     * teen guna bhaari ho jati hai.
+     * 85, 90 aur 92 — teenon rakhein. Har quality jo kisi
+     * <Image> par likhi ho, wo is list mein HONI chahiye: Next 16
+     * mein quality list se bahar ka value bhejne par optimizer
+     * 400 de deta hai, aur browser ko khali tasveer milti hai.
+     *
      * ───────────────────────────────────────────────────────── */
-    qualities: [75, 85, 92],
+    qualities: [75, 85, 90, 92],
   },
 
   async headers() {
@@ -219,6 +237,10 @@ const nextConfig = {
          bhi badal gaya hai. Purana rasta zinda rakha gaya hai taake
          jo link pehle kisi ko bheja ja chuka ho, wo toote na. */
       { source: '/collections/wedding-dress', destination: '/collections/festival', permanent: true },
+
+      /* Bedsheets ki jagah ab Shoes hai. Wohi usool: purana rasta
+         naye par bhej diya gaya hai, taake purana link toote nahi. */
+      { source: '/collections/bedsheets', destination: '/collections/shoes', permanent: true },
     ];
   },
 };

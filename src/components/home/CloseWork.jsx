@@ -40,7 +40,7 @@ export default function CloseWork() {
         <div className="cw-plate">
           <Reveal className="cw-wide" mask>
             <Image
-              quality={85}
+              quality={92}
               src={wide}
               alt="The full garment, photographed for drape"
               width={900}
@@ -53,7 +53,7 @@ export default function CloseWork() {
               scroll position — see .cw-loupe in sections.css. */}
           <div className="cw-loupe" aria-hidden="true">
             <Image
-                quality={85} src={macro} alt="" width={900} height={1200} sizes="340px" />
+                quality={92} src={macro} alt="" width={900} height={1200} sizes="340px" />
           </div>
 
           <span className="cw-scan" aria-hidden="true" />

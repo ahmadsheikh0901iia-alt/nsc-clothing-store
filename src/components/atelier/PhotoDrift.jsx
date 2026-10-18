@@ -38,7 +38,7 @@ export default function PhotoDrift({ items = [], duration = 64, reverse = false 
       {items.map((it, i) => (
         <figure className="drift-shot" key={`${prefix}-${i}`} data-size={i % 3}>
           <Image
-            quality={85}
+            quality={92}
             src={it.src}
             alt={hidden ? '' : it.alt || ''}
             width={900}

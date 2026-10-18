@@ -60,7 +60,7 @@ export default function TheCloth() {
       <div className="cloth-frames">
         <Reveal className="media cloth-wide" mask>
           <Image
-            quality={85}
+            quality={92}
             src={image}
             alt="Folded suiting lengths on the shelf"
             width={900}
@@ -72,7 +72,7 @@ export default function TheCloth() {
         <div className="cloth-side">
           <Reveal className="media cloth-detail" mask delay={0.12}>
             <Image
-              quality={85}
+              quality={92}
               src={detail}
               alt="The woven selvedge on a suiting length"
               width={900}

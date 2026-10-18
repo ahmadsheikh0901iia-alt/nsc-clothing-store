@@ -52,7 +52,11 @@ function shape(body, { partial = false } = {}) {
   if (!partial || has('category')) {
     const category = str(body.category, 60);
     if (!CATEGORY_SLUGS.includes(category)) {
-      return { error: 'Category must be one of the eight on the list.' };
+      /* Ginti hard-coded nahi — list jitni bhi ho, message usi ke
+         mutabiq. Naya department aate hi ye galat nahi hona chahiye. */
+      return {
+        error: `Category must be one of the ${CATEGORY_SLUGS.length} on the list: ${CATEGORY_SLUGS.join(', ')}.`,
+      };
     }
     out.category = category;
   }

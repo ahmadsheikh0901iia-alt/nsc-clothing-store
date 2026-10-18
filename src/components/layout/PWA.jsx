@@ -39,7 +39,7 @@ export default function PWA() {
     window.addEventListener('beforeinstallprompt', onPrompt);
 
     /* ── 1: service worker, safhe ke baad ── */
-    if (process.env.NODE_ENV !== 'production' || !('serviceWorker' in navigator)) {
+    if (!('serviceWorker' in navigator)) {
       return () => window.removeEventListener('beforeinstallprompt', onPrompt);
     }
 

@@ -26,19 +26,25 @@ import { ArrowUpRight } from '@/components/ui/Icons';
  *  thore bare ho kar apne aap "alag" lagne lagte hain — us ke liye
  *  koi alag khana banane ki zaroorat nahi pari.
  *
+ *  ── SHOES: BEDESHEETS KI JAGAH ──
+ *  Aath department hain, aur aath poore grid mein baith jate hain:
+ *  do chunav teen-teen patri (6 = pehli qatar bhar gayi), chhe
+ *  mausam wale do-do (6 + 6 = do poori qatareen). Koi khali khana
+ *  nahi, koi toota card nahi.
+ *
+ *  Shoes bhi usi chhe mausam walay group mein hai — uska card
+ *  bilkul aam hai: do patri, apna safha, apni tasveer, apna hisaab.
+ *  (Bedsheets hata diya gaya hai — us department mein maal nahi
+ *  tha, safha khali pada rehta tha. Uski jagah ab Shoes hai.)
+ *
  *  ── TARTEEB: DO CHUNAV PEHLE ──
- *  New In aur Top Sales ab sab se oopar hain, baqi chhe mausam wale
+ *  New In aur Top Sales ab sab se oopar hain, baqi mausam wale
  *  un ke neeche.
  *
  *  Ye tarteeb `CATEGORIES` mein nahi badli gayi, kyunke wo list
  *  poori site chalati hai — collection ke safhe, admin ka form,
  *  sitemap, sab. Wahan ulat pher karne se har jagah asar parta.
  *  Tarteeb sirf YAHAN, is grid ke liye, lagti hai.
- *
- *  Grid ka hisaab is tarteeb mein bhi poora baithta hai: do chunav
- *  teen-teen patri lete hain (6 = pehli qatar bhar gayi), aur chhe
- *  mausam wale do-do (6 + 6 = do poori qatarein). Koi khali khana
- *  nahi.
  *
  *  Number ab list ka `index` nahi — nazar ka. `01` sab se oopar
  *  wale card par lagta hai, warna card "07" se shuru hote aur
@@ -92,7 +98,7 @@ export default function Categories({ counts = {} }) {
           >
             <div className="cat-cell-img" aria-hidden="true">
               <Image
-                quality={85}
+                quality={92}
                 src={cat.image}
                 alt=""
                 width={900}

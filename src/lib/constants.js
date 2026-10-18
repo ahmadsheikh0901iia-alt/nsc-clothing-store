@@ -79,7 +79,7 @@ export const STORE = {
   shortName: 'NSC',
   tagline: 'Threadwork for the modern wardrobe',
   description:
-    'NSC Clothing Store — premium stitched and unstitched clothing, men’s suiting lengths, hand-finished shawls and block-print bedsheets. Made in Pakistan, delivered nationwide with cash on delivery.',
+    'NSC Clothing Store — premium stitched and unstitched clothing, men’s suiting lengths, hand-finished shawls and leather shoes. Made in Pakistan, delivered nationwide with cash on delivery.',
   phone: process.env.NEXT_PUBLIC_CONTACT_PHONE || '0322 6032459',
   /** International format, digits only — required by the WhatsApp link. */
   whatsapp: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '923226032459',
@@ -188,14 +188,25 @@ export const CATEGORIES = [
     blurb: 'Woven paisley, wool and pashmina winter wraps.',
     image: '/products/shawls-01.jpg',
   },
+  /* ── Shoes — naya khana ──────────────────────────────────────
+     Bedsheets ki jagah. Pehle yahan 'Bedsheets' tha (ghar ka
+     kambal — aath department mein se wohi), lekin us department
+     mein abhi tak koi maal nahi tha: uska safha khali pada rehta
+     tha. Ab usi jagah Shoes aa gaya hai — asli chobi ke saath,
+     admin ke dropdown mein, aur apne safhe par.
+
+     Grid chhe column ka hai: mausam wale card do lete hain, chunav
+     wale teen. Aath department poore grid mein baith jate hain,
+     is liye Shoes bhi bilkul aam department ki tarah hai — na koi
+     alag size, na koi alag khaana. */
   {
-    slug: 'bedsheets',
-    name: 'Bedsheets',
-    short: 'Bedsheets',
-    group: 'Home',
+    slug: 'shoes',
+    name: 'Shoes',
+    short: 'Shoes',
+    group: 'Footwear',
     index: '06',
-    blurb: 'Hand block-printed cotton sets, single through king.',
-    image: '/products/bedsheets-01.jpg',
+    blurb: 'Hand-finished leather, made in Faisalabad. Formal to casual, sized to fit.',
+    image: '/collections/shoes.jpg',
   },
 
   /* ── Do chunav ──
@@ -211,7 +222,7 @@ export const CATEGORIES = [
     name: 'New Arrivals',
     short: 'New In',
     group: 'This week',
-    index: '07',
+    index: '08',
     kind: 'edit',
     blurb: 'The newest thirty pieces on the rail. When the thirty-first arrives, the oldest steps out.',
     image: '/collections/new-arrivals.jpg',
@@ -221,7 +232,7 @@ export const CATEGORIES = [
     name: 'Top Sales',
     short: 'Top Sales',
     group: 'Most wanted',
-    index: '08',
+    index: '09',
     kind: 'edit',
     blurb: 'The pieces that leave the shelf fastest — chosen by what people actually buy.',
     image: '/collections/top-sales.jpg',
@@ -283,21 +294,6 @@ export const SUB_COLLECTIONS = {
       name: 'Summer Collection',
       blurb: 'Wash-and-wear, boski and fine poly-viscose, cut to length.',
       image: '/collections/mens-unstitched-summer.jpg',
-    },
-  ],
-
-  bedsheets: [
-    {
-      slug: 'winter',
-      name: 'Winter Collection',
-      blurb: 'Heavier cotton and quilted sets in autumn colour, warm to the hand.',
-      image: '/collections/bedsheets-winter.jpg',
-    },
-    {
-      slug: 'summer',
-      name: 'Summer Collection',
-      blurb: 'Light printed cotton — leaf, floral and plain, cool through the heat.',
-      image: '/collections/bedsheets-summer.jpg',
     },
   ],
 
@@ -382,7 +378,9 @@ export const SIZE_PRESETS = {
   'womens-unstitched': ['Unstitched — 3 Piece', 'Unstitched — 2 Piece'],
   'mens-unstitched': ['Unstitched — 4.5m', 'Unstitched — 5m'],
   shawls: ['One Size'],
-  bedsheets: ['Single', 'Double', 'Queen', 'King'],
+  /* Shoes par napa number hai, naap ki ilai nahi — is liye har
+     naap ke saath wo letter likha hai jis se woh pehchana jaye. */
+  shoes: ['UK 6', 'UK 7', 'UK 8', 'UK 9', 'UK 10', 'UK 11'],
 
   /* New Arrivals aur Top Sales mein kuch bhi aa sakta hai — silaa
      hua suit, be-silaa than, shawl, chadar. Is liye yahan sab se
@@ -545,12 +543,13 @@ export const ATELIER = {
     { src: '/products/wedding-01-detail.jpg', alt: 'Festival embroidery' },
     { src: '/collections/shawls-womens.jpg', alt: "Women's shawls" },
     { src: '/products/bedsheets-01-detail.jpg', alt: 'Block-printed cotton' },
+    { src: '/collections/shoes.jpg', alt: 'Leather shoes' },
     { src: '/media/look-03.jpg', alt: 'Pearl and dupatta detail' },
   ],
   driftBack: [
     { src: '/collections/mens-unstitched-winter.jpg', alt: 'Winter suiting' },
     { src: '/products/womens-stitched-01-dupatta.jpg', alt: 'Printed dupatta' },
-    { src: '/collections/bedsheets-summer.jpg', alt: 'Summer bedsheets' },
+    { src: '/collections/shoes.jpg', alt: 'Leather shoes' },
     { src: '/products/shawls-01-alt.jpg', alt: 'Shawl, folded' },
     { src: '/collections/womens-unstitched-summer.jpg', alt: 'Summer unstitched' },
     { src: '/media/look-01.jpg', alt: 'Studio rail' },
@@ -715,7 +714,11 @@ export const NAV_LINKS = [
   { label: 'Unstitched', href: '/collections/womens-unstitched' },
   { label: "Men's", href: '/collections/mens-unstitched' },
   { label: 'Shawls', href: '/collections/shawls' },
-  { label: 'Bedsheets', href: '/collections/bedsheets' },
+  /* Bedsheets ki jagah Shoes. Qatar mein naam utna hi hai (aur
+     "Shoes" "Bedsheets" se chhota hai, to jagah kam se kam hai),
+     sirf pehla naam badla gaya hai. Mobile menu aur footer dono
+     isi list se bante hain. */
+  { label: 'Shoes', href: '/collections/shoes' },
   { label: 'Atelier', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ];

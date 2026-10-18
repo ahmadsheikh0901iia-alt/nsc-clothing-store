@@ -46,7 +46,7 @@ export const metadata = {
     'Gujranwala',
     'cash on delivery',
     'shawls',
-    'bedsheets',
+    'shoes',
     'online clothing store Pakistan',
   ],
   openGraph: {
