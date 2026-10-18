@@ -451,9 +451,17 @@ export default function ProductDetail({ product }) {
       {/* ── Buy box ── */}
       <div className="pdp-info">
         <div>
-          <Link href={`/collections/${product.category}`} className="caps gold link-wipe">
-            {category?.name || product.category}
-          </Link>
+          {/* Agar maal ka khana ab list mein nahi hai (purana
+              record, ya admin ne galti se koi naya naam likha diya),
+              to link mat banao — warna khali safha khul jayegi.
+              Naam phir bhi dikhega, bas link nahi. */}
+          {category ? (
+            <Link href={`/collections/${product.category}`} className="caps gold link-wipe">
+              {category.name}
+            </Link>
+          ) : (
+            <span className="caps gold">{product.category}</span>
+          )}
           <h1
             className="display"
             style={{ fontSize: 'clamp(1.9rem,4vw,3rem)', marginTop: '0.6rem' }}

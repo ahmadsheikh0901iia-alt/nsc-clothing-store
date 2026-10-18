@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { serializeJsonLd, imageList } from '../src/lib/utils.js';
 import { safeImageSource, MAX_UPLOAD_BYTES } from '../src/lib/images.js';
 import { collectionProducts, categoryCounts, missingColumn } from '../src/lib/catalogue.js';
-import { CATEGORIES, SIZE_PRESETS, CATEGORY_SLUGS } from '../src/lib/constants.js';
+import { CATEGORIES, SIZE_PRESETS, CATEGORY_SLUGS, NAV_LINKS } from '../src/lib/constants.js';
 import { createMemoryLimiter } from '../src/lib/rate-limit-core.js';
 import { sameOrigin } from '../src/lib/origin.js';
 import { createToken, verifyToken } from '../src/lib/admin-token.js';
@@ -75,6 +75,58 @@ test('the Shoes department is complete: a category, its sizes, and a picture tha
     existsSync(join(process.cwd(), 'public', shoes.image)),
     `the picture must exist on disk: public${shoes.image}`
   );
+});
+
+test('Shoes took the place of Bedsheets: eight departments, one normal card', () => {
+  assert.equal(CATEGORIES.length, 8, 'the grid holds eight departments');
+  assert.equal(
+    CATEGORIES.find((c) => c.slug === 'bedsheets'),
+    undefined,
+    'bedsheets is gone'
+  );
+  const shoes = CATEGORIES.find((c) => c.slug === 'shoes');
+  assert.equal(shoes.index, '06', 'shoes sits in the slot bedsheets left');
+  assert.equal(shoes.kind, undefined, 'shoes is an ordinary department card, not a band');
+  assert.equal(
+    CATEGORIES.filter((c) => c.group === 'Home').length,
+    0,
+    'the home-goods department is gone'
+  );
+});
+
+test('the navigation offers Shoes and no longer offers Bedsheets', () => {
+  const labels = NAV_LINKS.map((l) => l.label);
+  assert.ok(labels.includes('Shoes'), 'the top bar must reach the shoes department');
+  assert.ok(!labels.includes('Bedsheets'), 'the old department is gone from the menu');
+});
+
+test('a collection falls back to real stock when the admin has filed nothing', () => {
+  /* Kuch bhi 'new-arrivals' ya 'top-sales' par nahi rakha gaya. */
+  const plain = [
+    { id: '1', category: 'shawls', price: 50, compare_at_price: 100, created_at: '2026-01-01' },
+    { id: '2', category: 'shoes', price: 80, compare_at_price: null, created_at: '2026-10-01' },
+    { id: '3', category: 'shoes', price: 90, compare_at_price: 120, created_at: '2026-05-01' },
+  ];
+  /* New In: sab se naya maal. */
+  assert.deepEqual(collectionProducts(plain, 'new-arrivals').map((p) => p.id), ['2', '3', '1']);
+  /* Top Sales: sach mein chhoot wale maal — sab se zyada chhoot pehle. */
+  assert.deepEqual(collectionProducts(plain, 'top-sales').map((p) => p.id), ['1', '3']);
+  /* Ginti bhi wahi — tile aur collection ka safha ek jaisa. */
+  assert.equal(categoryCounts(plain)['new-arrivals'], 3);
+  assert.equal(categoryCounts(plain)['top-sales'], 2);
+});
+
+test('the admin\'s own choice always comes first in the two picks', () => {
+  const chosen = [
+    ...products,
+    { id: '5', category: 'new-arrivals', price: 10, compare_at_price: null, created_at: '2026-11-01' },
+  ];
+  assert.deepEqual(
+    collectionProducts(chosen, 'new-arrivals').map((p) => p.id).sort(),
+    ['4', '5'],
+    'only the products the admin filed'
+  );
+  assert.equal(categoryCounts(chosen)['new-arrivals'], 2);
 });
 
 test('cross-origin mutations fail; same-origin and safe methods work', () => {

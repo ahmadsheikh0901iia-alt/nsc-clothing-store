@@ -19,7 +19,7 @@
  *  · `id` and `slug` must be unique. `slug` becomes the URL.
  *  · `category` must be one of the five slugs in constants.js:
  *      womens-stitched   womens-unstitched   mens-unstitched
- *      shawls            bedsheets
+ *      shawls            shoes
  *  · Photos go in public/products/, portrait 3:4 (900 × 1200 is
  *    ideal). The first image is the cover, the second is what
  *    appears on hover.

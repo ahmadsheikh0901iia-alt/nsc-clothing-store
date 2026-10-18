@@ -8,9 +8,9 @@ import { ArrowUpRight } from '@/components/ui/Icons';
 
 /**
  * ═══════════════════════════════════════════════════════════════
- *  KHANE — nau card, ek hi grid
+ *  KHANE — aath card, ek hi grid
  *  ─────────────────────────────────────────────────────────────
- *  Saat mausam ke khane, aur do chunav (New Arrivals, Top Sales).
+ *  Chhe mausam ke khane, aur do chunav (New Arrivals, Top Sales).
  *  Sab ek hi list se aate hain — `CATEGORIES` — is liye naya khana
  *  banane ke liye sirf wahan ek qatar likhni parti hai; ye safha
  *  khud samajh leta hai.
@@ -26,16 +26,16 @@ import { ArrowUpRight } from '@/components/ui/Icons';
  *  thore bare ho kar apne aap "alag" lagne lagte hain — us ke liye
  *  koi alag khana banane ki zaroorat nahi pari.
  *
- *  ── NINTH CARD: POORI CHAURAI ──
- *  Ab ek department aur hai — Shoes. Grid chhe column ka hai, to
- *  saat mausam wale card (2 + 2 + 2 + 2 + 2 + 2) aakhri row mein
- *  chaar column chhor dete. Wo khali hissa nahi chhoda jaata.
+ *  ── SHOES: BEDESHEETS KI JAGAH ──
+ *  Aath department hain, aur aath poore grid mein baith jate hain:
+ *  do chunav teen-teen patri (6 = pehli qatar bhar gayi), chhe
+ *  mausam wale do-do (6 + 6 = do poori qatareen). Koi khali khana
+ *  nahi, koi toota card nahi.
  *
- *  Is liye Shoes ka card poori qatar leta hai (`kind: 'feature'`):
- *  pehli teen qatareen chhe chhe bhar jaati hain, aur aakhri qatar
- *  mein Shoes apni poori chaurai mein hota hai. Na koi khaali
- *  khana, na koi toota card — aur naye department ko woh jagah
- *  milti hai jo usse chahiye.
+ *  Shoes bhi usi chhe mausam walay group mein hai — uska card
+ *  bilkul aam hai: do patri, apna safha, apni tasveer, apna hisaab.
+ *  (Bedsheets hata diya gaya hai — us department mein maal nahi
+ *  tha, safha khali pada rehta tha. Uski jagah ab Shoes hai.)
  *
  *  ── TARTEEB: DO CHUNAV PEHLE ──
  *  New In aur Top Sales ab sab se oopar hain, baqi mausam wale
@@ -45,11 +45,6 @@ import { ArrowUpRight } from '@/components/ui/Icons';
  *  poori site chalati hai — collection ke safhe, admin ka form,
  *  sitemap, sab. Wahan ulat pher karne se har jagah asar parta.
  *  Tarteeb sirf YAHAN, is grid ke liye, lagti hai.
- *
- *  Grid ka hisaab is tarteeb mein bhi poora baithta hai: do chunav
- *  teen-teen patri lete hain (6 = pehli qatar bhar gayi), chhe
- *  mausam wale do-do (6 + 6 = do poori qatarein), aur Shoes poori
- *  qatar (6 = teesri poori qatar). Koi khali khana nahi.
  *
  *  Number ab list ka `index` nahi — nazar ka. `01` sab se oopar
  *  wale card par lagta hai, warna card "07" se shuru hote aur
@@ -79,7 +74,7 @@ export default function Categories({ counts = {} }) {
           <WordReveal
             as="h2"
             style={{ marginTop: '1rem' }}
-            segments={[{ text: 'Nine ways to' }, { text: 'dress a season.', em: true }]}
+            segments={[{ text: 'Eight ways to' }, { text: 'dress a season.', em: true }]}
           />
         </div>
 
@@ -108,20 +103,13 @@ export default function Categories({ counts = {} }) {
                 alt=""
                 width={900}
                 height={1200}
-                /* Poore band wala card poori chaurai ka hai — uske liye
-                   badi tasveer chahiye, warna browser teen hisse choti
-                   le kar phailayega. */
-                sizes={
-                  cat.kind === 'feature'
-                    ? '100vw'
-                    : '(max-width: 560px) 100vw, (max-width: 1024px) 50vw, 33vw'
-                }
+                sizes="(max-width: 560px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
             </div>
 
             <span className="idx num">{String(n + 1).padStart(2, '0')}</span>
 
-            <div className="cat-cell-body">
+            <div>
               <span className="grp">{cat.group}</span>
               <h3>{cat.name}</h3>
               <p>{cat.blurb}</p>

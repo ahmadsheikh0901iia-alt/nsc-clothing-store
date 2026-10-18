@@ -237,6 +237,10 @@ const nextConfig = {
          bhi badal gaya hai. Purana rasta zinda rakha gaya hai taake
          jo link pehle kisi ko bheja ja chuka ho, wo toote na. */
       { source: '/collections/wedding-dress', destination: '/collections/festival', permanent: true },
+
+      /* Bedsheets ki jagah ab Shoes hai. Wohi usool: purana rasta
+         naye par bhej diya gaya hai, taake purana link toote nahi. */
+      { source: '/collections/bedsheets', destination: '/collections/shoes', permanent: true },
     ];
   },
 };

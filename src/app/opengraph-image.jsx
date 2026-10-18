@@ -88,7 +88,7 @@ export default async function OpenGraphImage() {
             }}
           >
             Stitched &amp; unstitched clothing, hand-finished shawls and
-            block-print bedsheets. Made in Pakistan.
+            leather shoes. Made in Pakistan.
           </div>
         </div>
 

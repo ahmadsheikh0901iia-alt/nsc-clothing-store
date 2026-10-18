@@ -60,6 +60,22 @@ test('checkout requires selected size and preserves the chosen item', async ({ p
   await expect(page.getByText('Gallery Test Suit').first()).toBeVisible();
 });
 
+test('Shoes took the place of Bedsheets: eight cards, and the old address still lands right', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.cat-cell')).toHaveCount(8);
+  await expect(page.locator('.cat-cell', { hasText: 'Bedsheets' })).toHaveCount(0);
+  await expect(page.locator('.cat-cell', { hasText: 'Shoes' })).toHaveCount(1);
+  await expect(page.locator('h2', { hasText: 'ways to' })).toHaveText(/Eight ways to/);
+
+  await page.goto('/collections/shoes');
+  await expect(page.getByRole('heading', { name: 'Shoes', level: 1 })).toBeVisible();
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'http://localhost:3100/collections/shoes');
+
+  /* Purana rasta naye par — toota nahi. */
+  await page.goto('/collections/bedsheets');
+  await expect(page).toHaveURL(/\/collections\/shoes$/);
+});
+
 test('API protects admin and cross-origin writes; validates empty orders', async ({ request }) => {
   const denied = await request.get('/api/admin/products');
   expect(denied.status()).toBe(401);
